@@ -1,12 +1,31 @@
 {
+    "compileOnSave": true,
     "compilerOptions": {
-        "target": "es2015",
+        "outDir": "./build",
+        "esModuleInterop": true,
+        "strict": true,
         "module": "commonjs",
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "noImplicitReturns": true,
-        "noImplicitThis": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true
-    }
+        "target": "es5",
+        "sourceMap": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "src/*",
+                "build/*"
+            ],
+            "@test/*": [
+                "test/*"
+            ]
+        },
+        "lib": [
+            "es2015"
+        ],
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
 }

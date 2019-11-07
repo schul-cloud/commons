@@ -2,14 +2,26 @@
   "homepage": "",
   "jest": {},
   "scripts": {
-    "test": "tsc && tslint --project tsconfig.json && jest --verbose --coverage",
-    "watch:test": "jest --watch"
+    "test": "mocha -r ts-node/register test/**/*.test.ts"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.4",
     "@types/jest": "^24.0.20",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
     "coveralls": "^3.0.7",
     "jest": "^24.9.0",
+    "mocha": "^6.2.2",
+    "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "typescript": "^3.6.4"
+  },
+  "dependencies": {
+    "@types/config": "0.0.35",
+    "@types/dot-object": "^1.7.0",
+    "config": "^3.2.4",
+    "dot-object": "^2.1.2",
+    "dot-prop": "^5.2.0",
+    "typescript-logging": "^0.6.4"
   }
 }
