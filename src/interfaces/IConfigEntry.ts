@@ -11,7 +11,7 @@ export interface IConfigEntry {
 	readonly env?: boolean | string;
 	readonly required?: boolean;
 	readonly default?: any;
-	readonly validator?: boolean | [boolean];
+	readonly validator?: IValidator | IValidator[];
 	readonly public?: boolean;
 	readonly description?: string;
 }

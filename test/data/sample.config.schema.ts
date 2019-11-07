@@ -1,5 +1,5 @@
 import { IConfigSchema } from '../../src/interfaces/IConfigSchema';
-import { min, max } from '../../src/validator/number';
+import NumberValidator from '../../src/validator/number';
 
 const ConfigSchema: IConfigSchema = {
 	'TITLE': {
@@ -19,14 +19,13 @@ const ConfigSchema: IConfigSchema = {
 		required: true,
 		env: true,
 		default: '21',
-		validator: [min(0), max(42)],
+		validator: [NumberValidator.min(0), NumberValidator.max(42)],
 	},
 	'SAMPLE.TITLE': {
 		type: 'string',
 		required: true,
 		env: true,
 		default: 'hello world',
-		converter: 'uppercase',
 	},
 };
 
