@@ -1,28 +1,32 @@
 {
-  /* Poetic base style configuration */
-  "extends": "./node_modules/poetic/config/typescript/tsconfig.json",
-  /* Add your custom configuration after this */
   "compileOnSave": true,
   "compilerOptions": {
-    "outDir": "./build",
+    "outDir": "dist",
     "esModuleInterop": true,
+    "strict": true,
+    "module": "commonjs",
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "es2015"],
     "sourceMap": true,
+    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*", "build/*"],
-      "@test/*": ["test/*"]
+      "@/*": [
+        "src/*",
+        "build/*"
+      ],
+      "@test/*": [
+        "test/*"
+      ]
     },
-    "skipLibCheck": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "isolatedModules": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true,
-    "noEmit": true
+    "lib": [
+      "es2015"
+    ],
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }

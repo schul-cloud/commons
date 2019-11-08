@@ -1,30 +1,33 @@
 {
-  "homepage": "",
+  "name": "commons",
+  "version": "1.0.0",
+  "description": "Helpers and common tools for the hpi school-cloud.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "homepage": "https://github.com/schul-cloud/commons",
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "code:clean": "yarn code:lint && yarn code:format",
     "code:lint": "eslint --ext .js,.jsx,.ts,.tsx \"src/\" --fix",
-    "code:format": "prettier './src/**/**.{js,jsx,ts,tsx}' --write",
-    "code:check:rules": "eslint --print-config .eslintrc.js | eslint-config-prettier-check"
+    "code:check:rules": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/chai": "^4.2.4",
-    "@types/jest": "^24.0.20",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
     "coveralls": "^3.0.7",
     "jest": "^24.9.0",
     "mocha": "^6.2.2",
+    "poetic": "^1.1.0",
     "ts-node": "^8.4.1",
+    "tsc": "^1.20150623.0",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.4",
-    "poetic": "^1.1.0"
+    "typescript": "^3.7.2"
   },
   "dependencies": {
     "@types/config": "0.0.35",
     "@types/dot-object": "^1.7.0",
     "@types/node": "^12.12.6",
-    "config": "^3.2.4",
     "dot-object": "^2.1.2",
     "dot-prop": "^5.2.0",
     "typescript-logging": "^0.6.4",

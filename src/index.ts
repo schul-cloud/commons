@@ -1,6 +1,6 @@
 import Configuration from './configuration';
 import Validator from './validator';
 
-export {
+export = {
 	Configuration, Validator,
 };

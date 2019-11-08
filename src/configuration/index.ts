@@ -1,54 +1,53 @@
-import { IConfigSchema } from '@/interfaces/IConfigSchema';
-import { IConfiguration } from '@/interfaces/IConfiguration';
-import { IConfigOptions } from '@/interfaces/IConfigOptions';
 import { IConfig } from '@/interfaces/IConfig';
 import { IConfigEntry } from '@/interfaces/IConfigEntry';
+import { IConfigOptions } from '@/interfaces/IConfigOptions';
+import { IConfigSchema } from '@/interfaces/IConfigSchema';
+import { IConfiguration } from '@/interfaces/IConfiguration';
 
 class Configuration implements IConfiguration {
 	private options: IConfigOptions;
+
 	private config: IConfig;
+
 	private schema: IConfigSchema;
 
 	constructor(schema?: IConfigSchema, options?: IConfigOptions) {
 		this.schema = schema || {};
-		this.options = Object.assign({}, options || {}, {
-			logger: console,
-		});
+		this.options = { ...options || {}, logger: console };
 		this.config = {};
 	}
-	public isValid(): boolean {
+
+	public isValid = (): boolean => {
 		throw new Error('Method not implemented.');
 	}
 
-	public has(key: string): boolean {
+	public has = (key: string): boolean => {
 		return Object.prototype.hasOwnProperty.call(this.config, key);
 	}
 
-	public get(key: string): any {
+	public get = (key: string): any => {
 		if (this.has(key)) {
-			const retValue = this._get(key);
+			const retValue = this.config[key];
 			this.options.logger.info(`will return config entry for '${key}'`);
 			return retValue;
 		}
-		return this._notfound(key);
+		return this.notFound(key);
 	}
 
-	public set(key: string, value: string | any): boolean {
+	public set = (key: string, value: string | any): boolean => {
 		if (!Object.prototype.hasOwnProperty.call(this.schema, key)) {
 			throw new Error(`the key '${key}' must be defined in configuration schema`);
 		}
 		const schema = this.schema[key] as IConfigEntry;
-		const typedValue = this._parse((schema as IConfigEntry).type, value);
+		const typedValue = this.parse((schema as IConfigEntry).type, value);
 		let isValid: boolean;
 		if (!schema.validator) {
 			isValid = true;
+		} else if (Array.isArray(schema.validator)) {
+			// requires at least one validator to succeed
+			isValid = schema.validator.every((validate) => validate(value));
 		} else {
-			if (Array.isArray(schema.validator)) {
-				// requires at least one validator to succeed
-				isValid = schema.validator.every((validate) => validate(value));
-			} else {
-				isValid = schema.validator(value);
-			}
+			isValid = schema.validator(value);
 		}
 		if (isValid) {
 			this.config[key] = typedValue;
@@ -65,7 +64,7 @@ class Configuration implements IConfiguration {
 	 * @returns {*}
 	 * @memberof Configuration
 	 */
-	private _notfound(key: string): any {
+	private notFound = (key: string): any => {
 		this.options.logger.warn(`did not found a valid config entry for '${key}'`);
 		if (this.options.throwOnUndefined) {
 			throw new Error(`Could not fetch any value for key '${key}'`);
@@ -80,7 +79,7 @@ class Configuration implements IConfiguration {
 	// 	}
 	// }
 
-	private _parse(type: string, value: any): any {
+	private parse = (type: string, value: any): any => {
 		switch (type) {
 			case ('string'):
 				return (typeof value === 'string') ? value : String(value);
@@ -95,10 +94,6 @@ class Configuration implements IConfiguration {
 			default:
 				throw new Error(`value '${value}' can't be parsed, type '${type}' is not supported`);
 		}
-	}
-
-	private _get(key: string): any {
-		return this.config[key];
 	}
 }
 
