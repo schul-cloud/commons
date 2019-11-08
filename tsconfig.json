@@ -1,18 +1,19 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "lib",
     "esModuleInterop": true,
     "strict": true,
     "module": "commonjs",
     "target": "es5",
     "sourceMap": true,
+    "allowJs": true,
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "src/*",
-        "build/*"
+        "lib/*"
       ],
       "@test/*": [
         "test/*"

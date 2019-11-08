@@ -2,8 +2,8 @@
   "name": "commons",
   "version": "1.0.0",
   "description": "Helpers and common tools for the hpi school-cloud.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "homepage": "https://github.com/schul-cloud/commons",
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.test.ts",
@@ -16,7 +16,6 @@
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
     "coveralls": "^3.0.7",
-    "jest": "^24.9.0",
     "mocha": "^6.2.2",
     "poetic": "^1.1.0",
     "ts-node": "^8.4.1",
