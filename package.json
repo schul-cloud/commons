@@ -2,6 +2,10 @@
   "name": "commons",
   "version": "1.0.0",
   "description": "Helpers and common tools for the hpi school-cloud.",
+  "repository": {
+    "github": "https: //github.com/schul-cloud/commons"
+  },
+  "license": "AGPL-3.0-or-later",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "homepage": "https://github.com/schul-cloud/commons",
@@ -27,6 +31,7 @@
     "@types/config": "0.0.35",
     "@types/dot-object": "^1.7.0",
     "@types/node": "^12.12.6",
+    "acorn": "^7.1.0",
     "dot-object": "^2.1.2",
     "dot-prop": "^5.2.0",
     "typescript-logging": "^0.6.4",
