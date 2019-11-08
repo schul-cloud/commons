@@ -6,4 +6,7 @@ import { IValidator } from '@/interfaces/IValidator';
  */
 const match = (matcher: RegExp): IValidator => (test: string): boolean => matcher.test(test);
 
-export default { match };
+const lowerCase = (): IValidator => (test: string): boolean => test === test.toLowerCase();
+const upperCase = (): IValidator => (test: string): boolean => test === test.toUpperCase();
+
+export default { match, lowerCase, upperCase };

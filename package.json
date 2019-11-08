@@ -1,6 +1,5 @@
 {
   "homepage": "",
-  "jest": {},
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.test.ts"
   },
@@ -19,9 +18,11 @@
   "dependencies": {
     "@types/config": "0.0.35",
     "@types/dot-object": "^1.7.0",
+    "@types/node": "^12.12.6",
     "config": "^3.2.4",
     "dot-object": "^2.1.2",
     "dot-prop": "^5.2.0",
-    "typescript-logging": "^0.6.4"
+    "typescript-logging": "^0.6.4",
+    "winston": "^3.2.1"
   }
 }

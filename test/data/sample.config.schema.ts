@@ -1,11 +1,12 @@
 import { IConfigSchema } from '../../src/interfaces/IConfigSchema';
 import NumberValidator from '../../src/validator/number';
+import StringValidator from '../../src/validator/string';
 
 const ConfigSchema: IConfigSchema = {
 	'TITLE': {
 		type: 'string',
 		default: 'sample title',
-		// validator: ['lowercase'],
+		validator: [StringValidator.lowerCase()],
 		description: 'this is a sample text',
 	},
 	'SAMPLE_NUMBER': {

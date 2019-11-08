@@ -2,7 +2,6 @@ import { IConfigSchema } from '@/interfaces/IConfigSchema';
 import { IConfiguration } from '@/interfaces/IConfiguration';
 import { IConfigOptions } from '@/interfaces/IConfigOptions';
 import { IConfig } from '@/interfaces/IConfig';
-import { configLogger } from '@/config';
 import { IConfigEntry } from '@/interfaces/IConfigEntry';
 
 class Configuration implements IConfiguration {
@@ -12,7 +11,9 @@ class Configuration implements IConfiguration {
 
 	constructor(schema?: IConfigSchema, options?: IConfigOptions) {
 		this.schema = schema || {};
-		this.options = options || {};
+		this.options = Object.assign({}, options || {}, {
+			logger: console,
+		});
 		this.config = {};
 	}
 	public isValid(): boolean {
@@ -26,7 +27,7 @@ class Configuration implements IConfiguration {
 	public get(key: string): any {
 		if (this.has(key)) {
 			const retValue = this._get(key);
-			configLogger.info(`will return config entry for '${key}'`);
+			this.options.logger.info(`will return config entry for '${key}'`);
 			return retValue;
 		}
 		return this._notfound(key);
@@ -65,7 +66,7 @@ class Configuration implements IConfiguration {
 	 * @memberof Configuration
 	 */
 	private _notfound(key: string): any {
-		configLogger.warn(`did not found a valid config entry for '${key}'`);
+		this.options.logger.warn(`did not found a valid config entry for '${key}'`);
 		if (this.options.throwOnUndefined) {
 			throw new Error(`Could not fetch any value for key '${key}'`);
 		}
