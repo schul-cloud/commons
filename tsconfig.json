@@ -1,31 +1,33 @@
 {
-    "compileOnSave": true,
-    "compilerOptions": {
-        "outDir": "./build",
-        "esModuleInterop": true,
-        "strict": true,
-        "module": "commonjs",
-        "target": "es5",
-        "sourceMap": true,
-        "baseUrl": ".",
-        "paths": {
-            "@/*": [
-                "src/*",
-                "build/*"
-            ],
-            "@test/*": [
-                "test/*"
-            ]
-        },
-        "lib": [
-            "es2015"
-        ],
+  "compileOnSave": true,
+  "compilerOptions": {
+    "outDir": "lib",
+    "esModuleInterop": true,
+    "strict": true,
+    "module": "commonjs",
+    "target": "es5",
+    "sourceMap": true,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*",
+        "lib/*"
+      ],
+      "@test/*": [
+        "test/*"
+      ]
     },
-    "include": [
-        "src/**/*"
+    "lib": [
+      "es2015"
     ],
-    "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
-    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }

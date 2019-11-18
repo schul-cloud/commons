@@ -1,11 +1,12 @@
 import { IConfigSchema } from '../../src/interfaces/IConfigSchema';
-import { min, max } from '../../src/validator/number';
+import NumberValidator from '../../src/validator/number';
+import StringValidator from '../../src/validator/string';
 
 const ConfigSchema: IConfigSchema = {
 	'TITLE': {
 		type: 'string',
 		default: 'sample title',
-		// validator: ['lowercase'],
+		validator: [StringValidator.lowerCase()],
 		description: 'this is a sample text',
 	},
 	'SAMPLE_NUMBER': {
@@ -19,14 +20,13 @@ const ConfigSchema: IConfigSchema = {
 		required: true,
 		env: true,
 		default: '21',
-		validator: [min(0), max(42)],
+		validator: [NumberValidator.min(0), NumberValidator.max(42)],
 	},
 	'SAMPLE.TITLE': {
 		type: 'string',
 		required: true,
 		env: true,
 		default: 'hello world',
-		converter: 'uppercase',
 	},
 };
 

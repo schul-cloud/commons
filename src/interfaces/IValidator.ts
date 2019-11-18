@@ -1,1 +1,1 @@
-export type IValidator = (test: any) => (value: any) => boolean;
+export type IValidator = (value: any) => boolean;
