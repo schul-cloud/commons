@@ -21,9 +21,7 @@ class Configuration implements IConfiguration {
 		throw new Error('Method not implemented.');
 	}
 
-	public has = (key: string): boolean => {
-		return Object.prototype.hasOwnProperty.call(this.config, key);
-	}
+	public has = (key: string): boolean => Object.prototype.hasOwnProperty.call(this.config, key)
 
 	public get = (key: string): any => {
 		if (this.has(key)) {
