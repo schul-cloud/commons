@@ -1,0 +1,39 @@
+{
+	"id": "/Configuration",
+	"type": "object",
+	"properties": {
+		"ENV": {
+			"type": "string"
+		},
+		"DOMAIN": {
+			"type": "string"
+		},
+		"Version": {
+			"type": "string",
+			"format": "^[0-9]+.[0-9]+.[0-9]+$"
+		},
+		"Number": {
+			"type": "number"
+		},
+		"Integer": {
+			"type": "integer"
+		},
+		"Boolean": {
+			"type": "boolean"
+		},
+		"LogLevel": {
+			"type": "array",
+			"enum": [
+				"debug",
+				"info",
+				"warning",
+				"error"
+			]
+		}
+	},
+	"required": [
+		"ENV",
+		"Version",
+		"Domain"
+	]
+}

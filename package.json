@@ -11,20 +11,27 @@
   "homepage": "https://github.com/schul-cloud/commons",
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "code:lint": "eslint --ext .js,.jsx,.ts,.tsx \"src/\" --fix",
-    "code:check:rules": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
+    "lint": "eslint --ext .js,.ts --fix src/",
     "build": "tsc"
   },
   "devDependencies": {
     "@types/chai": "^4.2.4",
     "@types/mocha": "^5.2.7",
+    "@typescript-eslint/eslint-plugin": "^2.8.0",
+    "@typescript-eslint/parser": "^2.8.0",
     "chai": "^4.2.0",
     "coveralls": "^3.0.7",
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.16.0",
+    "eslint-plugin-react-hooks": "^1.7.0",
     "mocha": "^6.2.2",
-    "poetic": "^1.1.0",
     "ts-node": "^8.4.1",
-    "tsc": "^1.20150623.0",
-    "tslint": "^5.20.0",
+    "tslint-config-airbnb": "^5.11.2",
+    "tslint": "^5.20.1",
     "typescript": "^3.7.2"
   },
   "dependencies": {
@@ -32,8 +39,13 @@
     "@types/dot-object": "^1.7.0",
     "@types/node": "^12.12.6",
     "acorn": "^7.1.0",
+    "ajv": "^6.10.2",
+    "config": "^3.2.4",
     "dot-object": "^2.1.2",
     "dot-prop": "^5.2.0",
+    "dotenv": "^8.2.0",
+    "jsonschema": "^1.2.4",
+    "prettier": "^1.19.1",
     "typescript-logging": "^0.6.4",
     "winston": "^3.2.1"
   }
