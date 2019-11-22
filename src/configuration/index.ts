@@ -1,9 +1,6 @@
 import Ajv from 'ajv';
 
-import { IConfig } from '@/interfaces/IConfig';
-import { IConfigEntry } from '@/interfaces/IConfigEntry';
 import { IConfigOptions } from '@/interfaces/IConfigOptions';
-import { IConfigSchema } from '@/interfaces/IConfigSchema';
 import { IConfiguration } from '@/interfaces/IConfiguration';
 
 const RADIX = 10;
@@ -12,7 +9,7 @@ const schemaValidator = new Ajv();
 class Configuration implements IConfiguration {
 	private options: IConfigOptions;
 
-	private data: IConfig;
+	private data: any;
 
 	private schema: any;
 
