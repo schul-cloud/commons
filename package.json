@@ -1,11 +1,11 @@
 {
   "name": "@schul-cloud/commons",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Helpers and common tools for the hpi school-cloud.",
   "repository": {
     "github": "https: //github.com/schul-cloud/commons"
   },
-  "license": "AGPL-3.0-or-later",
+  "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "homepage": "https://github.com/schul-cloud/commons",
