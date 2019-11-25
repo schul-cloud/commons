@@ -7,24 +7,23 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Launch Program",
-			"program": "${workspaceFolder}/src/config.js",
+			"name": "Mocha Tests",
+			"program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+			"args": [
+				"tdd",
+				"--timeout",
+				"999999",
+				"--colors",
+				"-r",
+				"ts-node/register",
+				"${workspaceFolder}/test/**/*.test.ts"
+			],
+			"internalConsoleOptions": "openOnSessionStart",
+			"console": "integratedTerminal",
+			"protocol": "inspector",
 			"skipFiles": [
 				"<node_internals>/**"
 			]
 		},
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "Programm starten",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"program": "${workspaceFolder}/lib/index.js",
-			"w"
-			"outFiles": [
-				"${workspaceFolder}/**/*.js"
-			]
-		}
 	]
 }
