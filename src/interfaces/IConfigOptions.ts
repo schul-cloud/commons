@@ -31,4 +31,5 @@ export interface IConfigOptions {
 
 	trueSetStrings: string[];
 	falseSetSetrings: string[];
+	matchEnv: boolean;
 }

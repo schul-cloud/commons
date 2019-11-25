@@ -10,7 +10,8 @@ const defaultOptions: IConfigOptions = {
 	logger: console,
 	notFoundValue: null,
 	trueSetStrings: ['true', '1', 'on'],
-	falseSetSetrings: ['false', '0', 'off']
+	falseSetSetrings: ['false', '0', 'off'],
+	matchEnv: true,
 };
 
 class Configuration implements IConfiguration {
@@ -40,16 +41,24 @@ class Configuration implements IConfiguration {
 	}
 
 	public setData(data: any): void {
-		this.data = data;
+		const values = {};
+		if (this.options.matchEnv) {
+			Object.assign(values, data, process.env);
+		} else {
+			Object.assign(values, data, process.env);
+		}
+		this.data = values;
 	}
 
 	public isValid = (): boolean => {
 		if (this.validate === null) {
 			throw Error('no schema defined')
 		}
-		const valid = (this.validate)(this.data) as boolean;
-		this.options.logger.error((this.validate).errors);
-		return valid;
+		return (this.validate)(this.data) as boolean;
+	}
+
+	public getErrors = (): Ajv.ErrorObject[] | null | undefined => {
+		return this.validate ? this.validate.errors : undefined;
 	}
 
 	public has = (key: string): boolean => Object.prototype.hasOwnProperty.call(this.data, key)
