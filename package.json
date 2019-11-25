@@ -1,5 +1,5 @@
 {
-  "name": "commons",
+  "name": "@schul-cloud/commons",
   "version": "1.0.0",
   "description": "Helpers and common tools for the hpi school-cloud.",
   "repository": {
