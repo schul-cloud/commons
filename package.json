@@ -1,11 +1,11 @@
 {
   "name": "@schul-cloud/commons",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Helpers and common tools for the hpi school-cloud.",
   "repository": {
     "github": "https: //github.com/schul-cloud/commons"
   },
-  "license": "AGPL-3.0-or-later",
+  "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "homepage": "https://github.com/schul-cloud/commons",
@@ -48,8 +48,6 @@
     "dot-prop": "^5.2.0",
     "dotenv": "^8.2.0",
     "jsonschema": "^1.2.4",
-    "prettier": "^1.19.1",
-    "typescript-logging": "^0.6.4",
-    "winston": "^3.2.1"
+    "typescript-logging": "^0.6.4"
   }
 }
