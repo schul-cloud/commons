@@ -39,8 +39,8 @@ class Configuration implements IConfiguration {
 		return this.notFound(key);
 	}
 
-	// public set = (key: string, value: string | any): boolean => false
-	// if (!Object.prototype.hasOwnProperty.call(this.schema, key)) {
+	public set = (key: string, value: string | any): boolean => false
+	// 	if(!Object.prototype.hasOwnProperty.call(this.schema, key)) {
 	// 	throw new Error(`the key '${key}' must be defined in configuration schema`);
 	// }
 	// const schema = this.schema[key] as IConfigEntry;
