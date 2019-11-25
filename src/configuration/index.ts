@@ -39,7 +39,7 @@ class Configuration implements IConfiguration {
 		return this.notFound(key);
 	}
 
-	public set = (key: string, value: string | any): boolean => false
+	// public set = (key: string, value: string | any): boolean => false
 	// if (!Object.prototype.hasOwnProperty.call(this.schema, key)) {
 	// 	throw new Error(`the key '${key}' must be defined in configuration schema`);
 	// }
@@ -94,7 +94,7 @@ class Configuration implements IConfiguration {
 		}
 	}
 
-	private parseBoolean(value: any) {
+	private parseBoolean(value: any): boolean {
 		const trueSetStrings = ['true', '1', 'on'];
 		const falseSetSetrings = ['false', '0', 'off'];
 		const valueString = (typeof value === 'string') ? value : String(value);
