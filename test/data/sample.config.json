@@ -1,6 +1,6 @@
 {
 	"ENV": "development",
-	"DOMAIN": "localhost",
+	"Domain": "localhost",
 	"Version": "1.2.3",
 	"Number": 1.3,
 	"Integer": 4

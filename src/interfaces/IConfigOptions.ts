@@ -21,4 +21,14 @@ export interface IConfigOptions {
 	 * @memberof IConfigOptions
 	 */
 	throwOnUndefined?: boolean;
+	/**
+	 * If throwOnUndefined is not true, the default return value which is null may be overriden using this property.
+	 *
+	 * @type {*}
+	 * @memberof IConfigOptions
+	 */
+	notFoundValue?: any;
+
+	trueSetStrings: string[];
+	falseSetSetrings: string[];
 }

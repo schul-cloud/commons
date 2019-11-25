@@ -6,6 +6,13 @@ import { IConfiguration } from '@/interfaces/IConfiguration';
 const RADIX = 10;
 const schemaValidator = new Ajv();
 
+const defaultOptions: IConfigOptions = {
+	logger: console,
+	notFoundValue: null,
+	trueSetStrings: ['true', '1', 'on'],
+	falseSetSetrings: ['false', '0', 'off']
+};
+
 class Configuration implements IConfiguration {
 	private options: IConfigOptions;
 
@@ -13,18 +20,35 @@ class Configuration implements IConfiguration {
 
 	private schema: any;
 
-	private validate: Ajv.ValidateFunction;
+	private validate: Ajv.ValidateFunction | null;
 
-	constructor(schema: any, options?: IConfigOptions) {
-		this.schema = schema || {};
-		this.options = { ...options || {}, logger: console };
+	constructor(options?: IConfigOptions) {
+		this.options = Object.assign({}, options || {}, defaultOptions);
 		this.data = {};
+		this.validate = null;
+	}
+
+	/**
+	 * updates the current schema if it can be compiled
+	 *
+	 * @param {*} schema
+	 * @memberof Configuration
+	 */
+	public setSchema(schema: any): void {
 		this.validate = schemaValidator.compile(schema);
+		this.schema = schema || {};
+	}
+
+	public setData(data: any): void {
+		this.data = data;
 	}
 
 	public isValid = (): boolean => {
-		const valid = this.validate(this.data) as boolean;
-		this.options.logger.error(this.validate.errors);
+		if (this.validate === null) {
+			throw Error('no schema defined')
+		}
+		const valid = (this.validate)(this.data) as boolean;
+		this.options.logger.error((this.validate).errors);
 		return valid;
 	}
 
@@ -33,32 +57,10 @@ class Configuration implements IConfiguration {
 	public get = (key: string): any => {
 		if (this.has(key)) {
 			const retValue = this.data[key];
-			this.options.logger.info(`will return config entry for '${key}'`);
 			return retValue;
 		}
 		return this.notFound(key);
 	}
-
-	public set = (key: string, value: string | any): boolean => false
-	// 	if(!Object.prototype.hasOwnProperty.call(this.schema, key)) {
-	// 	throw new Error(`the key '${key}' must be defined in configuration schema`);
-	// }
-	// const schema = this.schema[key] as IConfigEntry;
-	// const typedValue = this.parse((schema as IConfigEntry).type, value);
-	// let isValid: boolean;
-	// if (!schema.validator) {
-	// 	isValid = true;
-	// } else if (Array.isArray(schema.validator)) {
-	// 	// requires at least one validator to succeed
-	// 	isValid = schema.validator.every((validate) => validate(value));
-	// } else {
-	// 	isValid = schema.validator(value);
-	// }
-	// if (isValid) {
-	// 	this.data[key] = typedValue;
-	// 	return true;
-	// }
-	// return false;
 
 
 	/**
@@ -74,7 +76,7 @@ class Configuration implements IConfiguration {
 		if (this.options.throwOnUndefined) {
 			throw new Error(`Could not fetch any value for key '${key}'`);
 		}
-		return null;
+		return this.options.notFoundValue || null;
 	}
 
 	private parse = (type: string, value: any): any => {
@@ -95,16 +97,17 @@ class Configuration implements IConfiguration {
 	}
 
 	private parseBoolean(value: any): boolean {
-		const trueSetStrings = ['true', '1', 'on'];
-		const falseSetSetrings = ['false', '0', 'off'];
+		if (typeof value === 'boolean') return value;
 		const valueString = (typeof value === 'string') ? value : String(value);
-		if (trueSetStrings.includes(valueString)) {
+		if (this.options.trueSetStrings.includes(valueString)) {
 			return true;
 		}
-		if (falseSetSetrings.includes(valueString)) {
+		if (this.options.falseSetSetrings.includes(valueString)) {
 			return false;
 		}
-		throw new TypeError(`Only the following values are valid input as Boolean: ${JSON.stringify(trueSetStrings)} for true, and ${JSON.stringify(falseSetSetrings)} for false.`);
+		throw new TypeError(`Only the following values are valid input as Boolean: \
+		${JSON.stringify(this.options.trueSetStrings)} for true, \
+		and ${JSON.stringify(this.options.falseSetSetrings)} for false.`);
 	}
 }
 

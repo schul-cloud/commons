@@ -1,16 +1,15 @@
 {
-	"id": "/Configuration",
 	"type": "object",
 	"properties": {
 		"ENV": {
 			"type": "string"
 		},
-		"DOMAIN": {
+		"Domain": {
 			"type": "string"
 		},
 		"Version": {
 			"type": "string",
-			"format": "^[0-9]+.[0-9]+.[0-9]+$"
+			"regex": "^[0-9]+.[0-9]+.[0-9]+$"
 		},
 		"Number": {
 			"type": "number"
