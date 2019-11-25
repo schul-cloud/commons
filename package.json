@@ -1,5 +1,5 @@
 {
-  "name": "commons",
+  "name": "@schul-cloud/commons",
   "version": "1.0.0",
   "description": "Helpers and common tools for the hpi school-cloud.",
   "repository": {
@@ -13,6 +13,9 @@
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "lint": "eslint --ext .js,.ts --fix src/",
     "build": "tsc"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@types/chai": "^4.2.4",
