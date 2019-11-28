@@ -40,10 +40,12 @@
   "dependencies": {
     "@types/config": "0.0.35",
     "@types/dot-object": "^1.7.0",
+    "@types/lodash": "^4.14.149",
     "@types/node": "^12.12.6",
     "acorn": "^7.1.0",
     "ajv": "^6.10.2",
     "config": "^3.2.4",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.15"
   }
 }
