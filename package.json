@@ -10,7 +10,7 @@
   "types": "lib/index.d.ts",
   "homepage": "https://github.com/schul-cloud/commons",
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "test": "NODE_ENV=test mocha -r ts-node/register test/**/*.test.ts",
     "lint": "eslint --ext .js,.ts --fix src/",
     "build": "rm -rf lib && tsc"
   },

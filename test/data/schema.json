@@ -1,7 +1,7 @@
 {
 	"type": "object",
 	"properties": {
-		"ENV": {
+		"ENV_CONFIG": {
 			"type": "string"
 		},
 		"Domain": {
@@ -20,6 +20,13 @@
 		"Boolean": {
 			"type": "boolean"
 		},
+		"String": {
+			"type": "string"
+		},
+		"DefaultSample": {
+			"type": "string",
+			"default": "defaultSample"
+		},
 		"LogLevel": {
 			"type": "array",
 			"enum": [
@@ -31,7 +38,7 @@
 		}
 	},
 	"required": [
-		"ENV",
+		"ENV_CONFIG",
 		"Version",
 		"Domain"
 	]
