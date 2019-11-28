@@ -1,16 +1,15 @@
 {
-	"id": "/Configuration",
 	"type": "object",
 	"properties": {
-		"ENV": {
+		"ENV_CONFIG": {
 			"type": "string"
 		},
-		"DOMAIN": {
+		"Domain": {
 			"type": "string"
 		},
 		"Version": {
 			"type": "string",
-			"format": "^[0-9]+.[0-9]+.[0-9]+$"
+			"regex": "^[0-9]+.[0-9]+.[0-9]+$"
 		},
 		"Number": {
 			"type": "number"
@@ -20,6 +19,13 @@
 		},
 		"Boolean": {
 			"type": "boolean"
+		},
+		"String": {
+			"type": "string"
+		},
+		"DefaultSample": {
+			"type": "string",
+			"default": "defaultSample"
 		},
 		"LogLevel": {
 			"type": "array",
@@ -32,7 +38,7 @@
 		}
 	},
 	"required": [
-		"ENV",
+		"ENV_CONFIG",
 		"Version",
 		"Domain"
 	]

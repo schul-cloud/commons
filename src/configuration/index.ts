@@ -1,68 +1,173 @@
+import dotenv from 'dotenv'
+
+
 import Ajv from 'ajv';
 
 import { IConfigOptions } from '@/interfaces/IConfigOptions';
 import { IConfiguration } from '@/interfaces/IConfiguration';
+import fs from 'fs';
+import path from 'path';
+import ConfigurationError from '../errors/ConfigurationError';
+import { IRequiredConfigOptions } from '@/interfaces/IConfigOptionsBase';
+import { IConfig } from '@/interfaces/IConfig';
 
-const RADIX = 10;
-const schemaValidator = new Ajv();
 
-class Configuration implements IConfiguration {
-	private options: IConfigOptions;
+const defaultOptions: IRequiredConfigOptions = {
+	logger: console,
+	notFoundValue: null,
+	trueSetStrings: ['true', '1', 'on'],
+	falseSetSetrings: ['false', '0', 'off'],
+	configDir: 'config',
+	schemaFileName: 'schema.json',
+	baseDir: process.cwd(),
+	ajvOptions: {
+		removeAdditional: 'all',
+		useDefaults: true,
+		coerceTypes: 'array',
+	}
+};
 
-	private data: any;
+
+
+
+export class Configuration implements IConfiguration {
+
+	private options: IRequiredConfigOptions;
+
+	private data: IConfig;
 
 	private schema: any;
+	private schemaValidator: Ajv.Ajv;
+	private validate: Ajv.ValidateFunction | null;
+	private updateErrors: string[];
 
-	private validate: Ajv.ValidateFunction;
-
-	constructor(schema: any, options?: IConfigOptions) {
-		this.schema = schema || {};
-		this.options = { ...options || {}, logger: console };
+	constructor(options?: IConfigOptions) {
+		this.options = Object.assign({}, defaultOptions, options || {}); // todo deep-merge
+		dotenv.config({ path: this.options.baseDir }) // extend process.env by .env file
 		this.data = {};
-		this.validate = schemaValidator.compile(schema);
+		this.validate = null;
+		this.updateErrors = [];
+		this.schemaValidator = new Ajv(this.options.ajvOptions);
+
 	}
 
-	public isValid = (): boolean => {
-		const valid = this.validate(this.data) as boolean;
-		this.options.logger.error(this.validate.errors);
-		return valid;
-	}
 
 	public has = (key: string): boolean => Object.prototype.hasOwnProperty.call(this.data, key)
 
 	public get = (key: string): any => {
 		if (this.has(key)) {
 			const retValue = this.data[key];
-			this.options.logger.info(`will return config entry for '${key}'`);
 			return retValue;
 		}
 		return this.notFound(key);
 	}
 
-	public set = (key: string, value: string | any): boolean => false
-	// 	if(!Object.prototype.hasOwnProperty.call(this.schema, key)) {
-	// 	throw new Error(`the key '${key}' must be defined in configuration schema`);
-	// }
-	// const schema = this.schema[key] as IConfigEntry;
-	// const typedValue = this.parse((schema as IConfigEntry).type, value);
-	// let isValid: boolean;
-	// if (!schema.validator) {
-	// 	isValid = true;
-	// } else if (Array.isArray(schema.validator)) {
-	// 	// requires at least one validator to succeed
-	// 	isValid = schema.validator.every((validate) => validate(value));
-	// } else {
-	// 	isValid = schema.validator(value);
-	// }
-	// if (isValid) {
-	// 	this.data[key] = typedValue;
-	// 	return true;
-	// }
-	// return false;
+	public toObject(): any {
+		return this.data; // todo deepcopy
+	}
 
 
 	/**
-	 * depending on options.throwOnUndefined returns null by default or throws an error for undefined config values
+	 * updates the current schema if it can be compiled
+	 *
+	 * @param {*} schema
+	 * @memberof Configuration
+	 */
+	private setSchema(schema: any): void {
+		this.validate = this.schemaValidator.compile(schema);
+		this.schema = schema || {};
+	}
+
+	public initialize(): void { // todo configure(app?)
+		const schemaFile = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
+		if (!fs.existsSync(schemaFile)) {
+			throw new ConfigurationError('error loading schema', { schemaFile })
+		}
+		this.setSchema(this.loadJSONFromFileName(schemaFile))
+		const configurationFiles = [];
+		const configurations = [];
+		configurationFiles.push('default.json');
+		if (process.env.NODE_ENV) {
+			configurationFiles.push(process.env.NODE_ENV + '.json');
+		}
+		for (const file of configurationFiles) {
+			const fullFileName = path.join(this.options.baseDir, this.options.configDir, file);
+			if (fs.existsSync(fullFileName)) {
+				const fileJson = this.loadJSONFromFileName(fullFileName);
+				configurations.push(fileJson);
+			}
+		}
+		configurations.push(Object.assign({}, process.env)); // todo env conversion
+		const mergedConfiguration = Object.assign({}, ...configurations);
+		if (!this.parse(mergedConfiguration)) {
+			throw new ConfigurationError('error parsing configuration', this.getErrors());
+		}
+	}
+
+
+	public update(params: IConfig): boolean {
+		this.updateErrors = [];
+		const data = Object.assign({}, this.data, params) // deep merge
+		return this.parse(data); //&& this.allValuesHaveBeenAdded(params);
+	}
+
+	public set(key: string, value: any): boolean {
+		const params: IConfig = {};
+		params[key] = value;
+		return this.update(params);
+	}
+
+	// private allValuesHaveBeenAdded(params: IConfig): boolean {
+	// 	const keys = Object.getOwnPropertyNames(params);
+	// 	let success = true;
+	// 	for (const key of keys) {
+	// 		if (!Object.prototype.hasOwnProperty.call(this.data, key)) {
+	// 			this.updateErrors.push(`error updating key '${key}' to value '${params[key]}', value has not been added`);
+	// 			success = false;
+	// 		}
+	// 		if (this.data[key] != params[key]) {
+	// 			this.updateErrors.push(`error updating key '${key}' to value '${params[key]}', current value is ${this.data[key]}`);
+	// 			success = false;
+	// 		}
+	// 	}
+	// 	return success;
+	// }
+
+	private parse = (data: any): boolean => {
+		if (this.validate === null) {
+			throw new ConfigurationError('no schema defined')
+		}
+		const valid = (this.validate)(data) as boolean;
+		if (valid) {
+			this.data = data;
+		} else {
+			this.options.logger.error('error updating configuration data', this.getErrors());
+		}
+		return valid;
+	}
+
+	public getErrors = (): [Ajv.ErrorObject | string] | null => {
+		let errors: [Ajv.ErrorObject | string] | null = null;
+		const addErrors = (...items: [Ajv.ErrorObject | string]): void => {
+			if (errors === null) {
+				errors = items;
+			} else {
+				errors.push(...items);
+			}
+		}
+		if (this.validate && this.validate.errors !== null && Array.isArray(this.validate.errors) && this.validate.errors.length !== 0) {
+			addErrors(...this.validate.errors as [Ajv.ErrorObject]);
+		}
+		if (this.updateErrors && Array.isArray(this.updateErrors) && this.updateErrors.length !== 0) {
+			addErrors(...this.updateErrors as [string]);
+		}
+		return errors;
+	}
+
+
+
+	/**
+	 * depending on options.throwOnError returns null by default or throws an error for undefined config values
 	 *
 	 * @private
 	 * @param {string} key
@@ -71,41 +176,16 @@ class Configuration implements IConfiguration {
 	 */
 	private notFound = (key: string): any => {
 		this.options.logger.warn(`did not found a valid config entry for '${key}'`);
-		if (this.options.throwOnUndefined) {
+		if (this.options.throwOnError) {
 			throw new Error(`Could not fetch any value for key '${key}'`);
 		}
-		return null;
+		return this.options.notFoundValue;
 	}
 
-	private parse = (type: string, value: any): any => {
-		switch (type) {
-			case ('string'):
-				return (typeof value === 'string') ? value : String(value);
-			case ('number'):
-				return (typeof value === 'number') ? value : Number(value);
-			case ('boolean'):
-				return (typeof value === 'boolean') ? value : this.parseBoolean(value);
-			case ('integer'):
-				return parseInt(value, RADIX);
-			case ('float'):
-				return parseFloat(value);
-			default:
-				throw new Error(`value '${value}' can't be parsed, type '${type}' is not supported`);
-		}
+	private loadJSONFromFileName(fullFileName: string): any {
+		const fileData = fs.readFileSync(fullFileName, { encoding: 'utf8' });
+		const fileJson = JSON.parse(fileData);
+		return fileJson;
 	}
 
-	private parseBoolean(value: any): boolean {
-		const trueSetStrings = ['true', '1', 'on'];
-		const falseSetSetrings = ['false', '0', 'off'];
-		const valueString = (typeof value === 'string') ? value : String(value);
-		if (trueSetStrings.includes(valueString)) {
-			return true;
-		}
-		if (falseSetSetrings.includes(valueString)) {
-			return false;
-		}
-		throw new TypeError(`Only the following values are valid input as Boolean: ${JSON.stringify(trueSetStrings)} for true, and ${JSON.stringify(falseSetSetrings)} for false.`);
-	}
 }
-
-export default Configuration;

@@ -20,5 +20,18 @@ export interface IConfigOptions {
 	 * @type {boolean}
 	 * @memberof IConfigOptions
 	 */
-	throwOnUndefined?: boolean;
+	throwOnError?: boolean;
+	/**
+	 * If throwOnUndefined is not true, the default return value which is null may be overriden using this property.
+	 *
+	 * @type {*}
+	 * @memberof IConfigOptions
+	 */
+	notFoundValue?: any;
+
+	trueSetStrings?: string[];
+	falseSetSetrings?: string[];
+	configDir?: string;
+	baseDir?: string;
+	schemaFileName?: string;
 }
