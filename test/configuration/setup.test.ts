@@ -8,7 +8,6 @@ describe('test configuration', () => {
 
 	const options: IConfigOptions = {
 		configDir: 'test/data',
-		notFoundValue: undefined,
 	}
 
 	it('test configuration initialization', () => {
@@ -25,12 +24,16 @@ describe('test configuration', () => {
 	});
 
 	it('test assignmment of default values', () => {
+		const options = {
+			configDir: 'test/data',
+			notFoundValue: false,
+		};
 		const config = new Configuration(options);
 		config.initialize();
 		// this will be set as default from schema definition
 		expect(config.get('DefaultSample'), 'default value has been applied').to.be.equal('defaultSample');
 		// this will be removed because not in schema but in ENV
-		expect(options.notFoundValue).to.be.equal(undefined); // default is null use something different here
+		expect(options.notFoundValue).to.be.equal(false); // default is null use something different here
 		expect(config.get('HOME'), 'returns notFoundValue if not defined').to.be.equal(options.notFoundValue);
 	});
 
@@ -87,7 +90,5 @@ describe('test configuration', () => {
 		expect(config.get('String'), 'get String').to.be.equal('false'); // not found value
 		expect(config.getErrors(), 'no errors exist').to.be.null;
 	})
-
-
 
 });

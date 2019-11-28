@@ -1,7 +1,6 @@
 import dotenv from 'dotenv'
-
-
 import Ajv from 'ajv';
+import loadash from 'lodash';
 
 import { IConfigOptions } from '@/interfaces/IConfigOptions';
 import { IConfiguration } from '@/interfaces/IConfiguration';
@@ -10,7 +9,6 @@ import path from 'path';
 import ConfigurationError from '../errors/ConfigurationError';
 import { IRequiredConfigOptions } from '@/interfaces/IConfigOptionsBase';
 import { IConfig } from '@/interfaces/IConfig';
-
 
 const defaultOptions: IRequiredConfigOptions = {
 	logger: console,
@@ -27,9 +25,6 @@ const defaultOptions: IRequiredConfigOptions = {
 	}
 };
 
-
-
-
 export class Configuration implements IConfiguration {
 
 	private options: IRequiredConfigOptions;
@@ -42,7 +37,7 @@ export class Configuration implements IConfiguration {
 	private updateErrors: string[];
 
 	constructor(options?: IConfigOptions) {
-		this.options = Object.assign({}, defaultOptions, options || {}); // todo deep-merge
+		this.options = loadash.merge({}, defaultOptions, options || {});
 		dotenv.config({ path: this.options.baseDir }) // extend process.env by .env file
 		this.data = {};
 		this.validate = null;
@@ -50,7 +45,6 @@ export class Configuration implements IConfiguration {
 		this.schemaValidator = new Ajv(this.options.ajvOptions);
 
 	}
-
 
 	public has = (key: string): boolean => Object.prototype.hasOwnProperty.call(this.data, key)
 
@@ -63,9 +57,8 @@ export class Configuration implements IConfiguration {
 	}
 
 	public toObject(): any {
-		return this.data; // todo deepcopy
+		return loadash.cloneDeep(this.data);
 	}
-
 
 	/**
 	 * updates the current schema if it can be compiled
@@ -97,18 +90,17 @@ export class Configuration implements IConfiguration {
 				configurations.push(fileJson);
 			}
 		}
-		configurations.push(Object.assign({}, process.env)); // todo env conversion
-		const mergedConfiguration = Object.assign({}, ...configurations);
+		configurations.push(loadash.merge({}, process.env));
+		const mergedConfiguration = loadash.merge({}, ...configurations);
 		if (!this.parse(mergedConfiguration)) {
 			throw new ConfigurationError('error parsing configuration', this.getErrors());
 		}
 	}
 
-
 	public update(params: IConfig): boolean {
 		this.updateErrors = [];
-		const data = Object.assign({}, this.data, params) // deep merge
-		return this.parse(data); //&& this.allValuesHaveBeenAdded(params);
+		const data = loadash.merge({}, this.data, params)
+		return this.parse(data);
 	}
 
 	public set(key: string, value: any): boolean {
@@ -116,22 +108,6 @@ export class Configuration implements IConfiguration {
 		params[key] = value;
 		return this.update(params);
 	}
-
-	// private allValuesHaveBeenAdded(params: IConfig): boolean {
-	// 	const keys = Object.getOwnPropertyNames(params);
-	// 	let success = true;
-	// 	for (const key of keys) {
-	// 		if (!Object.prototype.hasOwnProperty.call(this.data, key)) {
-	// 			this.updateErrors.push(`error updating key '${key}' to value '${params[key]}', value has not been added`);
-	// 			success = false;
-	// 		}
-	// 		if (this.data[key] != params[key]) {
-	// 			this.updateErrors.push(`error updating key '${key}' to value '${params[key]}', current value is ${this.data[key]}`);
-	// 			success = false;
-	// 		}
-	// 	}
-	// 	return success;
-	// }
 
 	private parse = (data: any): boolean => {
 		if (this.validate === null) {
@@ -163,8 +139,6 @@ export class Configuration implements IConfiguration {
 		}
 		return errors;
 	}
-
-
 
 	/**
 	 * depending on options.throwOnError returns null by default or throws an error for undefined config values
