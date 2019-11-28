@@ -28,9 +28,6 @@ export interface IConfigOptions {
 	 * @memberof IConfigOptions
 	 */
 	notFoundValue?: any;
-
-	trueSetStrings?: string[];
-	falseSetSetrings?: string[];
 	configDir?: string;
 	baseDir?: string;
 	schemaFileName?: string;

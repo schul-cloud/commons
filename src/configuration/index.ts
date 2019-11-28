@@ -13,8 +13,6 @@ import { IConfig } from '@/interfaces/IConfig';
 const defaultOptions: IRequiredConfigOptions = {
 	logger: console,
 	notFoundValue: null,
-	trueSetStrings: ['true', '1', 'on'],
-	falseSetSetrings: ['false', '0', 'off'],
 	configDir: 'config',
 	schemaFileName: 'schema.json',
 	baseDir: process.cwd(),

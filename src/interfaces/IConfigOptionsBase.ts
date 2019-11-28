@@ -30,9 +30,6 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	 * @memberof IConfigOptions
 	 */
 	notFoundValue: null | any;
-
-	trueSetStrings: string[];
-	falseSetSetrings: string[];
 	configDir: string;
 	baseDir: string;
 	schemaFileName: string;
