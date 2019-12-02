@@ -29,3 +29,8 @@
 ### Configuration
 
 This is a singleton class that can be reused to hold a configuration that is validated by JSON Schema and holds validated data that is optionally overwritten by environment variables.
+
+## JSON Schema
+
+* Custom validation keywords may be added to get detailed error messages for specific checks: https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
+
