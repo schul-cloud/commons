@@ -57,17 +57,6 @@ export class Configuration implements IConfiguration {
 		return loadash.cloneDeep(this.data);
 	}
 
-	/**
-	 * updates the current schema if it can be compiled
-	 *
-	 * @param {*} schema
-	 * @memberof Configuration
-	 */
-	private setSchema(schema: any): void {
-		this.validate = this.schemaValidator.compile(schema);
-		this.schema = schema || {};
-	}
-
 	public init(app?: any): void {
 		const schemaFile = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
 		if (!fs.existsSync(schemaFile)) {
@@ -109,10 +98,23 @@ export class Configuration implements IConfiguration {
 		return this.update(params);
 	}
 
+
+	/**
+	 * updates the current schema if it can be compiled
+	 *
+	 * @param {*} schema
+	 * @memberof Configuration
+	 */
+	private setSchema(schema: any): void {
+		this.validate = this.schemaValidator.compile(schema);
+		this.schema = schema || {};
+	}
+
 	private parse = (data: any): boolean => {
 		if (this.validate === null) {
 			throw new ConfigurationError('no schema defined')
 		}
+		// todo deepcopy data here
 		const valid = (this.validate)(data) as boolean;
 		if (valid) {
 			this.data = data;
@@ -151,7 +153,7 @@ export class Configuration implements IConfiguration {
 	private notFound = (key: string): any => {
 		this.options.logger.warn(`did not found a valid config entry for '${key}'`);
 		if (this.options.throwOnError) {
-			throw new Error(`Could not fetch any value for key '${key}'`);
+			throw new ConfigurationError(`Could not fetch any value for key '${key}'`);
 		}
 		return this.options.notFoundValue;
 	}

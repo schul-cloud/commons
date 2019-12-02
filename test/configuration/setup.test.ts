@@ -2,12 +2,13 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { Configuration } from '../../src/configuration';
-import { IConfigOptions } from '@/interfaces/IConfigOptions';
+import { IConfigOptions } from '../../src/interfaces/IConfigOptions';
 
 describe('test configuration', () => {
 
 	const options: IConfigOptions = {
 		configDir: 'test/data',
+
 	}
 
 	it('test configuration initialization', () => {
@@ -89,6 +90,15 @@ describe('test configuration', () => {
 		expect(config.set('String', false), 'String assignment').to.be.equal(true);
 		expect(config.get('String'), 'get String').to.be.equal('false'); // not found value
 		expect(config.getErrors(), 'no errors exist').to.be.null;
+	})
+
+	it('test environment settings', () => {
+		const beforeValue = process.env.Version;
+		process.env.Version = "4.5.6";
+		const config = new Configuration(options);
+		config.init();
+		expect(config.get('Version'), 'get Version').to.be.equal('4.5.6'); // not 1.2.3 defined in file
+		process.env.Version = beforeValue;
 	})
 
 });
