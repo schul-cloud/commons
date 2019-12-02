@@ -14,7 +14,7 @@ const defaultOptions: IRequiredConfigOptions = {
 	logger: console,
 	notFoundValue: null,
 	configDir: 'config',
-	schemaFileName: 'schema.json',
+	schemaFileName: 'default.schema.json',
 	baseDir: process.cwd(),
 	ajvOptions: {
 		removeAdditional: 'all',
