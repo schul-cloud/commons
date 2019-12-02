@@ -82,7 +82,7 @@ export class Configuration implements IConfiguration {
 			throw new ConfigurationError('error parsing configuration', this.getErrors());
 		}
 		if (app) {
-			app.Settings = this;
+			app.Config = this;
 		}
 	}
 
