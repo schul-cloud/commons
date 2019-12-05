@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
+import dot from 'dot-object';
 
 import { Configuration } from '../../src/configuration';
 import { IConfigOptions } from '../../src/interfaces/IConfigOptions';
@@ -8,7 +9,6 @@ describe('test configuration', () => {
 
 	const options: IConfigOptions = {
 		configDir: 'test/data',
-
 	}
 
 	it('test configuration initialization', () => {
@@ -25,9 +25,10 @@ describe('test configuration', () => {
 	});
 
 	it('test assignmment of default values', () => {
-		const options = {
+		const options: IConfigOptions = {
 			configDir: 'test/data',
 			notFoundValue: false,
+			throwOnError: false
 		};
 		const config = new Configuration(options);
 		config.init();
@@ -99,6 +100,82 @@ describe('test configuration', () => {
 		config.init();
 		expect(config.get('Version'), 'get Version').to.be.equal('4.5.6'); // not 1.2.3 defined in file
 		process.env.Version = beforeValue;
+	})
+
+	describe('dot notation', () => {
+
+		const options: IConfigOptions = {
+			schemaFileName: 'dot.schema.json',
+			configDir: 'test/data',
+		};
+
+		it('object creation from dot notation', () => {
+			const sample = {
+				Sample: "sample",
+				Nested: {
+					foo: "foo",
+					bar: "bar"
+				},
+				Very: { Nested: { Value: "value" } }
+			}
+			const dotted = dot.dot(sample);
+			expect(dotted['Sample']).to.be.equal('sample');
+			expect(dotted['Nested.foo']).to.be.equal('foo');
+			expect(dotted['Nested.bar']).to.be.equal('bar');
+			expect(dotted['Very.Nested.Value']).to.be.equal('value');
+		});
+
+		it('create dot notation from object', () => {
+			const sample = {
+				Sample: "sample",
+				"Nested.bar": "bar",
+				"Nested.foo": "foo",
+				"Very.Nested.Value": "value"
+			}
+			const objected: any = dot.object(sample);
+			expect(objected.Sample).to.be.equal('sample');
+			expect(objected.Nested.foo).to.be.equal('foo');
+			expect(objected.Nested.bar).to.be.equal('bar');
+			expect(objected.Very.Nested.Value).to.be.equal('value');
+
+		});
+
+		it('parse nested from environment', () => {
+			process.env['Nested.foo'] = "another bar";
+			const config = new Configuration(options);
+			config.init();
+			config.set('Sample', 'sample');
+			expect(config.get('Sample'), 'get Sample').to.be.equal('sample');
+			delete process.env['Nested.foo'];
+		});
+
+		it('requesting nested values', () => {
+			process.env['Nested.foo'] = "another bar";
+			const config = new Configuration(options);
+			config.init();
+			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('another bar');
+			delete process.env['Nested.foo'];
+		});
+
+		it('set Nested values', () => {
+			process.env['Nested.foo'] = "foo";
+			process.env['Nested.bar'] = "bar";
+			const config = new Configuration(options);
+			config.init();
+			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('foo');
+			config.set('Nested.foo', 'another bar');
+			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('another bar');
+			expect(config.get('Nested.bar'), 'get Nested').to.be.equal('bar');
+			delete process.env['Nested.foo'];
+			delete process.env['Nested.bar'];
+		});
+
+	});
+
+	describe('singleton', () => {
+
+
+
 	})
 
 });

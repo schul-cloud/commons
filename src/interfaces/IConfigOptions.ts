@@ -1,13 +1,5 @@
 export interface IConfigOptions {
 	/**
-	 * if true, will recalculate values on every request.
-	 * default: load config once on application start
-	 *
-	 * @type {boolean}
-	 * @memberof IConfigOptions
-	 */
-	hot?: boolean;
-	/**
 	 * set a custom logger
 	 *
 	 * @type {*}
@@ -31,4 +23,6 @@ export interface IConfigOptions {
 	configDir?: string;
 	baseDir?: string;
 	schemaFileName?: string;
+	useDotNotation?: boolean;
+	fileEncoding?: string;
 }
