@@ -174,7 +174,17 @@ describe('test configuration', () => {
 
 	describe('singleton', () => {
 
+		const config = Configuration.getInstance({ options })
 
+		it('getInstance returns same instance on multiple calls', () => {
+			const otherConfig = Configuration.getInstance()
+			expect(config).to.be.equal(otherConfig)
+		})
+
+		it('getInstance accepts options and app defined only once', () => {
+			expect(() => Configuration.getInstance({ options, app: {} })).to.throw;
+			expect(Configuration.getInstance()).to.be.equal(config);
+		})
 
 	})
 

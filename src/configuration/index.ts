@@ -159,13 +159,16 @@ export class Configuration implements IConfiguration {
 
 	/**
 	 * returns a signleton configuration instance, 
-	 * on first call it may be configured using options
+	 * on first call it may be configured using options and setting an app
 	 *
 	 * @param {IConfigOptions} [options]
 	 * @returns {Configuration}
 	 * @memberof Configuration
 	 */
-	public getInstance(options?: IConfigOptions, app?: any): Configuration {
+	public static getInstance({ options, app }: {
+		options?: IConfigOptions;
+		app?: any;
+	} = {}): Configuration {
 		if (!Configuration.instance) {
 			Configuration.instance = new Configuration(options);
 			Configuration.instance.init(app);

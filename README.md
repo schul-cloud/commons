@@ -49,24 +49,28 @@ To enable multiple inherited objects when parsing environment variables there ma
 | useDotNotation | boolean | true | enables dot notation for parsing environment variables (not json files!) and exporting the current config using has, get, and toObject. |
 | fileEncoding | string | 'utf8' | set file encoding for imported schema and configuration files  |
 
-
 ## JSON Schema
 
 ### Enhanced validation
 
 Custom validation keywords may be added to get detailed error messages for specific checks: https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
 
-
 ## Changelog
+
+### 1.0.11
+
+#### Fixed in 1.0.11
+
+- Singleton getInstance() Method
 
 ### 1.0.10
 
-#### Added
+#### Added in 1.0.10
 
 - Singleton access to Configuration, public constructor is deprecated but enabled for tests
 - Support for Dot-Notation and Nested Properties in Configuration for reading environment variables and using Configurations has, get and toObject
 - File encoding added to configuration
 
-#### Fixed
+#### Fixed in 1.0.10
 
 - Different spelling issues rewritten
