@@ -2,12 +2,13 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { Configuration } from '../../src/configuration';
-import { IConfigOptions } from '@/interfaces/IConfigOptions';
+import { IConfigOptions } from '../../src/interfaces/IConfigOptions';
 
 describe('test configuration', () => {
 
 	const options: IConfigOptions = {
 		configDir: 'test/data',
+
 	}
 
 	it('test configuration initialization', () => {
@@ -18,7 +19,7 @@ describe('test configuration', () => {
 
 	it('test configuration parser order', () => {
 		const config = new Configuration(options);
-		config.initialize();
+		config.init();
 		expect(config.get('ENV_CONFIG'), 'env specific information overrides default').to.be.equal('test');
 		expect(config.get('Boolean')).to.be.equal(true);
 	});
@@ -29,7 +30,7 @@ describe('test configuration', () => {
 			notFoundValue: false,
 		};
 		const config = new Configuration(options);
-		config.initialize();
+		config.init();
 		// this will be set as default from schema definition
 		expect(config.get('DefaultSample'), 'default value has been applied').to.be.equal('defaultSample');
 		// this will be removed because not in schema but in ENV
@@ -39,7 +40,7 @@ describe('test configuration', () => {
 
 	it('test assignmment and re-assignment of valid values', () => {
 		const config = new Configuration(options);
-		config.initialize();
+		config.init();
 		expect(config.set('Number', 1.0), 'number assignment').to.be.equal(true);
 		expect(config.get('Number'), 'get Number').to.be.equal(1.0);
 		expect(config.getErrors(), 'no errors exist').to.be.null;
@@ -68,7 +69,7 @@ describe('test configuration', () => {
 
 	it('test assignmment of invalid values fails', () => {
 		const config = new Configuration(options);
-		config.initialize();
+		config.init();
 		expect(config.set('Number', 'foo'), 'number assignment').to.be.equal(false);
 		expect(config.get('Number'), 'get Number').to.be.equal(1.3); // value from default.json
 		expect(config.getErrors(), 'no errors exist').to.be.not.null;
@@ -85,10 +86,19 @@ describe('test configuration', () => {
 
 	it('test type coersion', () => {
 		const config = new Configuration(options);
-		config.initialize();
+		config.init();
 		expect(config.set('String', false), 'String assignment').to.be.equal(true);
 		expect(config.get('String'), 'get String').to.be.equal('false'); // not found value
 		expect(config.getErrors(), 'no errors exist').to.be.null;
+	})
+
+	it('test environment settings', () => {
+		const beforeValue = process.env.Version;
+		process.env.Version = "4.5.6";
+		const config = new Configuration(options);
+		config.init();
+		expect(config.get('Version'), 'get Version').to.be.equal('4.5.6'); // not 1.2.3 defined in file
+		process.env.Version = beforeValue;
 	})
 
 });

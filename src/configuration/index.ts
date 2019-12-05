@@ -14,7 +14,7 @@ const defaultOptions: IRequiredConfigOptions = {
 	logger: console,
 	notFoundValue: null,
 	configDir: 'config',
-	schemaFileName: 'schema.json',
+	schemaFileName: 'default.schema.json',
 	baseDir: process.cwd(),
 	ajvOptions: {
 		removeAdditional: 'all',
@@ -28,7 +28,6 @@ export class Configuration implements IConfiguration {
 	private options: IRequiredConfigOptions;
 
 	private data: IConfig;
-
 	private schema: any;
 	private schemaValidator: Ajv.Ajv;
 	private validate: Ajv.ValidateFunction | null;
@@ -58,18 +57,7 @@ export class Configuration implements IConfiguration {
 		return loadash.cloneDeep(this.data);
 	}
 
-	/**
-	 * updates the current schema if it can be compiled
-	 *
-	 * @param {*} schema
-	 * @memberof Configuration
-	 */
-	private setSchema(schema: any): void {
-		this.validate = this.schemaValidator.compile(schema);
-		this.schema = schema || {};
-	}
-
-	public initialize(): void { // todo configure(app?)
+	public init(app?: any): void {
 		const schemaFile = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
 		if (!fs.existsSync(schemaFile)) {
 			throw new ConfigurationError('error loading schema', { schemaFile })
@@ -93,6 +81,9 @@ export class Configuration implements IConfiguration {
 		if (!this.parse(mergedConfiguration)) {
 			throw new ConfigurationError('error parsing configuration', this.getErrors());
 		}
+		if (app) {
+			app.Config = this;
+		}
 	}
 
 	public update(params: IConfig): boolean {
@@ -107,10 +98,23 @@ export class Configuration implements IConfiguration {
 		return this.update(params);
 	}
 
+
+	/**
+	 * updates the current schema if it can be compiled
+	 *
+	 * @param {*} schema
+	 * @memberof Configuration
+	 */
+	private setSchema(schema: any): void {
+		this.validate = this.schemaValidator.compile(schema);
+		this.schema = schema || {};
+	}
+
 	private parse = (data: any): boolean => {
 		if (this.validate === null) {
 			throw new ConfigurationError('no schema defined')
 		}
+		// todo deepcopy data here
 		const valid = (this.validate)(data) as boolean;
 		if (valid) {
 			this.data = data;
@@ -149,7 +153,7 @@ export class Configuration implements IConfiguration {
 	private notFound = (key: string): any => {
 		this.options.logger.warn(`did not found a valid config entry for '${key}'`);
 		if (this.options.throwOnError) {
-			throw new Error(`Could not fetch any value for key '${key}'`);
+			throw new ConfigurationError(`Could not fetch any value for key '${key}'`);
 		}
 		return this.options.notFoundValue;
 	}
