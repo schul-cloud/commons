@@ -55,3 +55,18 @@ To enable multiple inherited objects when parsing environment variables there ma
 ### Enhanced validation
 
 Custom validation keywords may be added to get detailed error messages for specific checks: https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
+
+
+## Changelog
+
+### 1.0.10
+
+#### Added
+
+- Singleton access to Configuration, public constructor is deprecated but enabled for tests
+- Support for Dot-Notation and Nested Properties in Configuration for reading environment variables and using Configurations has, get and toObject
+- File encoding added to configuration
+
+#### Fixed
+
+- Different spelling issues rewritten
