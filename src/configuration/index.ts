@@ -267,9 +267,10 @@ export class Configuration implements IConfiguration {
 	 * @memberof Configuration
 	 */
 	private notFound = (key: string): any => {
-		this.options.logger.warn(`did not found a config entry for '${key}'`);
+		const message = `There was no configuration value defined for key '${key}'`;
+		this.options.logger.warn(message);
 		if (this.options.throwOnError) {
-			throw new ConfigurationError(`There was no value defined for '${key}'`);
+			throw new ConfigurationError(message);
 		}
 		return this.options.notFoundValue;
 	}
