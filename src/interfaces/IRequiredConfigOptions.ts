@@ -22,7 +22,7 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	 * @type {boolean}
 	 * @memberof IConfigOptions
 	 */
-	throwOnError?: boolean;
+	throwOnError: boolean;
 	/**
 	 * If throwOnUndefined is not true, the default return value which is null may be overriden using this property.
 	 *
@@ -34,4 +34,6 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	baseDir: string;
 	schemaFileName: string;
 	ajvOptions: Ajv.Options;
+	useDotNotation: boolean;
+	fileEncoding: string;
 }

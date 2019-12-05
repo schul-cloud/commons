@@ -101,4 +101,12 @@ describe('test configuration', () => {
 		process.env.Version = beforeValue;
 	})
 
+	describe('dot notation', () => {
+
+	});
+
+	describe('singleton', () => {
+
+	})
+
 });
