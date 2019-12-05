@@ -1,0 +1,19 @@
+{
+	"type": "object",
+	"properties": {
+		"Sample": {
+			"type": "string",
+			"default": "sample"
+		},
+		"Nested": {
+			"type": "object",
+			"default": {
+				"foo": "bar"
+			}
+		}
+	},
+	"required": [
+		"Sample",
+		"Nested"
+	]
+}

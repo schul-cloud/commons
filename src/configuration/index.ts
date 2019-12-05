@@ -10,7 +10,6 @@ import path from 'path';
 import ConfigurationError from '../errors/ConfigurationError';
 import { IRequiredConfigOptions } from '@/interfaces/IRequiredConfigOptions';
 import { IConfig } from '@/interfaces/IConfig';
-import { Singleton } from '@/interfaces/Singleton';
 
 const defaultOptions: IRequiredConfigOptions = {
 	logger: console,
@@ -35,7 +34,7 @@ enum ReadyState {
 	InitFinished = 3
 }
 
-export class Configuration implements IConfiguration, Singleton<Configuration> {
+export class Configuration implements IConfiguration {
 
 	private static instance: Configuration;
 	private options: IRequiredConfigOptions;
@@ -52,6 +51,7 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 	 * Instead, Configuration.getInstance() should be used to retrieve a Singleton instance of Configuration.
 	 * @param {IConfigOptions} [options]
 	 * @memberof Configuration
+	 * @deprecated use singleton getInstance() instead, this will be private in future versions 
 	 */
 	public constructor(options?: IConfigOptions) {
 		this.readyState = ReadyState.Default;
@@ -66,12 +66,12 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 	}
 
 	public has = (key: string): boolean => {
-		this.ensureIsReady();
+		this.ensureInitialized();
 		return Object.prototype.hasOwnProperty.call(this.config, key);
 	}
 
 	public get = (key: string): any => {
-		this.ensureIsReady();
+		this.ensureInitialized();
 		const currentConfig = this.config;
 		// first check config has key, then return it (duplication because of reduce config clone amount)
 		if (Object.prototype.hasOwnProperty.call(currentConfig, key)) {
@@ -103,7 +103,7 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 	 * @memberof Configuration
 	 */
 	public toObject(): any {
-		this.ensureIsReady();
+		this.ensureInitialized();
 		return this.config;
 	}
 
@@ -115,6 +115,9 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 	 * @memberof Configuration
 	 */
 	public init(app?: any): void {
+		if (this.readyState !== ReadyState.InstanceCreated) {
+			throw new Error('init() is only executable once after configuration construction.')
+		}
 		this.readyState = ReadyState.InitStarted;
 		// try parsing schema file from path
 		const schemaFilePath = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
@@ -139,7 +142,7 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 		}
 
 		// parse env, optionally with dot transformation added
-		const env = this.options.useDotNotation ? dot.object(process.env) : process.env;
+		const env = this.options.useDotNotation ? dot.object(loadash.cloneDeep(process.env)) : process.env;
 		configurations.push(loadash.merge({}, env));
 		const mergedConfiguration = loadash.merge({}, ...configurations);
 		if (!this.parse(mergedConfiguration)) {
@@ -162,12 +165,13 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 	 * @returns {Configuration}
 	 * @memberof Configuration
 	 */
-	public getInstance(options?: IConfigOptions): Configuration {
+	public getInstance(options?: IConfigOptions, app?: any): Configuration {
 		if (!Configuration.instance) {
 			Configuration.instance = new Configuration(options);
+			Configuration.instance.init(app);
 		} else {
-			if (options) {
-				throw new ConfigurationError('options may set on first call only');
+			if (options || app) {
+				throw new ConfigurationError('options or app may set on first call only');
 			}
 		}
 		return Configuration.instance;
@@ -181,8 +185,11 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 	 * @memberof Configuration
 	 */
 	public update(params: IConfig): boolean {
-		this.ensureIsReady();
+		this.ensureInitialized();
 		this.updateErrors = [];
+		if (this.options.useDotNotation === true) {
+			dot.object(params)
+		}
 		const data = loadash.merge({}, this.data, params)
 		return this.parse(data);
 	}
@@ -196,7 +203,7 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 	 * @memberof Configuration
 	 */
 	public set(key: string, value: any): boolean {
-		this.ensureIsReady();
+		this.ensureInitialized();
 		const params: IConfig = {};
 		params[key] = value;
 		return this.update(params);
@@ -281,8 +288,8 @@ export class Configuration implements IConfiguration, Singleton<Configuration> {
 	 * @returns {boolean}
 	 * @memberof Configuration
 	 */
-	private ensureIsReady(): boolean {
-		if (this.readyState === ReadyState.InitFinished) {
+	private ensureInitialized(): boolean {
+		if (this.readyState !== ReadyState.InitFinished) {
 			throw new ConfigurationError('Initialization not completed, current state is ' + this.readyState);
 		}
 		return true;
