@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import dot from 'dot-object';
 
-import { Configuration } from '../../src/configuration';
+import DefaultConfiguration, { Configuration } from '../../src/configuration';
 import { IConfigOptions } from '../../src/interfaces/IConfigOptions';
 
 describe('test configuration', () => {
@@ -18,8 +18,8 @@ describe('test configuration', () => {
 	});
 
 	it('test configuration parser order', () => {
-		const config = new Configuration(options);
-		config.init();
+		const config = new Configuration();
+		config.init(options);
 		expect(config.get('ENV_CONFIG'), 'env specific information overrides default').to.be.equal('test');
 		expect(config.get('Boolean')).to.be.equal(true);
 	});
@@ -30,8 +30,8 @@ describe('test configuration', () => {
 			notFoundValue: false,
 			throwOnError: false
 		};
-		const config = new Configuration(options);
-		config.init();
+		const config = new Configuration();
+		config.init(options);
 		// this will be set as default from schema definition
 		expect(config.get('DefaultSample'), 'default value has been applied').to.be.equal('defaultSample');
 		// this will be removed because not in schema but in ENV
@@ -40,8 +40,8 @@ describe('test configuration', () => {
 	});
 
 	it('test assignmment and re-assignment of valid values', () => {
-		const config = new Configuration(options);
-		config.init();
+		const config = new Configuration();
+		config.init(options);
 		expect(config.set('Number', 1.0), 'number assignment').to.be.equal(true);
 		expect(config.get('Number'), 'get Number').to.be.equal(1.0);
 		expect(config.getErrors(), 'no errors exist').to.be.null;
@@ -69,8 +69,8 @@ describe('test configuration', () => {
 	});
 
 	it('test assignmment of invalid values fails', () => {
-		const config = new Configuration(options);
-		config.init();
+		const config = new Configuration();
+		config.init(options);
 		expect(config.set('Number', 'foo'), 'number assignment').to.be.equal(false);
 		expect(config.get('Number'), 'get Number').to.be.equal(1.3); // value from default.json
 		expect(config.getErrors(), 'no errors exist').to.be.not.null;
@@ -86,8 +86,8 @@ describe('test configuration', () => {
 	});
 
 	it('test type coersion', () => {
-		const config = new Configuration(options);
-		config.init();
+		const config = new Configuration();
+		config.init(options);
 		expect(config.set('String', false), 'String assignment').to.be.equal(true);
 		expect(config.get('String'), 'get String').to.be.equal('false'); // not found value
 		expect(config.getErrors(), 'no errors exist').to.be.null;
@@ -96,10 +96,17 @@ describe('test configuration', () => {
 	it('test environment settings', () => {
 		const beforeValue = process.env.Version;
 		process.env.Version = "4.5.6";
-		const config = new Configuration(options);
-		config.init();
+		const config = new Configuration();
+		config.init(options);
 		expect(config.get('Version'), 'get Version').to.be.equal('4.5.6'); // not 1.2.3 defined in file
 		process.env.Version = beforeValue;
+	})
+
+	it('app registration on init', () => {
+		const config = new Configuration()
+		const app: any = {}
+		config.init({ ...options, app })
+		expect(app.Config).to.be.equal(config);
 	})
 
 	describe('dot notation', () => {
@@ -142,8 +149,8 @@ describe('test configuration', () => {
 
 		it('parse nested from environment', () => {
 			process.env['Nested.foo'] = "another bar";
-			const config = new Configuration(options);
-			config.init();
+			const config = new Configuration();
+			config.init(options);
 			config.set('Sample', 'sample');
 			expect(config.get('Sample'), 'get Sample').to.be.equal('sample');
 			delete process.env['Nested.foo'];
@@ -151,8 +158,8 @@ describe('test configuration', () => {
 
 		it('requesting nested values', () => {
 			process.env['Nested.foo'] = "another bar";
-			const config = new Configuration(options);
-			config.init();
+			const config = new Configuration();
+			config.init(options);
 			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('another bar');
 			delete process.env['Nested.foo'];
 		});
@@ -160,8 +167,8 @@ describe('test configuration', () => {
 		it('set Nested values', () => {
 			process.env['Nested.foo'] = "foo";
 			process.env['Nested.bar'] = "bar";
-			const config = new Configuration(options);
-			config.init();
+			const config = new Configuration();
+			config.init(options);
 			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('foo');
 			config.set('Nested.foo', 'another bar');
 			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('another bar');
@@ -174,16 +181,17 @@ describe('test configuration', () => {
 
 	describe('singleton', () => {
 
-		const config = Configuration.getInstance({ options })
+		const config = DefaultConfiguration
+		config.init(options);
 
-		it('getInstance returns same instance on multiple calls', () => {
-			const otherConfig = Configuration.getInstance()
+		it('get Instance returns same instance on multiple calls', () => {
+			const otherConfig = Configuration.Instance
 			expect(config).to.be.equal(otherConfig)
 		})
 
-		it('getInstance accepts options and app defined only once', () => {
-			expect(() => Configuration.getInstance({ options, app: {} })).to.throw;
-			expect(Configuration.getInstance()).to.be.equal(config);
+		it('init runs & accepts options and app defined only once', () => {
+			expect(() => config.init(options)).to.throw;
+			expect(Configuration.Instance).to.be.equal(config);
 		})
 
 	})

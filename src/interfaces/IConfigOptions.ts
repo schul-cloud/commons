@@ -25,4 +25,5 @@ export interface IConfigOptions {
 	schemaFileName?: string;
 	useDotNotation?: boolean;
 	fileEncoding?: string;
+	app?: any;
 }

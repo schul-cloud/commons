@@ -34,35 +34,36 @@ enum ReadyState {
 	InitFinished = 3
 }
 
+/**
+ * JSON-Schema validated Configuration Wrapper with dot notation support. 
+ *
+ * @export
+ * @class Configuration
+ * @implements {IConfiguration}
+ */
 export class Configuration implements IConfiguration {
 
 	private static instance: Configuration;
-	private options: IRequiredConfigOptions;
-
+	private options?: IRequiredConfigOptions;
 	private data: IConfig;
 	private schema: any;
-	private schemaValidator: Ajv.Ajv;
-	private validate: Ajv.ValidateFunction | null;
+	private schemaValidator?: Ajv.Ajv;
+	private validate?: Ajv.ValidateFunction;
 	private updateErrors: string[];
 	private readyState: ReadyState;
 
 	/**
 	 * Creates an instance of Configuration.
-	 * Instead, Configuration.getInstance() should be used to retrieve a Singleton instance of Configuration.
+	 * Instead using the constructor, Configuration.Instance should be used to retrieve a Singleton instance of Configuration.
 	 * @param {IConfigOptions} [options]
 	 * @memberof Configuration
 	 * @deprecated use singleton getInstance() instead, this will be private in future versions 
 	 */
-	public constructor(options?: IConfigOptions) {
+	public constructor() {
 		this.readyState = ReadyState.Default;
-		this.options = loadash.merge({}, defaultOptions, options || {});
-		dotenv.config({ path: this.options.baseDir }) // extend process.env by .env file
-		this.schemaValidator = new Ajv(this.options.ajvOptions);
 		this.data = {};
-		this.validate = null;
 		this.updateErrors = [];
 		this.readyState = ReadyState.InstanceCreated;
-		this.options.logger.info('Config created, await initialization...');
 	}
 
 	public has = (key: string): boolean => {
@@ -90,7 +91,7 @@ export class Configuration implements IConfiguration {
 	 * @memberof Configuration
 	 */
 	private get config(): any {
-		if (this.options.useDotNotation === true) {
+		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
 			return dot.dot(this.data);
 		}
 		return loadash.cloneDeep(this.data)
@@ -114,11 +115,17 @@ export class Configuration implements IConfiguration {
 	 * @param {*} [app]
 	 * @memberof Configuration
 	 */
-	public init(app?: any): void {
+	public init(options?: IConfigOptions): void {
 		if (this.readyState !== ReadyState.InstanceCreated) {
 			throw new Error('init() is only executable once after configuration construction.')
 		}
 		this.readyState = ReadyState.InitStarted;
+
+		// parse options and set missing properties
+		this.options = loadash.merge({}, defaultOptions, options || {});
+		dotenv.config({ path: this.options.baseDir }) // extend process.env by .env file
+		this.schemaValidator = new Ajv(this.options.ajvOptions);
+
 		// try parsing schema file from path
 		const schemaFilePath = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
 		if (!fs.existsSync(schemaFilePath)) {
@@ -150,32 +157,22 @@ export class Configuration implements IConfiguration {
 		}
 
 		// assign config to app, if defined
-		if (app) {
-			app.Config = this;
+		if (options && options.app) {
+			options.app.Config = this;
 		}
 		this.readyState = ReadyState.InitFinished;
 		this.options.logger.info('Config initialized...')
 	}
 
 	/**
-	 * returns a signleton configuration instance, 
-	 * on first call it may be configured using options and setting an app
+	 * returns a singleton configuration instance
 	 *
-	 * @param {IConfigOptions} [options]
 	 * @returns {Configuration}
 	 * @memberof Configuration
 	 */
-	public static getInstance({ options, app }: {
-		options?: IConfigOptions;
-		app?: any;
-	} = {}): Configuration {
+	public static get Instance(): Configuration {
 		if (!Configuration.instance) {
-			Configuration.instance = new Configuration(options);
-			Configuration.instance.init(app);
-		} else {
-			if (options || app) {
-				throw new ConfigurationError('options or app may set on first call only');
-			}
+			Configuration.instance = new Configuration();
 		}
 		return Configuration.instance;
 	}
@@ -190,7 +187,7 @@ export class Configuration implements IConfiguration {
 	public update(params: IConfig): boolean {
 		this.ensureInitialized();
 		this.updateErrors = [];
-		if (this.options.useDotNotation === true) {
+		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
 			dot.object(params)
 		}
 		const data = loadash.merge({}, this.data, params)
@@ -220,12 +217,12 @@ export class Configuration implements IConfiguration {
 	 * @memberof Configuration
 	 */
 	private setSchema(schema: any): void {
-		this.validate = this.schemaValidator.compile(schema);
+		this.validate = (this.schemaValidator as Ajv.Ajv).compile(schema);
 		this.schema = schema || {};
 	}
 
 	private parse = (data: any): boolean => {
-		if (this.validate === null) {
+		if (!this.validate) {
 			throw new ConfigurationError('no schema defined')
 		}
 		// todo deepcopy data here
@@ -233,7 +230,7 @@ export class Configuration implements IConfiguration {
 		if (valid) {
 			this.data = data;
 		} else {
-			this.options.logger.error('error updating configuration data', this.getErrors());
+			(this.options as IRequiredConfigOptions).logger.error('error updating configuration data', this.getErrors());
 		}
 		return valid;
 	}
@@ -271,16 +268,16 @@ export class Configuration implements IConfiguration {
 	 */
 	private notFound = (key: string): any => {
 		const message = `There was no configuration value defined for key '${key}'`;
-		this.options.logger.warn(message);
-		if (this.options.throwOnError) {
+		(this.options as IRequiredConfigOptions).logger.warn(message);
+		if ((this.options as IRequiredConfigOptions).throwOnError) {
 			throw new ConfigurationError(message);
 		}
-		return this.options.notFoundValue;
+		return (this.options as IRequiredConfigOptions).notFoundValue;
 	}
 
 
 	private loadJSONFromFileName(fullFileName: string): any {
-		const fileData = fs.readFileSync(fullFileName, { encoding: this.options.fileEncoding });
+		const fileData = fs.readFileSync(fullFileName, { encoding: (this.options as IRequiredConfigOptions).fileEncoding });
 		const fileJson = JSON.parse(fileData);
 		return fileJson;
 	}
@@ -300,3 +297,6 @@ export class Configuration implements IConfiguration {
 	}
 
 }
+
+
+export default Configuration.Instance;
