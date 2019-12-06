@@ -24,7 +24,7 @@
     npm run build
     npm test
 
-## Contents
+## Usage
 
 ### Configuration
 
@@ -34,6 +34,24 @@ The default schema parser options remove all options not defined in the schema, 
 
 To enable multiple inherited objects when parsing environment variables there may be a dot notation be used. When enabled, this gets applied for export, has, and get too.
 
+### Sample
+
+```javascript
+// Access Configuration as Singleton
+import config from '@schul-cloud/commons'
+
+// Access configuration as class
+import { Configuration } from '@schul-cloud/commons'
+const config = new Configuration()
+
+// Initialization must be executed exactly once per instance
+config.init(options)
+
+// Then you may run 
+config.has('key')
+config.get('key')
+config.set('key', 'value')
+```
 
 ### Options
 
@@ -56,17 +74,27 @@ To enable multiple inherited objects when parsing environment variables there ma
 
 Custom validation keywords may be added to get detailed error messages for specific checks: https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
 
-
 ## Changelog
+
+### 1.0.12
+
+- Singleton import and initialization rewritten
+- updated readme describing different imports using a sample
+
+### 1.0.11
+
+#### Fixed in 1.0.11
+
+- Singleton getInstance() Method
 
 ### 1.0.10
 
-#### Added
+#### Added in 1.0.10
 
 - Singleton access to Configuration, public constructor is deprecated but enabled for tests
 - Support for Dot-Notation and Nested Properties in Configuration for reading environment variables and using Configurations has, get and toObject
 - File encoding added to configuration
 
-#### Fixed
+#### Fixed in 1.0.10
 
 - Different spelling issues rewritten
