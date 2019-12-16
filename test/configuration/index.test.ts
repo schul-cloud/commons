@@ -70,7 +70,7 @@ describe('test configuration', () => {
 
 	it('test assignmment of invalid values fails', () => {
 		const config = new Configuration();
-		config.init(options);
+		config.init(Object.assign({}, options, { throwOnError: false }));
 		expect(config.set('Number', 'foo'), 'number assignment').to.be.equal(false);
 		expect(config.get('Number'), 'get Number').to.be.equal(1.3); // value from default.json
 		expect(config.getErrors(), 'no errors exist').to.be.not.null;
@@ -83,6 +83,8 @@ describe('test configuration', () => {
 		expect(config.set('Boolean', 'foo'), 'Boolean assignment').to.be.equal(false);
 		expect(config.get('Boolean'), 'get Boolean').to.be.equal(true); // value from test.json
 		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
+
+		// TODO repeat these expectations with throwOnError: true
 	});
 
 	it('test type coersion', () => {

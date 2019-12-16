@@ -158,6 +158,9 @@ export class Configuration implements IConfiguration {
 
 		// assign config to app, if defined
 		if (options && options.app) {
+			if ('Config' in options.app) {
+				throw new ConfigurationError('error registering configuration in app, app.Config is already defined');
+			}
 			options.app.Config = this;
 		}
 		this.readyState = ReadyState.InitFinished;
@@ -204,8 +207,7 @@ export class Configuration implements IConfiguration {
 	 */
 	public set(key: string, value: any): boolean {
 		this.ensureInitialized();
-		const params: IConfig = {};
-		params[key] = value;
+		const params: IConfig = { [key]: value };
 		return this.update(params);
 	}
 
@@ -230,7 +232,11 @@ export class Configuration implements IConfiguration {
 		if (valid) {
 			this.data = data;
 		} else {
-			(this.options as IRequiredConfigOptions).logger.error('error updating configuration data', this.getErrors());
+			const message = 'error updating configuration data';
+			if ((this.options as IRequiredConfigOptions).throwOnError === true) {
+				throw new ConfigurationError(message, this.getErrors());
+			}
+			(this.options as IRequiredConfigOptions).logger.error(message, this.getErrors());
 		}
 		return valid;
 	}
