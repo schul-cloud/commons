@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 import Ajv from 'ajv';
 import loadash from 'lodash';
 import dot from 'dot-object';
@@ -69,7 +69,7 @@ export class Configuration implements IConfiguration {
 	public has = (key: string): boolean => {
 		this.ensureInitialized();
 		return Object.prototype.hasOwnProperty.call(this.config, key);
-	}
+	};
 
 	public get = (key: string): any => {
 		this.ensureInitialized();
@@ -80,7 +80,7 @@ export class Configuration implements IConfiguration {
 			return retValue;
 		}
 		return this.notFound(key);
-	}
+	};
 
 	/**
 	 * returns a copy of current configuration, eventually converted in dot notation
@@ -94,7 +94,7 @@ export class Configuration implements IConfiguration {
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
 			return dot.dot(this.data);
 		}
-		return loadash.cloneDeep(this.data)
+		return loadash.cloneDeep(this.data);
 	}
 
 	/**
@@ -117,21 +117,21 @@ export class Configuration implements IConfiguration {
 	 */
 	public init(options?: IConfigOptions): void {
 		if (this.readyState !== ReadyState.InstanceCreated) {
-			throw new Error('init() is only executable once after configuration construction.')
+			throw new Error('init() is only executable once after configuration construction.');
 		}
 		this.readyState = ReadyState.InitStarted;
 
 		// parse options and set missing properties
 		this.options = loadash.merge({}, defaultOptions, options || {});
-		dotenv.config({ path: this.options.baseDir }) // extend process.env by .env file
+		dotenv.config({ path: this.options.baseDir }); // extend process.env by .env file
 		this.schemaValidator = new Ajv(this.options.ajvOptions);
 
 		// try parsing schema file from path
 		const schemaFilePath = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
 		if (!fs.existsSync(schemaFilePath)) {
-			throw new ConfigurationError('error loading schema', { schemaFilePath })
+			throw new ConfigurationError('error loading schema', { schemaFilePath });
 		}
-		this.setSchema(this.loadJSONFromFileName(schemaFilePath))
+		this.setSchema(this.loadJSONFromFileName(schemaFilePath));
 
 		// read configuration files, first default.json, then NODE_ENV.json from config dir
 		const configurationFiles = [];
@@ -164,7 +164,7 @@ export class Configuration implements IConfiguration {
 			options.app.Config = this;
 		}
 		this.readyState = ReadyState.InitFinished;
-		this.options.logger.info('Config initialized...')
+		this.options.logger.info('Config initialized...');
 	}
 
 	/**
@@ -191,9 +191,9 @@ export class Configuration implements IConfiguration {
 		this.ensureInitialized();
 		this.updateErrors = [];
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
-			dot.object(params)
+			dot.object(params);
 		}
-		const data = loadash.merge({}, this.data, params)
+		const data = loadash.merge({}, this.data, params);
 		return this.parse(data);
 	}
 
@@ -225,7 +225,7 @@ export class Configuration implements IConfiguration {
 
 	private parse = (data: any): boolean => {
 		if (!this.validate) {
-			throw new ConfigurationError('no schema defined')
+			throw new ConfigurationError('no schema defined');
 		}
 		// todo deepcopy data here
 		const valid = (this.validate)(data) as boolean;
@@ -239,7 +239,7 @@ export class Configuration implements IConfiguration {
 			(this.options as IRequiredConfigOptions).logger.error(message, this.getErrors());
 		}
 		return valid;
-	}
+	};
 
 	/**
 	 * returns an array of error objects or error strings which will be created due to validation or schema errors after setting schema or value(s).
@@ -254,7 +254,7 @@ export class Configuration implements IConfiguration {
 			} else {
 				errors.push(...items);
 			}
-		}
+		};
 		if (this.validate && this.validate.errors !== null && Array.isArray(this.validate.errors) && this.validate.errors.length !== 0) {
 			addErrors(...this.validate.errors as [Ajv.ErrorObject]);
 		}
@@ -262,7 +262,7 @@ export class Configuration implements IConfiguration {
 			addErrors(...this.updateErrors as [string]);
 		}
 		return errors;
-	}
+	};
 
 	/**
 	 * depending on options.throwOnError returns null by default or throws an error for undefined config values
@@ -279,7 +279,7 @@ export class Configuration implements IConfiguration {
 			throw new ConfigurationError(message);
 		}
 		return (this.options as IRequiredConfigOptions).notFoundValue;
-	}
+	};
 
 
 	private loadJSONFromFileName(fullFileName: string): any {
