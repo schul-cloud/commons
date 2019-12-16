@@ -47,6 +47,7 @@ export class Configuration implements IConfiguration {
 	private options?: IRequiredConfigOptions;
 	private data: IConfig;
 	private schema: any;
+	private config: any;
 	private schemaValidator?: Ajv.Ajv;
 	private validate?: Ajv.ValidateFunction;
 	private updateErrors: string[];
@@ -73,28 +74,30 @@ export class Configuration implements IConfiguration {
 
 	public get = (key: string): any => {
 		this.ensureInitialized();
-		const currentConfig = this.config;
 		// first check config has key, then return it (duplication because of reduce config clone amount)
-		if (Object.prototype.hasOwnProperty.call(currentConfig, key)) {
-			const retValue = currentConfig[key];
+		if (Object.prototype.hasOwnProperty.call(this.config, key)) {
+			const retValue = loadash.cloneDeep(this.config[key]);
 			return retValue;
 		}
 		return this.notFound(key);
 	};
 
 	/**
-	 * returns a copy of current configuration, eventually converted in dot notation
+	 * set final, probably dotted config object
 	 *
 	 * @readonly
 	 * @private
 	 * @type {*}
 	 * @memberof Configuration
 	 */
-	private get config(): any {
+	private updateConfig(): void {
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
-			return dot.dot(this.data);
+			this.config = dot.dot(this.data);
+			return;
+		} else {
+			this.config = loadash.cloneDeep(this.data);
+			return;
 		}
-		return loadash.cloneDeep(this.data);
 	}
 
 	/**
@@ -105,7 +108,7 @@ export class Configuration implements IConfiguration {
 	 */
 	public toObject(): any {
 		this.ensureInitialized();
-		return this.config;
+		return loadash.cloneDeep(this.config);
 	}
 
 	/**
@@ -231,6 +234,7 @@ export class Configuration implements IConfiguration {
 		const valid = (this.validate)(data) as boolean;
 		if (valid) {
 			this.data = data;
+			this.updateConfig();
 		} else {
 			const message = 'error updating configuration data';
 			if ((this.options as IRequiredConfigOptions).throwOnError === true) {
