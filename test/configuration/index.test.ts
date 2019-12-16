@@ -84,7 +84,22 @@ describe('test configuration', () => {
 		expect(config.get('Boolean'), 'get Boolean').to.be.equal(true); // value from test.json
 		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
 
-		// TODO repeat these expectations with throwOnError: true
+		const throwingConfig = new Configuration()
+		throwingConfig.init(options)
+
+		expect(() => config.set('Number', 'foo'), 'number assignment').to.throw;
+		expect(config.get('Number'), 'get Number').to.be.equal(1.3); // value from default.json
+		expect(config.getErrors(), 'no errors exist').to.be.not.null;
+		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
+
+		expect(() => config.set('Integer', 1.3), 'Integer assignment').to.throw;
+		expect(config.get('Integer'), 'get Integer').to.be.equal(4); // value from default.json
+		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
+
+		expect(() => config.set('Boolean', 'foo'), 'Boolean assignment').to.throw;
+		expect(config.get('Boolean'), 'get Boolean').to.be.equal(true); // value from test.json
+		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
+
 	});
 
 	it('test type coersion', () => {
@@ -197,5 +212,22 @@ describe('test configuration', () => {
 		})
 
 	})
+
+	describe('throwing errors', () => {
+		it('ensure init required', () => {
+			const config = new Configuration();
+			expect(() => config.has('foo')).to.throw;
+			expect(() => config.get('foo')).to.throw;
+			expect(() => config.set('foo', 'bar')).to.throw;
+			expect(() => config.toObject()).to.throw;
+		})
+
+		it('throws on app has Config property', () => {
+			const config = new Configuration()
+			const app = { Config: {} }
+			expect(() => config.init({ app })).to.throw
+		})
+	})
+
 
 });

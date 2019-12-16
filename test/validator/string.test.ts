@@ -15,4 +15,20 @@ describe('test string validators', () => {
 		expect(fut('')).to.be.false;
 	});
 
+	it('test is uppercase', () => {
+		const { upperCase } = validators;
+		expect(upperCase()('upperCase')).to.be.false
+		expect(upperCase()('UPPERCASE')).to.be.true
+		expect(upperCase()('UPPERCAS3')).to.be.true
+		expect(upperCase()('UPPERCaS3')).to.be.false
+	})
+
+	it('test is lowercase', () => {
+		const { lowerCase } = validators;
+		expect(lowerCase()('lowerCase')).to.be.false
+		expect(lowerCase()('lowercase')).to.be.true
+		expect(lowerCase()('low123')).to.be.true
+		expect(lowerCase()('lowER123')).to.be.false
+	})
+
 });
