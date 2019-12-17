@@ -72,9 +72,24 @@ config.set('key', 'value')
 
 ### Enhanced validation
 
-Custom validation keywords may be added to get detailed error messages for specific checks: https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
+Custom validation keywords may be added to get detailed error messages for specific checks: 
+https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
 
 ## Changelog
+
+### 1.0.13
+
+#### Fixed in 1.0.13
+
+- cache final (dotted) config object
+- return errors on set/get for invalid values
+- debugging: register tsconfig-paths
+- eslint: require tabs for indention and semi after statements
+
+#### Added in 1.0.13
+
+- coverage support using nyc mocha added
+- improve test coverage
 
 ### 1.0.12
 

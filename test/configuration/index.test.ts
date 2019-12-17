@@ -9,7 +9,7 @@ describe('test configuration', () => {
 
 	const options: IConfigOptions = {
 		configDir: 'test/data',
-	}
+	};
 
 	it('test configuration initialization', () => {
 		const config = new Configuration();
@@ -70,7 +70,7 @@ describe('test configuration', () => {
 
 	it('test assignmment of invalid values fails', () => {
 		const config = new Configuration();
-		config.init(options);
+		config.init(Object.assign({}, options, { throwOnError: false }));
 		expect(config.set('Number', 'foo'), 'number assignment').to.be.equal(false);
 		expect(config.get('Number'), 'get Number').to.be.equal(1.3); // value from default.json
 		expect(config.getErrors(), 'no errors exist').to.be.not.null;
@@ -83,6 +83,23 @@ describe('test configuration', () => {
 		expect(config.set('Boolean', 'foo'), 'Boolean assignment').to.be.equal(false);
 		expect(config.get('Boolean'), 'get Boolean').to.be.equal(true); // value from test.json
 		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
+
+		const throwingConfig = new Configuration();
+		throwingConfig.init(options);
+
+		expect(() => config.set('Number', 'foo'), 'number assignment').to.throw;
+		expect(config.get('Number'), 'get Number').to.be.equal(1.3); // value from default.json
+		expect(config.getErrors(), 'no errors exist').to.be.not.null;
+		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
+
+		expect(() => config.set('Integer', 1.3), 'Integer assignment').to.throw;
+		expect(config.get('Integer'), 'get Integer').to.be.equal(4); // value from default.json
+		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
+
+		expect(() => config.set('Boolean', 'foo'), 'Boolean assignment').to.throw;
+		expect(config.get('Boolean'), 'get Boolean').to.be.equal(true); // value from test.json
+		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
+
 	});
 
 	it('test type coersion', () => {
@@ -91,7 +108,7 @@ describe('test configuration', () => {
 		expect(config.set('String', false), 'String assignment').to.be.equal(true);
 		expect(config.get('String'), 'get String').to.be.equal('false'); // not found value
 		expect(config.getErrors(), 'no errors exist').to.be.null;
-	})
+	});
 
 	it('test environment settings', () => {
 		const beforeValue = process.env.Version;
@@ -100,14 +117,14 @@ describe('test configuration', () => {
 		config.init(options);
 		expect(config.get('Version'), 'get Version').to.be.equal('4.5.6'); // not 1.2.3 defined in file
 		process.env.Version = beforeValue;
-	})
+	});
 
 	it('app registration on init', () => {
-		const config = new Configuration()
-		const app: any = {}
-		config.init({ ...options, app })
+		const config = new Configuration();
+		const app: any = {};
+		config.init({ ...options, app });
 		expect(app.Config).to.be.equal(config);
-	})
+	});
 
 	describe('dot notation', () => {
 
@@ -124,7 +141,7 @@ describe('test configuration', () => {
 					bar: "bar"
 				},
 				Very: { Nested: { Value: "value" } }
-			}
+			};
 			const dotted = dot.dot(sample);
 			expect(dotted['Sample']).to.be.equal('sample');
 			expect(dotted['Nested.foo']).to.be.equal('foo');
@@ -138,7 +155,7 @@ describe('test configuration', () => {
 				"Nested.bar": "bar",
 				"Nested.foo": "foo",
 				"Very.Nested.Value": "value"
-			}
+			};
 			const objected: any = dot.object(sample);
 			expect(objected.Sample).to.be.equal('sample');
 			expect(objected.Nested.foo).to.be.equal('foo');
@@ -181,19 +198,36 @@ describe('test configuration', () => {
 
 	describe('singleton', () => {
 
-		const config = DefaultConfiguration
+		const config = DefaultConfiguration;
 		config.init(options);
 
 		it('get Instance returns same instance on multiple calls', () => {
-			const otherConfig = Configuration.Instance
-			expect(config).to.be.equal(otherConfig)
-		})
+			const otherConfig = Configuration.Instance;
+			expect(config).to.be.equal(otherConfig);
+		});
 
 		it('init runs & accepts options and app defined only once', () => {
 			expect(() => config.init(options)).to.throw;
 			expect(Configuration.Instance).to.be.equal(config);
-		})
+		});
 
-	})
+	});
+
+	describe('throwing errors', () => {
+		it('ensure init required', () => {
+			const config = new Configuration();
+			expect(() => config.has('foo')).to.throw;
+			expect(() => config.get('foo')).to.throw;
+			expect(() => config.set('foo', 'bar')).to.throw;
+			expect(() => config.toObject()).to.throw;
+		});
+
+		it('throws on app has Config property', () => {
+			const config = new Configuration();
+			const app = { Config: {} };
+			expect(() => config.init({ app })).to.throw;
+		});
+	});
+
 
 });

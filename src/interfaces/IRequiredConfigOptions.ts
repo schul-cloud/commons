@@ -1,5 +1,5 @@
 import { IConfigOptions } from './IConfigOptions';
-import Ajv from 'ajv'
+import Ajv from 'ajv';
 
 /**
  * this defines the base options that have to be defined

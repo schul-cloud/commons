@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 import Ajv from 'ajv';
 import loadash from 'lodash';
 import dot from 'dot-object';
@@ -47,6 +47,7 @@ export class Configuration implements IConfiguration {
 	private options?: IRequiredConfigOptions;
 	private data: IConfig;
 	private schema: any;
+	private config: any;
 	private schemaValidator?: Ajv.Ajv;
 	private validate?: Ajv.ValidateFunction;
 	private updateErrors: string[];
@@ -69,32 +70,34 @@ export class Configuration implements IConfiguration {
 	public has = (key: string): boolean => {
 		this.ensureInitialized();
 		return Object.prototype.hasOwnProperty.call(this.config, key);
-	}
+	};
 
 	public get = (key: string): any => {
 		this.ensureInitialized();
-		const currentConfig = this.config;
 		// first check config has key, then return it (duplication because of reduce config clone amount)
-		if (Object.prototype.hasOwnProperty.call(currentConfig, key)) {
-			const retValue = currentConfig[key];
+		if (Object.prototype.hasOwnProperty.call(this.config, key)) {
+			const retValue = loadash.cloneDeep(this.config[key]);
 			return retValue;
 		}
 		return this.notFound(key);
-	}
+	};
 
 	/**
-	 * returns a copy of current configuration, eventually converted in dot notation
+	 * set final, probably dotted config object
 	 *
 	 * @readonly
 	 * @private
 	 * @type {*}
 	 * @memberof Configuration
 	 */
-	private get config(): any {
+	private updateConfig(): void {
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
-			return dot.dot(this.data);
+			this.config = dot.dot(this.data);
+			return;
+		} else {
+			this.config = loadash.cloneDeep(this.data);
+			return;
 		}
-		return loadash.cloneDeep(this.data)
 	}
 
 	/**
@@ -105,7 +108,7 @@ export class Configuration implements IConfiguration {
 	 */
 	public toObject(): any {
 		this.ensureInitialized();
-		return this.config;
+		return loadash.cloneDeep(this.config);
 	}
 
 	/**
@@ -117,21 +120,21 @@ export class Configuration implements IConfiguration {
 	 */
 	public init(options?: IConfigOptions): void {
 		if (this.readyState !== ReadyState.InstanceCreated) {
-			throw new Error('init() is only executable once after configuration construction.')
+			throw new Error('init() is only executable once after configuration construction.');
 		}
 		this.readyState = ReadyState.InitStarted;
 
 		// parse options and set missing properties
 		this.options = loadash.merge({}, defaultOptions, options || {});
-		dotenv.config({ path: this.options.baseDir }) // extend process.env by .env file
+		dotenv.config({ path: this.options.baseDir }); // extend process.env by .env file
 		this.schemaValidator = new Ajv(this.options.ajvOptions);
 
 		// try parsing schema file from path
 		const schemaFilePath = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
 		if (!fs.existsSync(schemaFilePath)) {
-			throw new ConfigurationError('error loading schema', { schemaFilePath })
+			throw new ConfigurationError('error loading schema', { schemaFilePath });
 		}
-		this.setSchema(this.loadJSONFromFileName(schemaFilePath))
+		this.setSchema(this.loadJSONFromFileName(schemaFilePath));
 
 		// read configuration files, first default.json, then NODE_ENV.json from config dir
 		const configurationFiles = [];
@@ -158,10 +161,13 @@ export class Configuration implements IConfiguration {
 
 		// assign config to app, if defined
 		if (options && options.app) {
+			if ('Config' in options.app) {
+				throw new ConfigurationError('error registering configuration in app, app.Config is already defined');
+			}
 			options.app.Config = this;
 		}
 		this.readyState = ReadyState.InitFinished;
-		this.options.logger.info('Config initialized...')
+		this.options.logger.info('Config initialized...');
 	}
 
 	/**
@@ -188,9 +194,9 @@ export class Configuration implements IConfiguration {
 		this.ensureInitialized();
 		this.updateErrors = [];
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
-			dot.object(params)
+			dot.object(params);
 		}
-		const data = loadash.merge({}, this.data, params)
+		const data = loadash.merge({}, this.data, params);
 		return this.parse(data);
 	}
 
@@ -204,8 +210,7 @@ export class Configuration implements IConfiguration {
 	 */
 	public set(key: string, value: any): boolean {
 		this.ensureInitialized();
-		const params: IConfig = {};
-		params[key] = value;
+		const params: IConfig = { [key]: value };
 		return this.update(params);
 	}
 
@@ -223,17 +228,22 @@ export class Configuration implements IConfiguration {
 
 	private parse = (data: any): boolean => {
 		if (!this.validate) {
-			throw new ConfigurationError('no schema defined')
+			throw new ConfigurationError('no schema defined');
 		}
 		// todo deepcopy data here
 		const valid = (this.validate)(data) as boolean;
 		if (valid) {
 			this.data = data;
+			this.updateConfig();
 		} else {
-			(this.options as IRequiredConfigOptions).logger.error('error updating configuration data', this.getErrors());
+			const message = 'error updating configuration data';
+			if ((this.options as IRequiredConfigOptions).throwOnError === true) {
+				throw new ConfigurationError(message, this.getErrors());
+			}
+			(this.options as IRequiredConfigOptions).logger.error(message, this.getErrors());
 		}
 		return valid;
-	}
+	};
 
 	/**
 	 * returns an array of error objects or error strings which will be created due to validation or schema errors after setting schema or value(s).
@@ -248,7 +258,7 @@ export class Configuration implements IConfiguration {
 			} else {
 				errors.push(...items);
 			}
-		}
+		};
 		if (this.validate && this.validate.errors !== null && Array.isArray(this.validate.errors) && this.validate.errors.length !== 0) {
 			addErrors(...this.validate.errors as [Ajv.ErrorObject]);
 		}
@@ -256,7 +266,7 @@ export class Configuration implements IConfiguration {
 			addErrors(...this.updateErrors as [string]);
 		}
 		return errors;
-	}
+	};
 
 	/**
 	 * depending on options.throwOnError returns null by default or throws an error for undefined config values
@@ -273,7 +283,7 @@ export class Configuration implements IConfiguration {
 			throw new ConfigurationError(message);
 		}
 		return (this.options as IRequiredConfigOptions).notFoundValue;
-	}
+	};
 
 
 	private loadJSONFromFileName(fullFileName: string): any {
