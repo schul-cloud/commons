@@ -24,6 +24,7 @@ export interface IConfigOptions {
 	baseDir?: string;
 	schemaFileName?: string;
 	useDotNotation?: boolean;
+	dotNotationSeparator?: string;
 	fileEncoding?: string;
 	app?: any;
 }

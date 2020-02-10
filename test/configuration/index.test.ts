@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import dot from 'dot-object';
 
-import DefaultConfiguration, { Configuration } from '../../src/configuration';
+import DefaultConfiguration, { Configuration, defaultOptions } from '../../src/configuration';
 import { IConfigOptions } from '../../src/interfaces/IConfigOptions';
 
 describe('test configuration', () => {
@@ -174,24 +174,26 @@ describe('test configuration', () => {
 		});
 
 		it('requesting nested values', () => {
-			process.env['Nested.foo'] = "another bar";
+			const { dotNotationSeparator } = defaultOptions;
+			process.env['Nested' + dotNotationSeparator + 'foo'] = "another bar";
 			const config = new Configuration();
 			config.init(options);
-			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('another bar');
-			delete process.env['Nested.foo'];
+			expect(config.get('Nested' + dotNotationSeparator + 'foo'), 'get Nested').to.be.equal('another bar');
+			delete process.env['Nested' + dotNotationSeparator + 'foo'];
 		});
 
 		it('set Nested values', () => {
-			process.env['Nested.foo'] = "foo";
-			process.env['Nested.bar'] = "bar";
+			const { dotNotationSeparator } = defaultOptions;
+			process.env['Nested' + dotNotationSeparator + 'foo'] = "foo";
+			process.env['Nested' + dotNotationSeparator + 'bar'] = "bar";
 			const config = new Configuration();
 			config.init(options);
-			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('foo');
-			config.set('Nested.foo', 'another bar');
-			expect(config.get('Nested.foo'), 'get Nested').to.be.equal('another bar');
-			expect(config.get('Nested.bar'), 'get Nested').to.be.equal('bar');
-			delete process.env['Nested.foo'];
-			delete process.env['Nested.bar'];
+			expect(config.get('Nested' + dotNotationSeparator + 'foo'), 'get Nested').to.be.equal('foo');
+			config.set('Nested' + dotNotationSeparator + 'foo', 'another bar');
+			expect(config.get('Nested' + dotNotationSeparator + 'foo'), 'get Nested').to.be.equal('another bar');
+			expect(config.get('Nested' + dotNotationSeparator + 'bar'), 'get Nested').to.be.equal('bar');
+			delete process.env['Nested' + dotNotationSeparator + 'foo'];
+			delete process.env['Nested' + dotNotationSeparator + 'bar'];
 		});
 
 	});
