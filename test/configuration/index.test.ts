@@ -200,7 +200,7 @@ describe('test configuration', () => {
 
 	});
 
-	describe.only('project customized option file', () => {
+	describe('project customized option file', () => {
 		it('custom dot notation', () => {
 			const helloWorld = 'Hello World!';
 			ConfigurationSingleton.set('Foo->Bar', helloWorld);
