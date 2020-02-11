@@ -1,9 +1,9 @@
 # Commons
 
 [![npm version](https://badge.fury.io/js/%40schul-cloud%2Fcommons.svg)](https://www.npmjs.com/package/@schul-cloud/commons)
-
 [![Test Action](https://github.com/schul-cloud/commons/workflows/Node%20CI/badge.svg)](https://github.com/schul-cloud/commons/actions)
 [![Deployment Action](https://github.com/schul-cloud/commons/workflows/Build%20and%20Publish/badge.svg)](https://github.com/schul-cloud/commons/actions)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd0d792b16a342a69df80cc4e96ef1f8)](https://www.codacy.com/manual/schul-cloud/commons?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=schul-cloud/commons&amp;utm_campaign=Badge_Grade)
 
 <!--
 [![Build Status][travis-image]][travis-url]
