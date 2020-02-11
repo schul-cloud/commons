@@ -10,8 +10,8 @@
 	"homepage": "https://github.com/schul-cloud/commons",
 	"scripts": {
 		"coverage": "NODE_ENV=test nyc mocha -r ts-node/register -r tsconfig-paths/register test/**/*.test.ts",
-		"test": "npm run build && npm run coverage",
 		"mocha": "NODE_ENV=test mocha -r ts-node/register -r tsconfig-paths/register test/**/*.test.ts",
+		"test": "npm run build && npm run coverage",
 		"lint": "eslint --ext .js,.ts --fix src/ && eslint --ext .js,.ts --fix test/",
 		"build": "rm -rf lib && tsc"
 	},
