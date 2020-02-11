@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/%40schul-cloud%2Fcommons.svg)](https://www.npmjs.com/package/@schul-cloud/commons)
 [![Test Action](https://github.com/schul-cloud/commons/workflows/Node%20CI/badge.svg)](https://github.com/schul-cloud/commons/actions)
 [![Deployment Action](https://github.com/schul-cloud/commons/workflows/Build%20and%20Publish/badge.svg)](https://github.com/schul-cloud/commons/actions)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd0d792b16a342a69df80cc4e96ef1f8)](https://www.codacy.com/manual/schul-cloud/commons?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=schul-cloud/commons&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd0d792b16a342a69df80cc4e96ef1f8)](https://www.codacy.com/manual/schul-cloud/commons?utm_source=github.com&utm_medium=referral&utm_content=schul-cloud/commons&utm_campaign=Badge_Grade)
 
 <!--
 [![Build Status][travis-image]][travis-url]
@@ -76,48 +76,3 @@ Create a local file `sc-config.json` in your project root, it will be used on in
 
 Custom validation keywords may be added to get detailed error messages for specific checks:
 https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
-
-## Changelog
-
-### Next Version
-
- - fixed toObject() of config to return nested properties instead of with dot separator in the name (discussion for export option open).
- - default export returns instance of configuration, options loaded from file optionally, manual init() is no more required for thew singleton access
- - default node version updated to current 10.X
-
-### 1.0.13
-
-#### Fixed in 1.0.13
-
-- cache final (dotted) config object
-- return errors on set/get for invalid values
-- debugging: register tsconfig-paths
-- eslint: require tabs for indention and semi after statements
-
-#### Added in 1.0.13
-
-- coverage support using nyc mocha added
-- improve test coverage
-
-### 1.0.12
-
-- Singleton import and initialization rewritten
-- updated readme describing different imports using a sample
-
-### 1.0.11
-
-#### Fixed in 1.0.11
-
-- Singleton getInstance() Method
-
-### 1.0.10
-
-#### Added in 1.0.10
-
-- Singleton access to Configuration, public constructor is deprecated but enabled for tests
-- Support for Dot-Notation and Nested Properties in Configuration for reading environment variables and using Configurations has, get and toObject
-- File encoding added to configuration
-
-#### Fixed in 1.0.10
-
-- Different spelling issues rewritten
