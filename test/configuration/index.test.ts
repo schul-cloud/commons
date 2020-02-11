@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import dot from 'dot-object';
 
-import DefaultConfiguration, { Configuration, defaultOptions } from '../../src/configuration';
+import ConfigurationSingleton, { Configuration, defaultOptions } from '../../src/configuration';
 import { IConfigOptions } from '../../src/interfaces/IConfigOptions';
 
 describe('test configuration', () => {
@@ -200,10 +200,22 @@ describe('test configuration', () => {
 
 	});
 
+	describe.only('project customized option file', () => {
+		it('custom dot notation', () => {
+			const helloWorld = 'Hello World!';
+			ConfigurationSingleton.set('Foo->Bar', helloWorld);
+			expect(ConfigurationSingleton.get('Foo->Bar')).to.be.equal(helloWorld);
+			const currentConfig = ConfigurationSingleton.toObject();
+			expect(currentConfig.Foo).to.exist;
+			expect(currentConfig.Foo.Bar).to.exist;
+			expect(currentConfig.Foo.Bar).to.be.not.empty;
+			expect(currentConfig.Foo.Bar).to.be.equal(helloWorld);
+		});
+	});
+
 	describe('singleton', () => {
 
-		const config = DefaultConfiguration;
-		config.init(options);
+		const config = ConfigurationSingleton;
 
 		it('get Instance returns same instance on multiple calls', () => {
 			const otherConfig = Configuration.Instance;

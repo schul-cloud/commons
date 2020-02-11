@@ -35,6 +35,15 @@ enum ReadyState {
 	InitFinished = 3
 }
 
+// load project options from sc-config.json, if exists
+let projectConfigOptions: IConfigOptions = {};
+const scConfigFilePath = path.join(defaultOptions.baseDir, 'sc-config.json');
+if (fs.existsSync(scConfigFilePath)) {
+	projectConfigOptions = JSON.parse(
+		fs.readFileSync(scConfigFilePath, defaultOptions.fileEncoding)
+	);
+}
+
 /**
  * JSON-Schema validated Configuration Wrapper with dot notation support. 
  *
@@ -110,7 +119,11 @@ export class Configuration implements IConfiguration {
 	 */
 	public toObject(): any {
 		this.ensureInitialized();
-		return loadash.cloneDeep(this.config);
+		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
+			return loadash.cloneDeep((this.dot as DotObject.Dot).object(this.config));
+		} else {
+			return loadash.cloneDeep(this.config);
+		}
 	}
 
 	/**
@@ -176,7 +189,7 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-	 * returns a singleton configuration instance
+	 * returns a singleton configuration instance, override defaults using a sc-config.json file based on IConfigOptions in the projects root.
 	 *
 	 * @returns {Configuration}
 	 * @memberof Configuration
@@ -184,6 +197,7 @@ export class Configuration implements IConfiguration {
 	public static get Instance(): Configuration {
 		if (!Configuration.instance) {
 			Configuration.instance = new Configuration();
+			Configuration.instance.init(projectConfigOptions);
 		}
 		return Configuration.instance;
 	}
