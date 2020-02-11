@@ -132,6 +132,9 @@ describe('test configuration', () => {
 			schemaFileName: 'dot.schema.json',
 			configDir: 'test/data',
 		};
+		const { dotNotationSeparator } = defaultOptions;
+		const configNameFoo = 'Nested' + dotNotationSeparator + 'foo';
+		const configNameBar = 'Nested' + dotNotationSeparator + 'bar';
 
 		it('object creation from dot notation', () => {
 			const sample = {
@@ -142,6 +145,7 @@ describe('test configuration', () => {
 				},
 				Very: { Nested: { Value: "value" } }
 			};
+
 			const dotted = dot.dot(sample);
 			expect(dotted['Sample']).to.be.equal('sample');
 			expect(dotted['Nested.foo']).to.be.equal('foo');
@@ -174,26 +178,24 @@ describe('test configuration', () => {
 		});
 
 		it('requesting nested values', () => {
-			const { dotNotationSeparator } = defaultOptions;
-			process.env['Nested' + dotNotationSeparator + 'foo'] = "another bar";
+			process.env[configNameFoo] = "another bar";
 			const config = new Configuration();
 			config.init(options);
-			expect(config.get('Nested' + dotNotationSeparator + 'foo'), 'get Nested').to.be.equal('another bar');
-			delete process.env['Nested' + dotNotationSeparator + 'foo'];
+			expect(config.get(configNameFoo), 'get Nested').to.be.equal('another bar');
+			delete process.env[configNameFoo];
 		});
 
 		it('set Nested values', () => {
-			const { dotNotationSeparator } = defaultOptions;
-			process.env['Nested' + dotNotationSeparator + 'foo'] = "foo";
-			process.env['Nested' + dotNotationSeparator + 'bar'] = "bar";
+			process.env[configNameFoo] = "foo";
+			process.env[configNameBar] = "bar";
 			const config = new Configuration();
 			config.init(options);
-			expect(config.get('Nested' + dotNotationSeparator + 'foo'), 'get Nested').to.be.equal('foo');
-			config.set('Nested' + dotNotationSeparator + 'foo', 'another bar');
-			expect(config.get('Nested' + dotNotationSeparator + 'foo'), 'get Nested').to.be.equal('another bar');
-			expect(config.get('Nested' + dotNotationSeparator + 'bar'), 'get Nested').to.be.equal('bar');
-			delete process.env['Nested' + dotNotationSeparator + 'foo'];
-			delete process.env['Nested' + dotNotationSeparator + 'bar'];
+			expect(config.get(configNameFoo), 'get Nested').to.be.equal('foo');
+			config.set(configNameFoo, 'another bar');
+			expect(config.get(configNameFoo), 'get Nested').to.be.equal('another bar');
+			expect(config.get(configNameBar), 'get Nested').to.be.equal('bar');
+			delete process.env[configNameFoo];
+			delete process.env[configNameBar];
 		});
 
 	});
