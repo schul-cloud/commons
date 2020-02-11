@@ -81,6 +81,12 @@ https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
 
 ## Changelog
 
+### Next Version
+
+ - fixed toObject() of config to return nested properties instead of with dot separator in the name (discussion for export option open).
+ - default export returns instance of configuration, options loaded from file optionally, manual init() is no more required for thew singleton access
+ - default node version updated to current 10.X
+
 ### 1.0.13
 
 #### Fixed in 1.0.13
