@@ -46,7 +46,7 @@ export class Configuration implements IConfiguration {
 
 	private static instance: Configuration;
 	private options?: IRequiredConfigOptions;
-	private dot?: any;
+	private dot?: DotObject.Dot;
 	private data: IConfig;
 	private schema: any;
 	private config: any;
@@ -94,7 +94,7 @@ export class Configuration implements IConfiguration {
 	 */
 	private updateConfig(): void {
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
-			this.config = this.dot.dot(this.data);
+			this.config = (this.dot as DotObject.Dot).dot(this.data);
 			return;
 		} else {
 			this.config = loadash.cloneDeep(this.data);
@@ -157,7 +157,7 @@ export class Configuration implements IConfiguration {
 		}
 
 		// parse env, optionally with dot transformation added
-		const env = this.options.useDotNotation ? this.dot.object(loadash.cloneDeep(process.env)) : process.env;
+		const env = this.options.useDotNotation ? (this.dot as DotObject.Dot).object(loadash.cloneDeep(process.env)) : process.env;
 		configurations.push(loadash.merge({}, env));
 		const mergedConfiguration = loadash.merge({}, ...configurations);
 		if (!this.parse(mergedConfiguration)) {
@@ -199,7 +199,7 @@ export class Configuration implements IConfiguration {
 		this.ensureInitialized();
 		this.updateErrors = [];
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
-			this.dot.object(params);
+			(this.dot as DotObject.Dot).object(params);
 		}
 		const data = loadash.merge({}, this.data, params);
 		return this.parse(data);
