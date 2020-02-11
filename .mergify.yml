@@ -19,7 +19,7 @@ pull_request_rules:
           - ready to merge
   - name: remove "ready to merge" label when pull is not approved
     conditions:
-      - status-failure~=Node CI
+      - status-failure~=Codacy
       - label~=ready to merge
       - -merged
     actions:
