@@ -1,0 +1,36 @@
+pull_request_rules:
+  - name: auto merge when label is set
+    conditions:
+      - label=ready to merge
+      - status-success~=Node CI
+    actions:
+      merge:
+        method: merge
+        strict: true
+  - name: remove ready to merge label when merged
+    conditions:
+      - merged
+      - label=ready to merge
+    actions:
+      label:
+        add:
+          - mergified
+        remove:
+          - ready to merge
+  - name: remove "ready to merge" label when pull is not approved
+    conditions:
+      - status-failure~=Node CI
+      - label~=ready to merge
+      - -merged
+    actions:
+      comment:
+        message: The "ready to merge" label can only be set after one pull request approval
+      label:
+        remove:
+          - ready to mergepull_request_rules:
+  - name: Automatic merge on approval
+    conditions:
+      - "#approved-reviews-by>=1"
+    actions:
+      merge:
+        method: merge
