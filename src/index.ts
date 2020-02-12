@@ -1,4 +1,4 @@
-import { Configuration } from './configuration/index';
+import Configuration from './configuration/index';
 import Validator from './validator';
 
 export = {
