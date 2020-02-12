@@ -35,6 +35,15 @@
 				"warning",
 				"error"
 			]
+		},
+		"Foo": {
+			"type": "object",
+			"description": "sample nested property",
+			"properties": {
+				"Bar": {
+					"type": "string"
+				}
+			}
 		}
 	},
 	"required": [

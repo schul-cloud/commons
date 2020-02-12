@@ -11,7 +11,7 @@ import ConfigurationError from '../errors/ConfigurationError';
 import { IRequiredConfigOptions } from '@/interfaces/IRequiredConfigOptions';
 import { IConfig } from '@/interfaces/IConfig';
 
-const defaultOptions: IRequiredConfigOptions = {
+export const defaultOptions: IRequiredConfigOptions = {
 	logger: console,
 	notFoundValue: null,
 	configDir: 'config',
@@ -23,6 +23,7 @@ const defaultOptions: IRequiredConfigOptions = {
 		coerceTypes: 'array',
 	},
 	useDotNotation: true,
+	dotNotationSeparator: "__",
 	fileEncoding: 'utf8',
 	throwOnError: true
 };
@@ -32,6 +33,15 @@ enum ReadyState {
 	InstanceCreated = 1,
 	InitStarted = 2,
 	InitFinished = 3
+}
+
+// load project options from sc-config.json, if exists
+let projectConfigOptions: IConfigOptions = {};
+const scConfigFilePath = path.join(defaultOptions.baseDir, 'sc-config.json');
+if (fs.existsSync(scConfigFilePath)) {
+	projectConfigOptions = JSON.parse(
+		fs.readFileSync(scConfigFilePath, defaultOptions.fileEncoding)
+	);
 }
 
 /**
@@ -45,6 +55,7 @@ export class Configuration implements IConfiguration {
 
 	private static instance: Configuration;
 	private options?: IRequiredConfigOptions;
+	private dot?: DotObject.Dot;
 	private data: IConfig;
 	private schema: any;
 	private config: any;
@@ -92,7 +103,7 @@ export class Configuration implements IConfiguration {
 	 */
 	private updateConfig(): void {
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
-			this.config = dot.dot(this.data);
+			this.config = (this.dot as DotObject.Dot).dot(this.data);
 			return;
 		} else {
 			this.config = loadash.cloneDeep(this.data);
@@ -108,7 +119,11 @@ export class Configuration implements IConfiguration {
 	 */
 	public toObject(): any {
 		this.ensureInitialized();
-		return loadash.cloneDeep(this.config);
+		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
+			return loadash.cloneDeep((this.dot as DotObject.Dot).object(this.config));
+		} else {
+			return loadash.cloneDeep(this.config);
+		}
 	}
 
 	/**
@@ -128,6 +143,9 @@ export class Configuration implements IConfiguration {
 		this.options = loadash.merge({}, defaultOptions, options || {});
 		dotenv.config({ path: this.options.baseDir }); // extend process.env by .env file
 		this.schemaValidator = new Ajv(this.options.ajvOptions);
+		if (this.options.useDotNotation) {
+			this.dot = new dot(this.options.dotNotationSeparator);
+		}
 
 		// try parsing schema file from path
 		const schemaFilePath = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
@@ -152,7 +170,7 @@ export class Configuration implements IConfiguration {
 		}
 
 		// parse env, optionally with dot transformation added
-		const env = this.options.useDotNotation ? dot.object(loadash.cloneDeep(process.env)) : process.env;
+		const env = this.options.useDotNotation ? (this.dot as DotObject.Dot).object(loadash.cloneDeep(process.env)) : process.env;
 		configurations.push(loadash.merge({}, env));
 		const mergedConfiguration = loadash.merge({}, ...configurations);
 		if (!this.parse(mergedConfiguration)) {
@@ -171,7 +189,7 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-	 * returns a singleton configuration instance
+	 * returns a singleton configuration instance, override defaults using a sc-config.json file based on IConfigOptions in the projects root.
 	 *
 	 * @returns {Configuration}
 	 * @memberof Configuration
@@ -179,6 +197,7 @@ export class Configuration implements IConfiguration {
 	public static get Instance(): Configuration {
 		if (!Configuration.instance) {
 			Configuration.instance = new Configuration();
+			Configuration.instance.init(projectConfigOptions);
 		}
 		return Configuration.instance;
 	}
@@ -194,7 +213,7 @@ export class Configuration implements IConfiguration {
 		this.ensureInitialized();
 		this.updateErrors = [];
 		if ((this.options as IRequiredConfigOptions).useDotNotation === true) {
-			dot.object(params);
+			(this.dot as DotObject.Dot).object(params);
 		}
 		const data = loadash.merge({}, this.data, params);
 		return this.parse(data);

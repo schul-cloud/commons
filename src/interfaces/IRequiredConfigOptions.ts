@@ -35,5 +35,6 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	schemaFileName: string;
 	ajvOptions: Ajv.Options;
 	useDotNotation: boolean;
+	dotNotationSeparator: string;
 	fileEncoding: string;
 }
