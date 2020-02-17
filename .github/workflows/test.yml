@@ -27,6 +27,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Cache node modules
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-${{ matrix.node-version }}-commons-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.node-version }}-commons-
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
