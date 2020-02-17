@@ -13,6 +13,7 @@
 		"mocha": "NODE_ENV=test mocha -r ts-node/register -r tsconfig-paths/register test/**/*.test.ts",
 		"test": "npm run build && npm run coverage",
 		"lint": "eslint --ext .js,.ts --fix src/ && eslint --ext .js,.ts --fix test/",
+		"lint:ci": "eslint --ext .js,.ts src/ && eslint --ext .js,.ts test/",
 		"build": "rm -rf lib && tsc"
 	},
 	"publishConfig": {
