@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import 'mocha';
+import { describe, it } from 'mocha';
 import dot from 'dot-object';
 
 import ConfigurationSingleton, { Configuration, defaultOptions } from '../../src/configuration';
@@ -11,15 +11,16 @@ describe('test configuration', () => {
 		configDir: 'test/data',
 	};
 
-	it('test configuration initialization', () => {
-		const config = new Configuration();
+	it('test configuration default initialization', () => {
+		const config = new Configuration({
+			configDir: 'test/data',
+		});
 		expect(config).to.be.not.null;
 		expect(config).to.be.not.undefined;
 	});
 
 	it('test configuration parser order', () => {
-		const config = new Configuration();
-		config.init(options);
+		const config = new Configuration(options);
 		expect(config.get('ENV_CONFIG'), 'env specific information overrides default').to.be.equal('test');
 		expect(config.get('Boolean')).to.be.equal(true);
 	});
@@ -30,8 +31,7 @@ describe('test configuration', () => {
 			notFoundValue: false,
 			throwOnError: false
 		};
-		const config = new Configuration();
-		config.init(options);
+		const config = new Configuration(options);
 		// this will be set as default from schema definition
 		expect(config.get('DefaultSample'), 'default value has been applied').to.be.equal('defaultSample');
 		// this will be removed because not in schema but in ENV
@@ -40,8 +40,7 @@ describe('test configuration', () => {
 	});
 
 	it('test assignmment and re-assignment of valid values', () => {
-		const config = new Configuration();
-		config.init(options);
+		const config = new Configuration(options);
 		expect(config.set('Number', 1.0), 'number assignment').to.be.equal(true);
 		expect(config.get('Number'), 'get Number').to.be.equal(1.0);
 		expect(config.getErrors(), 'no errors exist').to.be.null;
@@ -69,8 +68,7 @@ describe('test configuration', () => {
 	});
 
 	it('test assignmment of invalid values fails', () => {
-		const config = new Configuration();
-		config.init(Object.assign({}, options, { throwOnError: false }));
+		const config = new Configuration(Object.assign({}, options, { throwOnError: false }));
 		expect(config.set('Number', 'foo'), 'number assignment').to.be.equal(false);
 		expect(config.get('Number'), 'get Number').to.be.equal(1.3); // value from default.json
 		expect(config.getErrors(), 'no errors exist').to.be.not.null;
@@ -83,9 +81,6 @@ describe('test configuration', () => {
 		expect(config.set('Boolean', 'foo'), 'Boolean assignment').to.be.equal(false);
 		expect(config.get('Boolean'), 'get Boolean').to.be.equal(true); // value from test.json
 		expect((config.getErrors() as any[]).length, '1 error exist').to.be.equal(1);
-
-		const throwingConfig = new Configuration();
-		throwingConfig.init(options);
 
 		expect(() => config.set('Number', 'foo'), 'number assignment').to.throw;
 		expect(config.get('Number'), 'get Number').to.be.equal(1.3); // value from default.json
@@ -103,8 +98,7 @@ describe('test configuration', () => {
 	});
 
 	it('test type coersion', () => {
-		const config = new Configuration();
-		config.init(options);
+		const config = new Configuration(options);
 		expect(config.set('String', false), 'String assignment').to.be.equal(true);
 		expect(config.get('String'), 'get String').to.be.equal('false'); // not found value
 		expect(config.getErrors(), 'no errors exist').to.be.null;
@@ -113,17 +107,9 @@ describe('test configuration', () => {
 	it('test environment settings', () => {
 		const beforeValue = process.env.Version;
 		process.env.Version = "4.5.6";
-		const config = new Configuration();
-		config.init(options);
+		const config = new Configuration(options);
 		expect(config.get('Version'), 'get Version').to.be.equal('4.5.6'); // not 1.2.3 defined in file
 		process.env.Version = beforeValue;
-	});
-
-	it('app registration on init', () => {
-		const config = new Configuration();
-		const app: any = {};
-		config.init({ ...options, app });
-		expect(app.Config).to.be.equal(config);
 	});
 
 	describe('dot notation', () => {
@@ -131,10 +117,12 @@ describe('test configuration', () => {
 		const options: IConfigOptions = {
 			schemaFileName: 'dot.schema.json',
 			configDir: 'test/data',
+			envDir: 'test/data',
+			debug: true
 		};
 		const { dotNotationSeparator } = defaultOptions;
-		const configNameFoo = 'Nested' + dotNotationSeparator + 'foo';
-		const configNameBar = 'Nested' + dotNotationSeparator + 'bar';
+		const configNestedFoo = 'Nested' + dotNotationSeparator + 'foo';
+		const configNestedBar = 'Nested' + dotNotationSeparator + 'bar';
 
 		it('object creation from dot notation', () => {
 			const sample = {
@@ -169,33 +157,42 @@ describe('test configuration', () => {
 		});
 
 		it('parse nested from environment', () => {
-			process.env['Nested.foo'] = "another bar";
-			const config = new Configuration();
-			config.init(options);
-			config.set('Sample', 'sample');
-			expect(config.get('Sample'), 'get Sample').to.be.equal('sample');
-			delete process.env['Nested.foo'];
+			expect(process.env[configNestedFoo]).to.be.undefined;
+			const fooValue = "foo";
+			process.env[configNestedFoo] = fooValue;
+			const config = new Configuration(options);
+			const sampleValue = 'sample';
+			config.set('Sample', sampleValue);
+			expect(config.get('Sample'), 'get Sample').to.be.equal(sampleValue);
+			expect(config.get(configNestedFoo), 'get Sample').to.be.equal(fooValue);
+			delete process.env[configNestedFoo];
+			expect(process.env[configNestedFoo]).to.be.undefined;
+		});
+
+		it('parse nested property from .env file', () => {
+			const configPath = "TEST__NESTED__DOT_ENV_VALUE"; // defined in .env file in root
+			expect(process.env[configPath]).to.be.undefined;
+			const config = new Configuration(options);
+			const envValue = config.get(configPath);
+			expect(envValue).to.be.true;
+			expect(process.env[configPath]).to.be.undefined;
 		});
 
 		it('requesting nested values', () => {
-			process.env[configNameFoo] = "another bar";
-			const config = new Configuration();
-			config.init(options);
-			expect(config.get(configNameFoo), 'get Nested').to.be.equal('another bar');
-			delete process.env[configNameFoo];
+			process.env[configNestedFoo] = "another bar";
+			const config = new Configuration(options);
+			expect(config.get(configNestedFoo), 'get Nested').to.be.equal('another bar');
+			delete process.env[configNestedFoo];
 		});
 
 		it('set Nested values', () => {
-			process.env[configNameFoo] = "foo";
-			process.env[configNameBar] = "bar";
-			const config = new Configuration();
-			config.init(options);
-			expect(config.get(configNameFoo), 'get Nested').to.be.equal('foo');
-			config.set(configNameFoo, 'another bar');
-			expect(config.get(configNameFoo), 'get Nested').to.be.equal('another bar');
-			expect(config.get(configNameBar), 'get Nested').to.be.equal('bar');
-			delete process.env[configNameFoo];
-			delete process.env[configNameBar];
+			process.env[configNestedFoo] = "foo";
+			process.env[configNestedBar] = "bar";
+			const config = new Configuration(options);
+			expect(config.get(configNestedFoo), 'get Nested').to.be.equal('foo');
+			config.set(configNestedFoo, 'another bar');
+			expect(config.get(configNestedFoo), 'get Nested').to.be.equal('another bar');
+			delete process.env[configNestedFoo];
 		});
 
 	});
@@ -203,8 +200,8 @@ describe('test configuration', () => {
 	describe('project customized option file', () => {
 		it('custom dot notation', () => {
 			const helloWorld = 'Hello World!';
-			ConfigurationSingleton.set('Foo->Bar', helloWorld);
-			expect(ConfigurationSingleton.get('Foo->Bar')).to.be.equal(helloWorld);
+			ConfigurationSingleton.set('Foo__Bar', helloWorld);
+			expect(ConfigurationSingleton.get('Foo__Bar')).to.be.equal(helloWorld);
 			const currentConfig = ConfigurationSingleton.toObject();
 			expect(currentConfig.Foo).to.exist;
 			expect(currentConfig.Foo.Bar).to.exist;
@@ -222,28 +219,11 @@ describe('test configuration', () => {
 			expect(config).to.be.equal(otherConfig);
 		});
 
-		it('init runs & accepts options and app defined only once', () => {
-			expect(() => config.init(options)).to.throw;
-			expect(Configuration.Instance).to.be.equal(config);
+		it('new Instance is different to signleton', () => {
+			const otherConfig = new Configuration(options);
+			expect(otherConfig).to.be.not.equal(config);
 		});
 
 	});
-
-	describe('throwing errors', () => {
-		it('ensure init required', () => {
-			const config = new Configuration();
-			expect(() => config.has('foo')).to.throw;
-			expect(() => config.get('foo')).to.throw;
-			expect(() => config.set('foo', 'bar')).to.throw;
-			expect(() => config.toObject()).to.throw;
-		});
-
-		it('throws on app has Config property', () => {
-			const config = new Configuration();
-			const app = { Config: {} };
-			expect(() => config.init({ app })).to.throw;
-		});
-	});
-
 
 });

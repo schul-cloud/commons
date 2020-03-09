@@ -18,8 +18,9 @@
 				"${workspaceFolder}/test/**/*.test.ts"
 			],
 			"env": {
-				"NODE_ENV": "test"
+				// "NODE_ENV": "test"
 			},
+			"runtimeExecutable": "/Users/tobias/.nvm/versions/node/v10.17.0/bin/node",
 			"internalConsoleOptions": "neverOpen",
 			"console": "integratedTerminal",
 			"protocol": "inspector",

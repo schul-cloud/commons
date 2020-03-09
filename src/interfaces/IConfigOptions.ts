@@ -21,10 +21,14 @@ export interface IConfigOptions {
 	 */
 	notFoundValue?: any;
 	configDir?: string;
+	/**
+	 * enables debugging output for dotenv
+	 */
+	debug?: boolean;
+	envDir?: string;
 	baseDir?: string;
 	schemaFileName?: string;
 	useDotNotation?: boolean;
-	dotNotationSeparator?: string;
 	fileEncoding?: string;
 	app?: any;
 }
