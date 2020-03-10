@@ -4,7 +4,6 @@ import 'mocha';
 import validators from '../../src/validator/string';
 
 describe('test string validators', () => {
-
 	it('test regular expressions', () => {
 		const { match } = validators;
 		const fut = match(/^[a-z]+$/);
@@ -30,5 +29,4 @@ describe('test string validators', () => {
 		expect(lowerCase()('low123')).to.be.true;
 		expect(lowerCase()('lowER123')).to.be.false;
 	});
-
 });

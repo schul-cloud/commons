@@ -1,4 +1,4 @@
 {
 	"configDir": "test/data",
-	"dotNotationSeparator": "->"
+	"dotNotationSeparator": "__"
 }
