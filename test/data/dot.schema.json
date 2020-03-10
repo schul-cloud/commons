@@ -10,10 +10,20 @@
 			"default": {
 				"foo": "bar"
 			}
+		},
+		"TEST": {
+			"type": "object",
+			"properties": {
+				"NESTED": {
+					"type": "object",
+					"properties": {
+						"DOT_ENV_VALUE": {
+							"type": "boolean",
+							"default": false
+						}
+					}
+				}
+			}
 		}
-	},
-	"required": [
-		"Sample",
-		"Nested"
-	]
+	}
 }

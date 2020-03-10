@@ -6,6 +6,4 @@ export interface IConfiguration {
 	set(key: string, value: any): boolean;
 	has(key: string): boolean;
 	toObject(): any;
-	init(app?: any): void;
-	// static getInstance(options?: IConfigOptions, app?: any): IConfiguration;
 }

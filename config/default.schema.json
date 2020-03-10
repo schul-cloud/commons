@@ -1,0 +1,11 @@
+{
+	"properties": {
+		"REQUIRED_CONFIG_PROPERTY": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"required": [
+		"REQUIRED_CONFIG_PROPERTY"
+	]
+}

@@ -6,13 +6,13 @@
 		"github": "https: //github.com/schul-cloud/commons"
 	},
 	"license": "MIT",
-	"main": "lib/src/index.js",
+	"main": "lib/index.js",
 	"homepage": "https://github.com/schul-cloud/commons",
 	"scripts": {
-		"coverage": "NODE_ENV=test nyc mocha -r ts-node/register -r tsconfig-paths/register test/**/*.test.ts",
-		"mocha": "NODE_ENV=test mocha -r ts-node/register -r tsconfig-paths/register test/**/*.test.ts",
+		"coverage": "cross-env NODE_ENV=test nyc mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
+		"mocha": "NODE_ENV=test mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
 		"test": "npm run build && npm run coverage",
-		"lint": "eslint --ext .js,.ts --fix src/ && eslint --ext .js,.ts --fix test/",
+		"lint": "eslint . --fix --ext .ts,.js,.json --ignore-path .gitignore",
 		"build": "rm -rf lib && tsc"
 	},
 	"publishConfig": {
@@ -21,21 +21,20 @@
 	"devDependencies": {
 		"@types/chai": "^4.2.4",
 		"@types/mocha": "^7.0.1",
-		"@typescript-eslint/eslint-plugin": "^2.8.0",
+		"@typescript-eslint/eslint-plugin": "^2.23.0",
 		"@typescript-eslint/parser": "^2.8.0",
 		"chai": "^4.2.0",
 		"coveralls": "^3.0.7",
-		"eslint": "^6.6.0",
+		"cross-env": "^7.0.2",
+		"eslint": "^6.8.0",
 		"eslint-config-airbnb": "^18.0.1",
 		"eslint-config-airbnb-base": "^14.0.0",
 		"eslint-plugin-import": "^2.18.2",
-		"eslint-plugin-jsx-a11y": "^6.2.3",
-		"eslint-plugin-react": "^7.16.0",
-		"eslint-plugin-react-hooks": "^1.7.0",
+		"eslint-plugin-json": "^2.1.0",
 		"mocha": "^7.0.1",
 		"ts-node": "^8.4.1",
-		"tslint-config-airbnb": "^5.11.2",
 		"tslint": "^5.20.1",
+		"tslint-config-airbnb": "^5.11.2",
 		"typescript": "^3.7.2"
 	},
 	"dependencies": {
@@ -55,7 +54,9 @@
 	},
 	"nyc": {
 		"extends": "@istanbuljs/nyc-config-typescript",
-		"all": true,
+		"include": [
+			"src/**"
+		],
 		"reporter": [
 			"text",
 			"lcov"
