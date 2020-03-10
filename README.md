@@ -50,18 +50,21 @@ To enable multiple inherited objects when parsing environment variables there ma
 // Access Configuration as Singleton, using default export
 // Initialization is done on first access
 // uses IConfigOptions optionally defined in a sc-config.json file
-import { config: Configuration } from "@schul-cloud/commons";
+import { Configuration as config } from "@schul-cloud/commons";
 
-// Access configuration as class (2)
+// Access configuration as class
 // IConfigOptions can be set in constructor options
-import commons from "@schul-cloud/commons";
-const config = new commons.Configuration(options);
+import { TestConfiguration } from "@schul-cloud/commons";
+const config = new TestConfiguration(options);
 
-// Then you may run
+// Then you may run...
 config.has("key");
+config.toObject();
+// and when the property key has been defined in the schema...
 config.get("key");
 config.set("key", "value");
-// when the property key has been defined in the schema
+// or updating multiple entries
+config.update({...});
 ```
 
 ### Options
