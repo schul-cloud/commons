@@ -15,8 +15,11 @@
 				"ts-node/register",
 				"-r",
 				"tsconfig-paths/register",
-				"${workspaceFolder}/test/**/*.test.ts"
+				"${workspaceFolder}/test/**/*.spec.ts"
 			],
+			"env": {
+				"NODE_ENV": "test"
+			},
 			"internalConsoleOptions": "neverOpen",
 			"console": "integratedTerminal",
 			"protocol": "inspector",

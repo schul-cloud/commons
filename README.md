@@ -87,3 +87,7 @@ config.update({...});
 
 Custom validation keywords may be added to get detailed error messages for specific checks:
 https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
+
+### Dependencies
+
+Multiple supported [keywords](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#keywords) exist in ajv to define dependencies.

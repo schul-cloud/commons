@@ -256,4 +256,25 @@ describe('test configuration', () => {
 			expect(otherConfig).to.be.not.equal(config);
 		});
 	});
+
+	describe('schema dependencies', () => {
+		it('property-value based dependency (feature-flag condition)', () => {
+			const config = new Configuration({
+				schemaFileName: 'dependencies.schema.json',
+				configDir: 'test/data'
+			});
+
+			expect(config.get('FEATURE_FLAG')).to.be.false;
+			expect(() => config.get('FEATURE_OPTION')).to.throw;
+			expect(config.get('OTHER_FEATURE_OPTION')).to.be.equal(42);
+
+			const url = 'http://example.tld';
+			expect(() => config.set('FEATURE_FLAG', true)).to.throw;
+			expect(config.update({ 'FEATURE_OPTION': url, 'FEATURE_FLAG': true })).to.be.true;
+			expect(config.get('FEATURE_FLAG')).to.be.true;
+			expect(config.get('FEATURE_OPTION')).to.be.equal(url);
+
+		});
+	});
+
 });
