@@ -298,7 +298,8 @@ export class Configuration implements IConfiguration {
 	 * @memberof Configuration
 	 */
 	private notFound = (key: string): any => {
-		const message = `There was no configuration value defined for key '${key}'`;
+		const message = `The configuration key '${key}' has been used, but it was not defined in a schema! `
+			+ `Set it required or update it's dependencies to be available in the current situation.`;
 		(this.options).logger.warn(message);
 		if ((this.options).throwOnError) {
 			throw new ConfigurationError(message);
@@ -331,4 +332,4 @@ export class Configuration implements IConfiguration {
 
 }
 
-export default Configuration.Instance;
+export default Configuration.Instance; 
