@@ -4,7 +4,6 @@ import 'mocha';
 import validators from '../../src/validator/number';
 
 describe('test number validators', () => {
-
 	it('test min value for int and floating numbers', () => {
 		const { min } = validators;
 		const fut = min(1);
@@ -26,5 +25,4 @@ describe('test number validators', () => {
 		expect(fut(1.0)).to.be.true;
 		expect(fut(1.1)).to.be.false;
 	});
-
 });

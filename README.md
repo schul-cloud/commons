@@ -25,31 +25,44 @@
 
 ### Configuration
 
-This is a singleton class that can be reused to hold a configuration that is validated by JSON Schema and holds validated data that is optionally overwritten by environment variables. It will parse a config folder for default.json, overwrite the settings found there in a possible existing NODE_ENV.json and finally overwrite the settings based on equally named environment variables.
+The `Configuration` is a singleton that can be reused to hold a configuration that is validated by JSON Schema. A JSON-Schema has to be defined as `default.schema.json` inside a `config` folder. The configuration is build by parsing multiple sources in the following order:
 
-The default schema parser options remove all options not defined in the schema, applying default values and do a default type conversion especially for string to type conversion of environment variables. See https://ajv.js.org/coercion.html for details. Invalid input values will be thrown as Error.
+1. File `default.json` from config folder, then extended or overridden by
+2. NODE_ENV.json from config folder (optionally)
+3. .env file from execution/project root directory
+4. existing environment variables finally override everything from before.
 
-To enable multiple inherited objects when parsing environment variables there may be a dot notation be used. When enabled, this gets applied for export, has, and get too.
+The default schema parser options
+
+1. remove all options from upper sources not defined in the schema file
+2. applying default values
+3. do a [type conversion](https://ajv.js.org/coercion.html) especially for string to type conversion values not defined in the json files (string to X).
+
+Invalid input values will raise an error by default.
+
+To enable multiple inherited objects when parsing environment variables there may be a dot notation be used. When enabled, this gets applied for export, has, and get too. Currently only `__` (double underscore) is supported as separator due to the dependency [dotenv](https://www.npmjs.com/package/dotenv#should-i-have-multiple-env-files) and bad support of `.` (single dot) in many terminals.
 
 ### Sample
 
 ```javascript
-// Access Configuration as Singleton, using default export (1)
-import config from "@schul-cloud/commons";
+// Access Configuration as Singleton, using default export
+// Initialization is done on first access
+// uses IConfigOptions optionally defined in a sc-config.json file
+import { Configuration as config } from "@schul-cloud/commons";
 
-// Access configuration as class (2)
-import { Configuration } from "@schul-cloud/commons";
-const config = new Configuration();
+// Access configuration as class
+// IConfigOptions can be set in constructor options
+import { TestConfiguration } from "@schul-cloud/commons";
+const config = new TestConfiguration(options);
 
-// Initialization must be executed exactly once per instance (2)
-config.init(options);
-
-// Initialization in (1) is done on first access
-
-// Then you may run
+// Then you may run...
 config.has("key");
+config.toObject();
+// and when the property key has been defined in the schema...
 config.get("key");
 config.set("key", "value");
+// or updating multiple entries
+config.update({...});
 ```
 
 ### Options
@@ -66,13 +79,20 @@ config.set("key", "value");
 | useDotNotation  | boolean                    | true                                                                                  | enables dot notation for parsing environment variables (not json files!) and exporting the current config using has, get, and toObject. |
 | fileEncoding    | string                     | 'utf8'                                                                                | set file encoding for imported schema and configuration files                                                                           |
 
-#### Set options in singleton mode
-
-Create a local file `sc-config.json` in your project root, it will be used on initialization to override default options. The file content must match `IConfigOptions` interface.
-
 ## JSON Schema
 
 ### Enhanced validation
 
 Custom validation keywords may be added to get detailed error messages for specific checks:
 https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
+
+### Dependencies
+
+Multiple supported [keywords](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#keywords) exist in ajv to define dependencies.
+
+## Use cases
+
+- To apply local defaults, set values using .env file (never commit this file!)
+- To apply NODE_ENV-specific defaults, use NODE_ENV.json-file in config folder
+- To apply global defaults, set default in schema file itself
+- To applu feature-flag conditions, see dependency [keywords](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#keywords) above.

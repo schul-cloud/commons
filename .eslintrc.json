@@ -7,7 +7,8 @@
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended",
-		"plugin:@typescript-eslint/recommended-requiring-type-checking"
+		"plugin:@typescript-eslint/recommended-requiring-type-checking",
+		"plugin:json/recommended"
 	],
 	"globals": {
 		"Atomics": "readonly",
@@ -15,7 +16,12 @@
 	},
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
-		"project": "./tsconfig.json"
+		"project": "tsconfig-lint.json",
+		"extraFileExtensions": [
+			".json"
+		],
+		"ecmaVersion": 2018,
+		"sourceType": "module"
 	},
 	"plugins": [
 		"@typescript-eslint"
@@ -23,14 +29,17 @@
 	"rules": {
 		"@typescript-eslint/no-explicit-any": 0,
 		"@typescript-eslint/interface-name-prefix": 0,
-		"indent": "off",
 		"@typescript-eslint/indent": [
 			"error",
 			"tab"
 		],
-		"semi": "off",
 		"@typescript-eslint/semi": [
-			"error"
+			"error",
+			"always"
+		],
+		"@typescript-eslint/quotes": [
+			"error",
+			"single"
 		]
 	}
 }

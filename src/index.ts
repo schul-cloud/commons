@@ -1,6 +1,8 @@
-import Configuration from './configuration/index';
+import ConfigurationInstance, { Configuration } from './configuration/index';
 import Validator from './validator';
 
 export = {
-	Configuration, Validator,
+	Configuration: ConfigurationInstance,
+	TestConfiguration: Configuration,
+	Validator
 };
