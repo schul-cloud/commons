@@ -13,8 +13,7 @@
 		"baseUrl": ".",
 		"paths": {
 			"@/*": [
-				"src/*",
-				"lib/*"
+				"src/*"
 			],
 			"@test/*": [
 				"test/*"
@@ -25,10 +24,10 @@
 		]
 	},
 	"include": [
-		"src/**/*",
+		"src/**/*"
 	],
 	"exclude": [
 		"node_modules",
-		"**/*.spec.ts"
+		"test/**/*"
 	]
 }

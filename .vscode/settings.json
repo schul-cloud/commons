@@ -1,16 +1,5 @@
 {
   "editor.formatOnSave": true,
-  "eslint.autoFixOnSave": true,
-  "eslint.validate": [
-    {
-      "language": "javascript",
-      "autoFix": true
-    },
-    {
-      "language": "typescript",
-      "autoFix": true
-    },
-  ],
   "workbench.colorCustomizations": {
     "activityBar.background": "#d04649",
     "activityBar.activeBorder": "#37cb34",
@@ -30,4 +19,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
+  "eslint.options": {
+    "ignorePath": ".gitignore"
+  }
 }

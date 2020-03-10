@@ -4,10 +4,13 @@ import { describe, it } from 'mocha';
 import lib from '../../lib';
 
 describe('test library import', () => {
-
 	it('commons required properties', () => {
-		expect(lib, 'default singleton configuration').to.haveOwnProperty('Configuration');
-		expect(lib, 'configuration class for testing').to.haveOwnProperty('TestConfiguration');
+		expect(lib, 'default singleton configuration').to.haveOwnProperty(
+			'Configuration'
+		);
+		expect(lib, 'configuration class for testing').to.haveOwnProperty(
+			'TestConfiguration'
+		);
 		expect(lib).to.haveOwnProperty('Validator');
 	});
 
@@ -22,5 +25,4 @@ describe('test library import', () => {
 		expect(otherConfiguration.has('REQUIRED_CONFIG_PROPERTY')).to.be.true;
 		expect(otherConfiguration.get('REQUIRED_CONFIG_PROPERTY')).to.be.true;
 	});
-
 });

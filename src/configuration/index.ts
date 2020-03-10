@@ -11,9 +11,10 @@ import ConfigurationError from '../errors/ConfigurationError';
 import { IRequiredConfigOptions } from '@/interfaces/IRequiredConfigOptions';
 import { IConfig } from '@/interfaces/IConfig';
 const { env } = process;
+const logger = console;
 
 export const defaultOptions: IRequiredConfigOptions = {
-	logger: console,
+	logger,
 	notFoundValue: null,
 	configDir: 'config',
 	envDir: '.',
@@ -22,11 +23,11 @@ export const defaultOptions: IRequiredConfigOptions = {
 	ajvOptions: {
 		removeAdditional: 'all',
 		useDefaults: true,
-		coerceTypes: 'array',
+		coerceTypes: 'array'
 	},
 	useDotNotation: true,
 	debug: true,
-	dotNotationSeparator: "__",
+	dotNotationSeparator: '__',
 	fileEncoding: 'utf8',
 	throwOnError: true
 };
@@ -48,14 +49,13 @@ if (fs.existsSync(scConfigFilePath)) {
 }
 
 /**
- * JSON-Schema validated Configuration Wrapper with dot notation support. 
+ * JSON-Schema validated Configuration Wrapper with dot notation support.
  *
  * @export
  * @class Configuration
  * @implements {IConfiguration}
  */
 export class Configuration implements IConfiguration {
-
 	private static instance: Configuration;
 	private options: IRequiredConfigOptions;
 	private dot: DotObject.Dot | null;
@@ -68,12 +68,12 @@ export class Configuration implements IConfiguration {
 	private readyState: ReadyState;
 
 	/**
-	 * Creates a new instance of Configuration class.
-	 * To retrieve a global singleton instance, use default export instead.
-	 * @param {IConfigOptions} [options]
-	 * @memberof Configuration
-	 * @deprecated use singleton getInstance() instead, this will be private in future versions 
-	 */
+   * Creates a new instance of Configuration class.
+   * To retrieve a global singleton instance, use default export instead.
+   * @param {IConfigOptions} [options]
+   * @memberof Configuration
+   * @deprecated use singleton getInstance() instead, this will be private in future versions
+   */
 	public constructor(options?: IConfigOptions) {
 		this.readyState = ReadyState.Default;
 		this.data = {};
@@ -81,42 +81,63 @@ export class Configuration implements IConfiguration {
 		this.readyState = ReadyState.InstanceCreated;
 		//
 		if (this.readyState !== ReadyState.InstanceCreated) {
-			throw new Error('init() is only executable once after configuration construction.');
+			throw new Error(
+				'init() is only executable once after configuration construction.'
+			);
 		}
 		this.readyState = ReadyState.InitStarted;
 
 		// set options and set missing properties
 		this.options = loadash.merge({}, defaultOptions, options || {});
 
-		// parse schema file 
+		// parse schema file
 		this.schemaValidator = new Ajv(this.options.ajvOptions);
-		const schemaFilePath = path.join(this.options.baseDir, this.options.configDir, this.options.schemaFileName);
+		const schemaFilePath = path.join(
+			this.options.baseDir,
+			this.options.configDir,
+			this.options.schemaFileName
+		);
 		if (!fs.existsSync(schemaFilePath)) {
 			throw new ConfigurationError('error loading schema', { schemaFilePath });
 		}
 		this.setSchema(this.loadJSONFromFileName(schemaFilePath));
 
 		// parse values from .env file and process.env
-		const envFilePath = path.join(this.options.baseDir, this.options.envDir, '.env');
+		const envFilePath = path.join(
+			this.options.baseDir,
+			this.options.envDir,
+			'.env'
+		);
 		let dotAndEnv: dotenv.DotenvParseOutput | any = loadash.cloneDeep(env);
 		if (fs.existsSync(envFilePath)) {
-			const envConfig = dotenv.parse(fs.readFileSync(envFilePath, {
-				encoding: this.options.fileEncoding,
-			}), {
-				debug: !!this.options.debug
-			});
+			const envConfig = dotenv.parse(
+				fs.readFileSync(envFilePath, {
+					encoding: this.options.fileEncoding
+				}),
+				{
+					debug: !!this.options.debug
+				}
+			);
 			dotAndEnv = loadash.merge({}, envConfig, dotAndEnv);
 		}
 
-		// read configuration files, first default.json, then NODE_ENV.json 
+		// read configuration files, first default.json, then NODE_ENV.json
 		const configurationFileNames = [];
 		const configurations = [];
 		configurationFileNames.push('default.json');
-		if ('NODE_ENV' in dotAndEnv && dotAndEnv['NODE_ENV'] && dotAndEnv['NODE_ENV'] !== 'default') {
+		if (
+			'NODE_ENV' in dotAndEnv &&
+			dotAndEnv['NODE_ENV'] &&
+			dotAndEnv['NODE_ENV'] !== 'default'
+		) {
 			configurationFileNames.push(dotAndEnv['NODE_ENV'] + '.json');
 		}
 		for (const file of configurationFileNames) {
-			const fullFileName = path.join(this.options.baseDir, this.options.configDir, file);
+			const fullFileName = path.join(
+				this.options.baseDir,
+				this.options.configDir,
+				file
+			);
 			if (fs.existsSync(fullFileName)) {
 				const fileJson = this.loadJSONFromFileName(fullFileName);
 				configurations.push(fileJson);
@@ -126,7 +147,9 @@ export class Configuration implements IConfiguration {
 		// parse dotAndEnv, optionally apply dot transformation
 		if (this.options.useDotNotation) {
 			this.dot = new dot(this.options.dotNotationSeparator);
-			configurations.push(loadash.merge({}, (this.dot).object(loadash.cloneDeep(dotAndEnv))));
+			configurations.push(
+				loadash.merge({}, this.dot.object(loadash.cloneDeep(dotAndEnv)))
+			);
 		} else {
 			this.dot = null;
 			configurations.push(loadash.merge({}, dotAndEnv));
@@ -135,11 +158,13 @@ export class Configuration implements IConfiguration {
 		// merge configurations together, the last mentioned definition wins in order default.json file, NODE_ENV.json file, .env file, environment variables
 		const mergedConfiguration = loadash.merge({}, ...configurations);
 		if (!this.parse(mergedConfiguration)) {
-			throw new ConfigurationError('error parsing configuration', this.getErrors());
+			throw new ConfigurationError(
+				'error parsing configuration',
+				this.getErrors()
+			);
 		}
 
 		this.readyState = ReadyState.InitFinished;
-		this.options.logger.info('Config initialized...');
 	}
 
 	public has = (key: string): boolean => {
@@ -158,13 +183,13 @@ export class Configuration implements IConfiguration {
 	};
 
 	/**
-	 * set final, probably dotted config object
-	 *
-	 * @readonly
-	 * @private
-	 * @type {*}
-	 * @memberof Configuration
-	 */
+   * set final, probably dotted config object
+   *
+   * @readonly
+   * @private
+   * @type {*}
+   * @memberof Configuration
+   */
 	private updateConfig(): void {
 		if (this.dot !== null) {
 			this.config = this.dot.dot(this.data);
@@ -176,11 +201,11 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-	 * publishes the current configuration, eventually converted in dot notation
-	 *
-	 * @returns {*}
-	 * @memberof Configuration
-	 */
+   * publishes the current configuration, eventually converted in dot notation
+   *
+   * @returns {*}
+   * @memberof Configuration
+   */
 	public toObject(): any {
 		this.ensureInitialized();
 		if (this.dot !== null) {
@@ -191,11 +216,11 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-	 * returns a singleton configuration instance, override defaults using a sc-config.json file based on IConfigOptions in the projects root.
-	 *
-	 * @returns {Configuration}
-	 * @memberof Configuration
-	 */
+   * returns a singleton configuration instance, override defaults using a sc-config.json file based on IConfigOptions in the projects root.
+   *
+   * @returns {Configuration}
+   * @memberof Configuration
+   */
 	public static get Instance(): Configuration {
 		if (!Configuration.instance) {
 			Configuration.instance = new Configuration(projectConfigOptions);
@@ -204,12 +229,12 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-	 * update multiple config values
-	 *
-	 * @param {IConfig} params
-	 * @returns {boolean}
-	 * @memberof Configuration
-	 */
+   * update multiple config values
+   *
+   * @param {IConfig} params
+   * @returns {boolean}
+   * @memberof Configuration
+   */
 	public update(params: IConfig): boolean {
 		this.ensureInitialized();
 		this.updateErrors = [];
@@ -222,28 +247,27 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-	 * update a single configuration value
-	 *
-	 * @param {string} key
-	 * @param {*} value
-	 * @returns {boolean}
-	 * @memberof Configuration
-	 */
+   * update a single configuration value
+   *
+   * @param {string} key
+   * @param {*} value
+   * @returns {boolean}
+   * @memberof Configuration
+   */
 	public set(key: string, value: any): boolean {
 		this.ensureInitialized();
 		const params: IConfig = { [key]: value };
 		return this.update(params);
 	}
 
-
 	/**
-	 * updates the current schema if it can be compiled
-	 *
-	 * @param {*} schema
-	 * @memberof Configuration
-	 */
+   * updates the current schema if it can be compiled
+   *
+   * @param {*} schema
+   * @memberof Configuration
+   */
 	private setSchema(schema: any): void {
-		this.validate = (this.schemaValidator).compile(schema);
+		this.validate = this.schemaValidator.compile(schema);
 		this.schema = schema || {};
 	}
 
@@ -252,25 +276,25 @@ export class Configuration implements IConfiguration {
 			throw new ConfigurationError('no schema defined');
 		}
 		// todo deepcopy data here
-		const valid = (this.validate)(data) as boolean;
+		const valid = this.validate(data) as boolean;
 		if (valid) {
 			this.data = data;
 			this.updateConfig();
 		} else {
 			const message = 'error updating configuration data';
-			if ((this.options).throwOnError === true) {
+			if (this.options.throwOnError === true) {
 				throw new ConfigurationError(message, this.getErrors());
 			}
-			(this.options).logger.error(message, this.getErrors());
+			this.options.logger.error(message, this.getErrors());
 		}
 		return valid;
 	};
 
 	/**
-	 * returns an array of error objects or error strings which will be created due to validation or schema errors after setting schema or value(s).
-	 *
-	 * @memberof Configuration
-	 */
+   * returns an array of error objects or error strings which will be created due to validation or schema errors after setting schema or value(s).
+   *
+   * @memberof Configuration
+   */
 	public getErrors = (): [Ajv.ErrorObject | string] | null => {
 		let errors: [Ajv.ErrorObject | string] | null = null;
 		const addErrors = (...items: [Ajv.ErrorObject | string]): void => {
@@ -280,56 +304,66 @@ export class Configuration implements IConfiguration {
 				errors.push(...items);
 			}
 		};
-		if (this.validate && this.validate.errors !== null && Array.isArray(this.validate.errors) && this.validate.errors.length !== 0) {
-			addErrors(...this.validate.errors as [Ajv.ErrorObject]);
+		if (
+			this.validate &&
+			this.validate.errors !== null &&
+			Array.isArray(this.validate.errors) &&
+			this.validate.errors.length !== 0
+		) {
+			addErrors(...(this.validate.errors as [Ajv.ErrorObject]));
 		}
-		if (this.updateErrors && Array.isArray(this.updateErrors) && this.updateErrors.length !== 0) {
-			addErrors(...this.updateErrors as [string]);
+		if (
+			this.updateErrors &&
+			Array.isArray(this.updateErrors) &&
+			this.updateErrors.length !== 0
+		) {
+			addErrors(...(this.updateErrors as [string]));
 		}
 		return errors;
 	};
 
 	/**
-	 * depending on options.throwOnError returns null by default or throws an error for undefined config values
-	 *
-	 * @private
-	 * @param {string} key
-	 * @returns {*}
-	 * @memberof Configuration
-	 */
+   * depending on options.throwOnError returns null by default or throws an error for undefined config values
+   *
+   * @private
+   * @param {string} key
+   * @returns {*}
+   * @memberof Configuration
+   */
 	private notFound = (key: string): any => {
-		const message = `The configuration key '${key}' has been used, but it was not defined in a schema! `
-			+ `Set it required or update it's dependencies to be available in the current situation.`;
-		(this.options).logger.warn(message);
-		if ((this.options).throwOnError) {
+		const message =
+			`The configuration key '${key}' has been used, but it was not defined in a schema! ` +
+			'Set it required or update it\'s dependencies to be available in the current situation.';
+		this.options.logger.warn(message);
+		if (this.options.throwOnError) {
 			throw new ConfigurationError(message);
 		}
-		return (this.options).notFoundValue;
+		return this.options.notFoundValue;
 	};
-
 
 	private loadJSONFromFileName(fullFileName: string): any {
 		const fileData = fs.readFileSync(fullFileName, {
-			encoding: (this.options).fileEncoding
+			encoding: this.options.fileEncoding
 		});
 		const fileJson = JSON.parse(fileData);
 		return fileJson;
 	}
 
 	/**
-	 * throws an error when initialization has not finished
-	 *
-	 * @private
-	 * @returns {boolean}
-	 * @memberof Configuration
-	 */
+   * throws an error when initialization has not finished
+   *
+   * @private
+   * @returns {boolean}
+   * @memberof Configuration
+   */
 	private ensureInitialized(): boolean {
 		if (this.readyState !== ReadyState.InitFinished) {
-			throw new ConfigurationError('Initialization not completed, current state is ' + this.readyState);
+			throw new ConfigurationError(
+				'Initialization not completed, current state is ' + this.readyState
+			);
 		}
 		return true;
 	}
-
 }
 
-export default Configuration.Instance; 
+export default Configuration.Instance;
