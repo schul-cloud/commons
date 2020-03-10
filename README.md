@@ -44,8 +44,6 @@ To enable multiple inherited objects when parsing environment variables there ma
 
 ### Sample
 
-// TODO update imports
-
 ```javascript
 // Access Configuration as Singleton, using default export
 // Initialization is done on first access
@@ -91,3 +89,10 @@ https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
 ### Dependencies
 
 Multiple supported [keywords](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#keywords) exist in ajv to define dependencies.
+
+## Use cases
+
+- To apply local defaults, set values using .env file (never commit this file!)
+- To apply NODE_ENV-specific defaults, use NODE_ENV.json-file in config folder
+- To apply global defaults, set default in schema file itself
+- To applu feature-flag conditions, see dependency [keywords](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#keywords) above.
