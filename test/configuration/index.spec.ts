@@ -307,7 +307,7 @@ describe('test configuration', () => {
 		});
 	});
 
-	describe.only('remove single keys from konfiguration', () => {
+	describe('remove single keys from konfiguration', () => {
 		it('remove single manually added key', () => {
 			const config = new Configuration({
 				schemaFileName: 'default.schema.json',
