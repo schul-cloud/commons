@@ -307,4 +307,53 @@ describe('test configuration', () => {
 		});
 	});
 
+	describe.only('remove single keys from konfiguration', () => {
+		it('remove single manually added key', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			config.set('String', 'sample');
+			const before = config.toObject();
+			expect(config.get('String')).to.be.equal('sample');
+			expect(config.remove('String')).to.be.equal(true);
+			expect(() => config.get('String')).to.throw;
+			expect('String' in config.toObject()).to.be.false;
+			delete before.String;
+			expect(before).to.deep.equal(config.toObject());
+		});
+
+		it('remove multiple keys', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			config.set('String', 'sample');
+			config.set('Boolean', 'true');
+			const before = config.toObject();
+			expect(config.get('String')).to.be.equal('sample');
+			expect(config.get('Boolean')).to.be.equal(true);
+			expect(config.remove('String', 'Boolean')).to.be.equal(true);
+			expect(() => config.get('String')).to.throw;
+			expect(() => config.get('Boolean')).to.throw;
+			expect('String' in config.toObject()).to.be.false;
+			expect('Boolean' in config.toObject()).to.be.false;
+			delete before.String;
+			delete before.Boolean;
+			expect(before).to.deep.equal(config.toObject());
+		});
+		it('remove required key fails', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			config.set('Domain', 'sample.de');
+			const before = config.toObject();
+			expect(config.get('Domain')).to.be.equal('sample.de');
+			expect(() => config.remove('Domain')).to.throw;
+			expect('Domain' in config.toObject()).to.be.true;
+			expect(before).to.deep.equal(config.toObject());
+		});
+	});
+
 });

@@ -5,6 +5,7 @@ export interface IConfiguration {
 	update(params: IConfig): boolean;
 	reset(params: IConfig): boolean;
 	set(key: string, value: any): boolean;
+	remove(...keys: [string]): boolean;
 	has(key: string): boolean;
 	toObject(): any;
 }
