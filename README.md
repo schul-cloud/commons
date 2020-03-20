@@ -44,26 +44,32 @@ To enable multiple inherited objects when parsing environment variables there ma
 
 ### Sample
 
-```javascript
-// Access Configuration as Singleton, using default export
-// Initialization is done on first access
-// uses IConfigOptions optionally defined in a sc-config.json file
-import { Configuration as config } from "@schul-cloud/commons";
+    ``` javascript
+    // Access Configuration as Singleton, using default export
+    // Initialization is done on first access
+    // uses IConfigOptions optionally defined in a sc-config.json file
+    import { Configuration as config } from "@schul-cloud/commons";
 
-// Access configuration as class
-// IConfigOptions can be set in constructor options
-import { TestConfiguration } from "@schul-cloud/commons";
-const config = new TestConfiguration(options);
+    // Access configuration as class
+    // IConfigOptions can be set in constructor options
+    import { TestConfiguration } from "@schul-cloud/commons";
+    const config = new TestConfiguration(options);
 
-// Then you may run...
-config.has("key");
-config.toObject();
-// and when the property key has been defined in the schema...
-config.get("key");
-config.set("key", "value");
-// or updating multiple entries
-config.update({...});
-```
+    // Then you may run...
+    config.has("key");
+    const before = config.toObject();
+    // and when the property key has been defined in the schema...
+    config.get("key");
+    config.set("key", "value");
+    // or updating multiple entries
+    config.update({...});
+
+    // suggested for testing only
+    config.remove("key"); // removes a single key
+    config.remove("key", "key2", ...); // remove multiple keys
+    // override the complete config (removes prior values)
+    config.reset(before);
+    ```
 
 ### Options
 

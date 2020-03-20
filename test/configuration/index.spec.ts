@@ -277,4 +277,83 @@ describe('test configuration', () => {
 		});
 	});
 
+	describe('configuration reset', () => {
+		it('should reset given values', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			const before = config.toObject();
+			expect(Object.keys(before).length).to.be.equal(7);
+			expect(before['Domain']).to.be.equal('localhost');
+			config.set('Domain', 'otherdomain.tld');
+			expect(config.get('Domain')).to.be.equal('otherdomain.tld');
+			config.reset(before);
+			expect(config.get('Domain')).to.be.equal('localhost');
+		});
+		it('should remove values not set before', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			const before = config.toObject();
+			expect(Object.keys(before).length).to.be.equal(7);
+			expect('String' in before).to.be.false;
+			expect(() => config.get('String')).to.throw;
+			config.set('String', 'newValueNotDefinedBefore');
+			expect(config.get('String')).to.be.equal('newValueNotDefinedBefore');
+			config.reset(before);
+			expect(() => config.get('String')).to.throw;
+		});
+	});
+
+	describe('remove single keys from konfiguration', () => {
+		it('remove single manually added key', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			config.set('String', 'sample');
+			const before = config.toObject();
+			expect(config.get('String')).to.be.equal('sample');
+			expect(config.remove('String')).to.be.equal(true);
+			expect(() => config.get('String')).to.throw;
+			expect('String' in config.toObject()).to.be.false;
+			delete before.String;
+			expect(before).to.deep.equal(config.toObject());
+		});
+
+		it('remove multiple keys', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			config.set('String', 'sample');
+			config.set('Boolean', 'true');
+			const before = config.toObject();
+			expect(config.get('String')).to.be.equal('sample');
+			expect(config.get('Boolean')).to.be.equal(true);
+			expect(config.remove('String', 'Boolean')).to.be.equal(true);
+			expect(() => config.get('String')).to.throw;
+			expect(() => config.get('Boolean')).to.throw;
+			expect('String' in config.toObject()).to.be.false;
+			expect('Boolean' in config.toObject()).to.be.false;
+			delete before.String;
+			delete before.Boolean;
+			expect(before).to.deep.equal(config.toObject());
+		});
+		it('remove required key fails', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			config.set('Domain', 'sample.de');
+			const before = config.toObject();
+			expect(config.get('Domain')).to.be.equal('sample.de');
+			expect(() => config.remove('Domain')).to.throw;
+			expect('Domain' in config.toObject()).to.be.true;
+			expect(before).to.deep.equal(config.toObject());
+		});
+	});
+
 });
