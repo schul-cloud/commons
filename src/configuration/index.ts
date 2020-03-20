@@ -2,13 +2,14 @@ import dotenv from 'dotenv';
 import Ajv from 'ajv';
 import loadash from 'lodash';
 import dot from 'dot-object';
-
-import { IConfigOptions } from '@/interfaces/IConfigOptions';
-import { IConfiguration } from '@/interfaces/IConfiguration';
 import fs from 'fs';
 import path from 'path';
+
 import ConfigurationError from '../errors/ConfigurationError';
+import { IConfigOptions } from '@/interfaces/IConfigOptions';
+import { IConfiguration } from '@/interfaces/IConfiguration';
 import { IRequiredConfigOptions } from '@/interfaces/IRequiredConfigOptions';
+import { IUpdateOptions } from '@/interfaces/IUpdateOptions';
 import { IConfig } from '@/interfaces/IConfig';
 const { env } = process;
 const logger = console;
@@ -61,6 +62,9 @@ export class Configuration implements IConfiguration {
 	private dot: DotObject.Dot | null;
 	private data: IConfig;
 	private schema: any;
+	/**
+	 * keeps the current configuration as object
+	 */
 	private config: any;
 	private schemaValidator: Ajv.Ajv;
 	private validate?: Ajv.ValidateFunction;
@@ -68,12 +72,12 @@ export class Configuration implements IConfiguration {
 	private readyState: ReadyState;
 
 	/**
-   * Creates a new instance of Configuration class.
-   * To retrieve a global singleton instance, use default export instead.
-   * @param {IConfigOptions} [options]
-   * @memberof Configuration
-   * @deprecated use singleton getInstance() instead, this will be private in future versions
-   */
+	 * Creates a new instance of Configuration class.
+	 * To retrieve a global singleton instance, use default export instead.
+	 * @param {IConfigOptions} [options]
+	 * @memberof Configuration
+	 * @deprecated use singleton getInstance() instead, this will be private in future versions
+	 */
 	public constructor(options?: IConfigOptions) {
 		this.readyState = ReadyState.Default;
 		this.data = {};
@@ -183,13 +187,13 @@ export class Configuration implements IConfiguration {
 	};
 
 	/**
-   * set final, probably dotted config object
-   *
-   * @readonly
-   * @private
-   * @type {*}
-   * @memberof Configuration
-   */
+	 * set final, probably dotted config object
+	 *
+	 * @readonly
+	 * @private
+	 * @type {*}
+	 * @memberof Configuration
+	 */
 	private updateConfig(): void {
 		if (this.dot !== null) {
 			this.config = this.dot.dot(this.data);
@@ -201,11 +205,11 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-   * publishes the current configuration, eventually converted in dot notation
-   *
-   * @returns {*}
-   * @memberof Configuration
-   */
+	 * publishes the current configuration, eventually converted in dot notation
+	 *
+	 * @returns {*}
+	 * @memberof Configuration
+	 */
 	public toObject(): any {
 		this.ensureInitialized();
 		if (this.dot !== null) {
@@ -216,11 +220,11 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-   * returns a singleton configuration instance, override defaults using a sc-config.json file based on IConfigOptions in the projects root.
-   *
-   * @returns {Configuration}
-   * @memberof Configuration
-   */
+	 * returns a singleton configuration instance, override defaults using a sc-config.json file based on IConfigOptions in the projects root.
+	 *
+	 * @returns {Configuration}
+	 * @memberof Configuration
+	 */
 	public static get Instance(): Configuration {
 		if (!Configuration.instance) {
 			Configuration.instance = new Configuration(projectConfigOptions);
@@ -229,43 +233,66 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-   * update multiple config values
-   *
-   * @param {IConfig} params
-   * @returns {boolean}
-   * @memberof Configuration
-   */
-	public update(params: IConfig): boolean {
+	 * Updates the given values in current configuration.
+	 * @param {IConfig} params params to override in current configuration
+	 * @param {IUpdateOptions} options 
+	 * @param {boolean} options.reset set true, to only keep values given in params and remove the current values 
+	 */
+	public update(params: IConfig, options?: IUpdateOptions): boolean {
 		this.ensureInitialized();
 		this.updateErrors = [];
 		const updatedParams = loadash.cloneDeep(params);
 		if (this.dot !== null) {
 			this.dot.object(updatedParams);
 		}
-		const data = loadash.merge({}, this.data, updatedParams);
+		let data = null;
+		if (options && options.reset === true) {
+			data = updatedParams;
+		} else {
+			data = loadash.merge({}, this.data, updatedParams);
+		}
 		return this.parse(data);
 	}
 
 	/**
-   * update a single configuration value
-   *
-   * @param {string} key
-   * @param {*} value
-   * @returns {boolean}
-   * @memberof Configuration
-   */
+	 * Replaces the current Configuration with given params.
+	 * This removes all current values.
+	 * @param params 
+	 */
+	public reset(params: IConfig): boolean {
+		return this.update(params, { reset: true });
+	}
+
+	/**
+	 * update a single configuration value
+	 *
+	 * @param {string} key
+	 * @param {*} value
+	 * @returns {boolean}
+	 * @memberof Configuration
+	 */
 	public set(key: string, value: any): boolean {
 		this.ensureInitialized();
 		const params: IConfig = { [key]: value };
 		return this.update(params);
 	}
 
+	public remove(...keys: string[]): boolean {
+		this.ensureInitialized();
+		this.updateErrors = [];
+		const data = loadash.omit(this.config, keys);
+		if (this.dot !== null) {
+			this.dot.object(data);
+		}
+		return this.parse(data);
+	}
+
 	/**
-   * updates the current schema if it can be compiled
-   *
-   * @param {*} schema
-   * @memberof Configuration
-   */
+	 * updates the current schema if it can be compiled
+	 *
+	 * @param {*} schema
+	 * @memberof Configuration
+	 */
 	private setSchema(schema: any): void {
 		this.validate = this.schemaValidator.compile(schema);
 		this.schema = schema || {};
@@ -291,10 +318,10 @@ export class Configuration implements IConfiguration {
 	};
 
 	/**
-   * returns an array of error objects or error strings which will be created due to validation or schema errors after setting schema or value(s).
-   *
-   * @memberof Configuration
-   */
+	 * returns an array of error objects or error strings which will be created due to validation or schema errors after setting schema or value(s).
+	 *
+	 * @memberof Configuration
+	 */
 	public getErrors = (): [Ajv.ErrorObject | string] | null => {
 		let errors: [Ajv.ErrorObject | string] | null = null;
 		const addErrors = (...items: [Ajv.ErrorObject | string]): void => {
@@ -323,13 +350,13 @@ export class Configuration implements IConfiguration {
 	};
 
 	/**
-   * depending on options.throwOnError returns null by default or throws an error for undefined config values
-   *
-   * @private
-   * @param {string} key
-   * @returns {*}
-   * @memberof Configuration
-   */
+	 * depending on options.throwOnError returns null by default or throws an error for undefined config values
+	 *
+	 * @private
+	 * @param {string} key
+	 * @returns {*}
+	 * @memberof Configuration
+	 */
 	private notFound = (key: string): any => {
 		const message =
 			`The configuration key '${key}' has been used, but it was not defined in a schema! ` +
@@ -350,12 +377,12 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-   * throws an error when initialization has not finished
-   *
-   * @private
-   * @returns {boolean}
-   * @memberof Configuration
-   */
+	 * throws an error when initialization has not finished
+	 *
+	 * @private
+	 * @returns {boolean}
+	 * @memberof Configuration
+	 */
 	private ensureInitialized(): boolean {
 		if (this.readyState !== ReadyState.InitFinished) {
 			throw new ConfigurationError(
