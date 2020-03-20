@@ -277,7 +277,7 @@ describe('test configuration', () => {
 		});
 	});
 
-	describe(' configuration reset', () => {
+	describe('configuration reset', () => {
 		it('should reset given values', () => {
 			const config = new Configuration({
 				schemaFileName: 'default.schema.json',
