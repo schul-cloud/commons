@@ -277,4 +277,34 @@ describe('test configuration', () => {
 		});
 	});
 
+	describe(' configuration reset', () => {
+		it('should reset given values', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			const before = config.toObject();
+			expect(Object.keys(before).length).to.be.equal(7);
+			expect(before['Domain']).to.be.equal('localhost');
+			config.set('Domain', 'otherdomain.tld');
+			expect(config.get('Domain')).to.be.equal('otherdomain.tld');
+			config.reset(before);
+			expect(config.get('Domain')).to.be.equal('localhost');
+		});
+		it('should remove values not set before', () => {
+			const config = new Configuration({
+				schemaFileName: 'default.schema.json',
+				configDir: 'test/data'
+			});
+			const before = config.toObject();
+			expect(Object.keys(before).length).to.be.equal(7);
+			expect('String' in before).to.be.false;
+			expect(() => config.get('String')).to.throw;
+			config.set('String', 'newValueNotDefinedBefore');
+			expect(config.get('String')).to.be.equal('newValueNotDefinedBefore');
+			config.reset(before);
+			expect(() => config.get('String')).to.throw;
+		});
+	});
+
 });
