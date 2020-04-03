@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.0.19
+
+- dependency/security updates
+- use 'development' as default for NODE_ENV if not defined
+- parsing a default.json as default has been removed and replaced by development.json, system defaults can be applied in the schema only
+
 ## 1.0.18
 
 - dependency/security updates only
