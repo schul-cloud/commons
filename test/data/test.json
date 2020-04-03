@@ -1,4 +1,8 @@
 {
 	"ENV_CONFIG": "test",
-	"Boolean": true
+	"Boolean": true,
+	"Domain": "localhost",
+	"Version": "1.2.3",
+	"Number": 1.3,
+	"Integer": 4
 }
