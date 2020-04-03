@@ -25,10 +25,12 @@
 
 ### Configuration
 
-The `Configuration` is a singleton that can be reused to hold a configuration that is validated by JSON Schema. A JSON-Schema has to be defined as `default.schema.json` inside a `config` folder. The configuration is build by parsing multiple sources in the following order:
+The `Configuration` is a singleton that can be reused to hold a configuration that is validated by JSON Schema. A JSON-Schema has to be defined as `default.schema.json` inside a `config` folder.
 
-1. File `default.json` from config folder, then extended or overridden by
-2. NODE_ENV.json from config folder (optionally)
+The configuration is build by parsing multiple sources in the following order (Last definition overrides definition from before):
+
+1. defaults from default.schema.json
+2. NODE_ENV.json from config folder (defaults to development.json, if NODE_ENV is not defined - the file existence is optionally)
 3. .env file from execution/project root directory
 4. existing environment variables finally override everything from before.
 
@@ -98,7 +100,7 @@ Multiple supported [keywords](https://github.com/epoberezkin/ajv/blob/master/KEY
 
 ## Use cases
 
-- To apply local defaults, set values using .env file (never commit this file!)
 - To apply NODE_ENV-specific defaults, use NODE_ENV.json-file in config folder
 - To apply global defaults, set default in schema file itself
-- To applu feature-flag conditions, see dependency [keywords](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#keywords) above.
+- To apply secrets, set values using .env file (never commit this file!)
+- To apply feature-flag conditions, see dependency [keywords](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#keywords) above.
