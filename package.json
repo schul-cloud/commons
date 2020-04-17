@@ -1,6 +1,6 @@
 {
 	"name": "@schul-cloud/commons",
-	"version": "1.0.19",
+	"version": "1.0.20",
 	"description": "Helpers and common tools for the hpi school-cloud.",
 	"repository": {
 		"github": "https: //github.com/schul-cloud/commons"
@@ -14,7 +14,7 @@
 		"test": "npm run build && npm run coverage",
 		"lint": "eslint . --fix --ext .ts,.js,.json --ignore-path .gitignore",
 		"lint:ci": "eslint . --ext .ts,.js,.json --ignore-path .gitignore",
-		"build": "rm -rf lib && tsc"
+		"build": "rm -rf lib && tsc --declaration --declarationMap"
 	},
 	"publishConfig": {
 		"access": "public"
