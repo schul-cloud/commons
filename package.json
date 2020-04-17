@@ -14,7 +14,7 @@
 		"test": "npm run build && npm run coverage",
 		"lint": "eslint . --fix --ext .ts,.js,.json --ignore-path .gitignore",
 		"lint:ci": "eslint . --ext .ts,.js,.json --ignore-path .gitignore",
-		"build": "rm -rf lib && tsc"
+		"build": "rm -rf lib && tsc --declaration --declarationMap"
 	},
 	"publishConfig": {
 		"access": "public"
