@@ -3,7 +3,7 @@ lib/**
 coverage/**
 .nyc_output/**
 .vscode/**
-!.vscode/settings.json
+!.vscode/launch.json
 
 # added in git, but eslint should ignore this
 tsconfig-lint.json
