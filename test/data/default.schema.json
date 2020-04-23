@@ -1,5 +1,6 @@
 {
 	"type": "object",
+	"additionalProperties": false,
 	"properties": {
 		"ENV_CONFIG": {
 			"type": "string"

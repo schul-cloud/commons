@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import dot from 'dot-object';
+import Ajv from 'ajv';
 
 import ConfigurationSingleton, {
 	Configuration,
@@ -259,9 +260,12 @@ describe('test configuration', () => {
 
 	describe('schema dependencies', () => {
 		it('property-value based dependency (feature-flag condition)', () => {
+			// Specifying dependencies this way does not work when the ajv option {removeAdditional: 'all'} is set,
+			// because it would remove all values which are not mentioned in the if block.
+			// https://github.com/epoberezkin/ajv#filtering-data
 			const config = new Configuration({
 				schemaFileName: 'dependencies.schema.json',
-				configDir: 'test/data'
+				configDir: 'test/data',
 			});
 
 			expect(config.get('FEATURE_FLAG')).to.be.false;
@@ -356,4 +360,270 @@ describe('test configuration', () => {
 		});
 	});
 
+	describe('ajv', () => {
+		const ajv = new Ajv({
+			removeAdditional: true,
+			useDefaults: true,
+			coerceTypes: 'array'
+		});
+
+		describe('if/then', () => {
+			const schema = {
+				'title': 'dependency test schema',
+				'type': 'object',
+				'description': 'this schema declares different dependency methodologies based on specific values defined',
+				'additionalProperties': false,
+				'properties': {
+					'FEATURE_FLAG': {
+						'type': 'boolean',
+						'default': false
+					},
+					'FEATURE_OPTION': {
+						'type': 'string',
+						'format': 'uri'
+					},
+					'OTHER_FEATURE_OPTION': {
+						'type': 'number',
+						'default': 42
+					}
+				},
+				'if': {
+					'properties': {
+						'FEATURE_FLAG': {
+							'const': true
+						}
+					}
+				},
+				'then': {
+					'required': [
+						'FEATURE_OPTION',
+						'OTHER_FEATURE_OPTION'
+					]
+				}
+			};
+			const validate = ajv.compile(schema);
+
+			it('defaults to false', () => {
+				const valid = validate({});
+				expect(valid).to.be.true;
+			});
+
+			it('valid with all options', () => {
+				const valid = validate({
+					'FEATURE_FLAG': true,
+					'FEATURE_OPTION': 'http://asd.de',
+					'OTHER_FEATURE_OPTION': 12
+				});
+				expect(valid).to.be.true;
+			});
+
+			it('invalid without option', () => {
+				const valid = validate({
+					'FEATURE_FLAG': true,
+					'OTHER_FEATURE_OPTION': 12
+				});
+				expect(valid).to.be.false;
+			});
+
+			it('valid if false', () => {
+				const valid = validate({
+					'FEATURE_FLAG': false,
+					'OTHER_FEATURE_OPTION': 12
+				});
+				expect(valid).to.be.true;
+			});
+
+			it('valid with defaults', () => {
+				const valid = validate({
+					'FEATURE_FLAG': true,
+					'FEATURE_OPTION': 'http://asd.de',
+				});
+				expect(valid).to.be.true;
+			});
+		});
+
+		describe('if/then $ref', () => {
+			const schema = {
+				'title': 'dependency test schema',
+				'type': 'object',
+				'description': 'this schema declares different dependency methodologies based on specific values defined',
+				'additionalProperties': false,
+				'properties': {
+					'FEATURE_FLAG': {
+						'type': 'boolean',
+						'default': false
+					},
+					'FEATURE_OPTION': {
+						'type': 'string',
+						'format': 'uri'
+					},
+					'OTHER_FEATURE_OPTION': {
+						'type': 'number',
+						'default': 42
+					}
+				},
+				'allOf': [
+					{
+						'$ref': '#/definitions/require_feature'
+					}
+				],
+				'definitions': {
+					'require_feature': {
+						'if': {
+							'properties': {
+								'FEATURE_FLAG': {
+									'const': true
+								}
+							}
+						},
+						'then': {
+							'required': [
+								'FEATURE_OPTION',
+								'OTHER_FEATURE_OPTION'
+							]
+						}
+					}
+				}
+			};
+			const validate = ajv.compile(schema);
+
+			it('defaults to false', () => {
+				const valid = validate({});
+				expect(valid).to.be.true;
+			});
+
+			it('valid with all options', () => {
+				const valid = validate({
+					'FEATURE_FLAG': true,
+					'FEATURE_OPTION': 'http://asd.de',
+					'OTHER_FEATURE_OPTION': 12
+				});
+				expect(valid).to.be.true;
+			});
+
+			it('invalid without option', () => {
+				const valid = validate({
+					'FEATURE_FLAG': true,
+					'OTHER_FEATURE_OPTION': 12
+				});
+				expect(valid).to.be.false;
+			});
+
+			it('valid if false', () => {
+				const valid = validate({
+					'FEATURE_FLAG': false,
+					'OTHER_FEATURE_OPTION': 12
+				});
+				expect(valid).to.be.true;
+			});
+
+			it('valid with defaults', () => {
+				const valid = validate({
+					'FEATURE_FLAG': true,
+					'FEATURE_OPTION': 'http://asd.de',
+				});
+				expect(valid).to.be.true;
+			});
+		});
+
+		describe('if/then enum $ref', () => {
+			// good to know: conditional validation is always true when the properties is `undefined`
+			// https://github.com/epoberezkin/ajv/issues/913
+			const schema = {
+				'title': 'dependency test schema',
+				'type': 'object',
+				'description': 'this schema declares different dependency methodologies based on specific values defined',
+				'additionalProperties': false,
+				'properties': {
+					'SERVICE': {
+						'type': 'string',
+						'enum': ['none', 'SERVICE_A', 'SERVICE_B'],
+						'default': 'none'
+					},
+					'SERVICE_A_URL': {
+						'type': 'string',
+						'format': 'uri'
+					},
+					'SERVICE_B_URL': {
+						'type': 'string',
+						'format': 'uri'
+					}
+				},
+				'allOf': [
+					{
+						'$ref': '#/definitions/require_service_a_url',
+					},
+					{
+						'$ref': '#/definitions/require_service_b_url',
+					},
+				],
+				'definitions': {
+					'require_service_a_url': {
+						'if': {
+							'properties': {
+								'SERVICE': {
+									'const': 'SERVICE_A'
+								}
+							}
+						},
+						'then': {
+							'required': [
+								'SERVICE_A_URL',
+							]
+						}
+					},
+					'require_service_b_url': {
+						'if': {
+							'properties': {
+								'SERVICE': {
+									'const': 'SERVICE_B'
+								}
+							}
+						},
+						'then': {
+							'required': [
+								'SERVICE_B_URL',
+							]
+						}
+					}
+				}
+			};
+			const validate = ajv.compile(schema);
+
+			it('empty defaults to SERVICE_A', () => {
+				const valid = validate({});
+				expect(valid).to.be.true;
+			});
+
+			it('SERVICE_A url valid', () => {
+				const valid = validate({
+					'SERVICE': 'SERVICE_A',
+					'SERVICE_A_URL': 'http://asd.de',
+				});
+				expect(valid).to.be.true;
+			});
+
+			it('SERVICE_A url missing', () => {
+				const valid = validate({
+					'SERVICE': 'SERVICE_A',
+				});
+				expect(valid).to.be.false;
+			});
+
+			it('SERVICE_B url valid', () => {
+				const valid = validate({
+					'SERVICE': 'SERVICE_B',
+					'SERVICE_B_URL': 'http://asd.de',
+				});
+				expect(valid).to.be.true;
+			});
+
+			it('SERVICE_B url missing', () => {
+				const valid = validate({
+					'SERVICE': 'SERVICE_B',
+				});
+				expect(valid).to.be.false;
+			});
+		});
+	});
 });

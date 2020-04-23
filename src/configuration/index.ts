@@ -22,7 +22,7 @@ export const defaultOptions: IRequiredConfigOptions = {
 	schemaFileName: 'default.schema.json',
 	baseDir: process.cwd(),
 	ajvOptions: {
-		removeAdditional: 'all',
+		removeAdditional: true,
 		useDefaults: true,
 		coerceTypes: 'array'
 	},
