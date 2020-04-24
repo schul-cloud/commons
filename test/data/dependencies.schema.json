@@ -2,6 +2,7 @@
 	"title": "dependency test schema",
 	"type": "object",
 	"description": "this schema declares different dependency methodologies based on specific values defined",
+	"additionalProperties": false,
 	"properties": {
 		"FEATURE_FLAG": {
 			"type": "boolean",
@@ -16,17 +17,26 @@
 			"default": 42
 		}
 	},
-	"if": {
-		"properties": {
-			"FEATURE_FLAG": {
-				"const": true
+	"allOf": [
+		{
+			"$ref": "#/definitions/require_feature_options"
+		}
+	],
+	"definitions": {
+		"require_feature_options": {
+			"if": {
+				"properties": {
+					"FEATURE_FLAG": {
+						"const": true
+					}
+				}
+			},
+			"then": {
+				"required": [
+					"FEATURE_OPTION",
+					"OTHER_FEATURE_OPTION"
+				]
 			}
-		},
-		"then": {
-			"required": [
-				"FEATURE_OPTION",
-				"OTHER_FEATURE_OPTION"
-			]
 		}
 	}
 }

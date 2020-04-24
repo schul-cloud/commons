@@ -1,3 +1,5 @@
+import Ajv from 'ajv';
+
 export interface IConfigOptions {
 	/**
 	* set a custom logger
@@ -25,6 +27,7 @@ export interface IConfigOptions {
 	* enables debugging output for dotenv
 	*/
 	debug?: boolean;
+	ajvOptions?: Ajv.Options;
 	envDir?: string;
 	baseDir?: string;
 	schemaFileName?: string;

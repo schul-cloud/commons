@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.1.0
+
+- added dependency ref support
+- dependencies general updates of dependencies applied
+
 ## 1.0.19
 
 - dependency/security updates

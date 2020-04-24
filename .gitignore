@@ -4,6 +4,8 @@ coverage/**
 .nyc_output/**
 .vscode/**
 !.vscode/launch.json
+.idea
+*.iml
 
 # added in git, but eslint should ignore this
 tsconfig-lint.json
