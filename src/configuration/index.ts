@@ -125,10 +125,11 @@ export class Configuration implements IConfiguration {
 			dotAndEnv = loadash.merge({}, envConfig, dotAndEnv);
 		}
 
-		// read configuration files, NODE_ENV.json (defaults to development.json)
+		// read configuration files, first default.json, then NODE_ENV.json (defaults to development.json) 
 		const configurationFileNames = [];
 		const configurations = [];
-		if ('NODE_ENV' in dotAndEnv) {
+		configurationFileNames.push('default.json');
+		if ('NODE_ENV' in dotAndEnv && dotAndEnv['NODE_ENV'] !== 'default') {
 			configurationFileNames.push(dotAndEnv['NODE_ENV'] + '.json');
 		} else {
 			configurationFileNames.push('development.json');

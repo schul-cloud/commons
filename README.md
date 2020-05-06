@@ -29,10 +29,11 @@ The `Configuration` is a singleton that can be reused to hold a configuration th
 
 The configuration is build by parsing multiple sources in the following order (Last definition overrides definition from before):
 
-1. defaults from default.schema.json
-2. NODE_ENV.json from config folder (defaults to development.json, if NODE_ENV is not defined - the file existence is optionally)
-3. .env file from execution/project root directory
-4. existing environment variables finally override everything from before.
+1. defaults from `default.schema.json`
+2. defaults from `default.json` (values have to be defined here, for properties required in the schema too beside the schema default)
+3. `NODE_ENV.json` from config folder (defaults to `development.json`, if `NODE_ENV` is not defined - the file existence is optionally)
+4. `.env` file from execution/project root directory
+5. existing environment variables finally override everything from before.
 
 The default schema parser options
 
