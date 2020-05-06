@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.1.1
+
 - adding again parsing of default.json before NODE_ENV.json files. required attribute defaults have to be added here (json schema default is not working)
 
 ## 1.1.0
