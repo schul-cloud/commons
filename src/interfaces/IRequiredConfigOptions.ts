@@ -20,5 +20,5 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	ajvOptions: Ajv.Options;
 	useDotNotation: boolean;
 	dotNotationSeparator: string;
-	fileEncoding: string;
+	fileEncoding: BufferEncoding;
 }

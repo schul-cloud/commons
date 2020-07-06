@@ -32,6 +32,6 @@ export interface IConfigOptions {
 	baseDir?: string;
 	schemaFileName?: string;
 	useDotNotation?: boolean;
-	fileEncoding?: string;
+	fileEncoding?: BufferEncoding;
 	app?: any;
 }
