@@ -21,6 +21,10 @@
 		"Boolean": {
 			"type": "boolean"
 		},
+		"DefaultBoolean": {
+			"type": "boolean",
+			"default": true
+		},
 		"String": {
 			"type": "string"
 		},
