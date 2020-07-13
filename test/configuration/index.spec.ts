@@ -32,6 +32,7 @@ describe('test configuration', () => {
 	});
 
 	it('test assignmment of default values', () => {
+		const defaultSample = 'defaultSample';
 		const options: IConfigOptions = {
 			configDir: 'test/data',
 			notFoundValue: false,
@@ -42,7 +43,7 @@ describe('test configuration', () => {
 		expect(
 			config.get('DefaultSample'),
 			'default value has been applied'
-		).to.be.equal('defaultSample');
+		).to.be.equal(defaultSample);
 		// this will be removed because not in schema but in ENV
 		expect(options.notFoundValue).to.be.equal(false); // default is null use something different here
 		expect(
@@ -69,6 +70,11 @@ describe('test configuration', () => {
 			true
 		);
 		expect(config.get('Boolean'), 'get Boolean').to.be.equal(false);
+		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(true);
+		expect(config.remove('DefaultBoolean'), 'remove default Boolean does nothing').to.be.equal(true);
+		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(true);
+		expect(config.set('DefaultBoolean', false), 'set default Boolean').to.be.equal(true);
+		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(false);
 		expect(config.getErrors(), 'no errors exist').to.be.null;
 		expect(config.set('Boolean', true), 'boolean re-assignment').to.be.equal(
 			true
@@ -82,6 +88,18 @@ describe('test configuration', () => {
 			true
 		);
 		expect(config.get('String'), 'get String').to.be.equal('bar');
+		// removal of defaults should keep defaults
+		const defaultSample = 'defaultSample';
+		const defaultSampleEmtyString='';
+		expect(config.get('DefaultSample')).to.be.equal(defaultSample);
+		expect(config.remove('DefaultSample')).to.be.equal(true);
+		expect(config.get('DefaultSample')).to.be.equal(defaultSample);
+		// like assigning null does not change anything
+		expect(config.set('DefaultSample', null)).to.be.equal(true);
+		expect(config.get('DefaultSample')).to.be.equal(defaultSampleEmtyString);
+		// but empty string is allowed
+		expect(config.set('DefaultSample', defaultSampleEmtyString)).to.be.equal(true);
+		expect(config.get('DefaultSample')).to.be.equal(defaultSampleEmtyString);
 		expect(config.getErrors(), 'no errors exist').to.be.null;
 	});
 
