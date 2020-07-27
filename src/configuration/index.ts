@@ -137,11 +137,9 @@ export class Configuration implements IConfiguration {
 			this.NODE_ENV = this.options.defaultNodeEnv;
 		}
 		configurationFileNames.push('default.json');
-		if('NODE_ENV' in dotAndEnv && dotAndEnv['NODE_ENV'] !== 'default'){
+		if(this.NODE_ENV !== 'default'){
 			configurationFileNames.push(this.NODE_ENV + '.json');	
-		} else {
-			configurationFileNames.push(this.options.defaultNodeEnv + '.json');
-		}
+		} 
 		for (const file of configurationFileNames) {
 			const fullFileName = path.join(
 				this.options.baseDir,
