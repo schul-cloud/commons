@@ -34,4 +34,8 @@ export interface IConfigOptions {
 	useDotNotation?: boolean;
 	fileEncoding?: BufferEncoding;
 	app?: any;
+	/** restrict runtime changes to specified NODE_ENV */
+	allowRuntimeChangesInEnv?: [string];
+	/** defines NODE_ENV default value */
+	defaultNodeEnv?: string;
 }

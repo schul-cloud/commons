@@ -21,4 +21,5 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	useDotNotation: boolean;
 	dotNotationSeparator: string;
 	fileEncoding: BufferEncoding;
+	defaultNodeEnv: string;
 }
