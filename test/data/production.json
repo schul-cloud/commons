@@ -1,0 +1,6 @@
+{
+	"$schema": "./default.schema.json",
+	"ENV_CONFIG": "test",
+	"Domain": "localhost",
+	"Version": "1.2.3"
+}

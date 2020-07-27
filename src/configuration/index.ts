@@ -30,7 +30,9 @@ export const defaultOptions: IRequiredConfigOptions = {
 	debug: true,
 	dotNotationSeparator: '__',
 	fileEncoding: 'utf8',
-	throwOnError: true
+	throwOnError: true,
+	allowRuntimeChangesInEnv: ['test'],
+	defaultNodeEnv: 'development'
 };
 
 enum ReadyState {
@@ -70,6 +72,7 @@ export class Configuration implements IConfiguration {
 	private validate?: Ajv.ValidateFunction;
 	private updateErrors: string[];
 	private readyState: ReadyState;
+	private NODE_ENV: string;
 
 	/**
 	 * Creates a new instance of Configuration class.
@@ -125,14 +128,19 @@ export class Configuration implements IConfiguration {
 			dotAndEnv = loadash.merge({}, envConfig, dotAndEnv);
 		}
 
-		// read configuration files, first default.json, then NODE_ENV.json (defaults to development.json) 
+		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json) 
 		const configurationFileNames = [];
 		const configurations = [];
-		configurationFileNames.push('default.json');
-		if ('NODE_ENV' in dotAndEnv && dotAndEnv['NODE_ENV'] !== 'default') {
-			configurationFileNames.push(dotAndEnv['NODE_ENV'] + '.json');
+		if ('NODE_ENV' in dotAndEnv) {
+			this.NODE_ENV = dotAndEnv['NODE_ENV'];
 		} else {
-			configurationFileNames.push('development.json');
+			this.NODE_ENV = this.options.defaultNodeEnv;
+		}
+		configurationFileNames.push('default.json');
+		if('NODE_ENV' in dotAndEnv && dotAndEnv['NODE_ENV'] !== 'default'){
+			configurationFileNames.push(this.NODE_ENV + '.json');	
+		} else {
+			configurationFileNames.push(this.options.defaultNodeEnv + '.json');
 		}
 		for (const file of configurationFileNames) {
 			const fullFileName = path.join(
@@ -238,6 +246,7 @@ export class Configuration implements IConfiguration {
 	 */
 	public update(params: IConfig, options?: IUpdateOptions): boolean {
 		this.ensureInitialized();
+		this.restrictRuntimeChanges();
 		this.updateErrors = [];
 		const updatedParams = loadash.cloneDeep(params);
 		if (this.dot !== null) {
@@ -258,6 +267,8 @@ export class Configuration implements IConfiguration {
 	 * @param params 
 	 */
 	public reset(params: IConfig): boolean {
+		this.ensureInitialized();
+		this.restrictRuntimeChanges();
 		return this.update(params, { reset: true });
 	}
 
@@ -271,12 +282,14 @@ export class Configuration implements IConfiguration {
 	 */
 	public set(key: string, value: any): boolean {
 		this.ensureInitialized();
+		this.restrictRuntimeChanges();
 		const params: IConfig = { [key]: value };
 		return this.update(params);
 	}
 
 	public remove(...keys: string[]): boolean {
 		this.ensureInitialized();
+		this.restrictRuntimeChanges();
 		this.updateErrors = [];
 		const data = loadash.omit(this.config, keys);
 		if (this.dot !== null) {
@@ -389,6 +402,24 @@ export class Configuration implements IConfiguration {
 		}
 		return true;
 	}
+
+	/**
+	 * restrict access to configuration modifying functions if NODE_ENV in option restrictRuntimeChanges. Defaults to 'production'. 
+	 */
+	private restrictRuntimeChanges(): void {
+		if(this.readyState < ReadyState.InitFinished){
+			// ignore restrictions during startup
+			return;
+		}
+		if(this.options.allowRuntimeChangesInEnv != undefined 
+			&& Array.isArray(this.options.allowRuntimeChangesInEnv) 
+		&& this.options.allowRuntimeChangesInEnv.includes(this.NODE_ENV) ){
+			// ignore if env is whitelisted
+			return;
+		}
+		throw new ConfigurationError(`Configuration changes during runtime are not allowed in environment ${this.NODE_ENV}. You may add desired environments to options.allowRuntimeChangesInEnv array to allow runtime changes which are supposed to be only for test reasons.`);
+	}
+
 }
 
 export default Configuration.Instance;
