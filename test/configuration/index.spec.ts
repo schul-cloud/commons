@@ -349,7 +349,7 @@ describe('test configuration', () => {
 				configDir: 'test/data'
 			});
 			const before = config.toObject();
-			expect(Object.keys(before).length).to.be.equal(8);
+			expect(Object.keys(before).length).to.be.equal(9);
 			expect(before['Domain']).to.be.equal('localhost');
 			config.set('Domain', 'otherdomain.tld');
 			expect(config.get('Domain')).to.be.equal('otherdomain.tld');
@@ -362,7 +362,7 @@ describe('test configuration', () => {
 				configDir: 'test/data'
 			});
 			const before = config.toObject();
-			expect(Object.keys(before).length).to.be.equal(8);
+			expect(Object.keys(before).length).to.be.equal(9);
 			expect('String' in before).to.be.false;
 			expect(() => config.get('String')).to.throw;
 			config.set('String', 'newValueNotDefinedBefore');
