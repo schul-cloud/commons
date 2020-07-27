@@ -24,20 +24,20 @@ export const defaultOptions: IRequiredConfigOptions = {
 	ajvOptions: {
 		removeAdditional: true,
 		useDefaults: true,
-		coerceTypes: 'array'
+		coerceTypes: 'array',
 	},
 	useDotNotation: true,
 	debug: true,
 	dotNotationSeparator: '__',
 	fileEncoding: 'utf8',
-	throwOnError: true
+	throwOnError: true,
 };
 
 enum ReadyState {
 	Default = 0,
 	InstanceCreated = 1,
 	InitStarted = 2,
-	InitFinished = 3
+	InitFinished = 3,
 }
 
 // load project options for singleton instance from sc-config.json, if exists
@@ -116,16 +116,16 @@ export class Configuration implements IConfiguration {
 		if (fs.existsSync(envFilePath)) {
 			const envConfig = dotenv.parse(
 				fs.readFileSync(envFilePath, {
-					encoding: this.options.fileEncoding
+					encoding: this.options.fileEncoding,
 				}),
 				{
-					debug: !!this.options.debug
+					debug: !!this.options.debug,
 				}
 			);
 			dotAndEnv = loadash.merge({}, envConfig, dotAndEnv);
 		}
 
-		// read configuration files, first default.json, then NODE_ENV.json (defaults to development.json) 
+		// read configuration files, first default.json, then NODE_ENV.json (defaults to development.json)
 		const configurationFileNames = [];
 		const configurations = [];
 		configurationFileNames.push('default.json');
@@ -233,8 +233,8 @@ export class Configuration implements IConfiguration {
 	/**
 	 * Updates the given values in current configuration.
 	 * @param {IConfig} params params to override in current configuration
-	 * @param {IUpdateOptions} options 
-	 * @param {boolean} options.reset set true, to only keep values given in params and remove the current values 
+	 * @param {IUpdateOptions} options
+	 * @param {boolean} options.reset set true, to only keep values given in params and remove the current values
 	 */
 	public update(params: IConfig, options?: IUpdateOptions): boolean {
 		this.ensureInitialized();
@@ -255,7 +255,7 @@ export class Configuration implements IConfiguration {
 	/**
 	 * Replaces the current Configuration with given params.
 	 * This removes all current values.
-	 * @param params 
+	 * @param params
 	 */
 	public reset(params: IConfig): boolean {
 		return this.update(params, { reset: true });
@@ -358,7 +358,7 @@ export class Configuration implements IConfiguration {
 	private notFound = (key: string): any => {
 		const message =
 			`The configuration key '${key}' has been used, but it was not defined in a schema! ` +
-			'Set it required or update it\'s dependencies to be available in the current situation.';
+			"Set it required or update it's dependencies to be available in the current situation.";
 		this.options.logger.warn(message);
 		if (this.options.throwOnError) {
 			throw new ConfigurationError(message);
@@ -368,7 +368,7 @@ export class Configuration implements IConfiguration {
 
 	private loadJSONFromFileName(fullFileName: string): any {
 		const fileData = fs.readFileSync(fullFileName, {
-			encoding: this.options.fileEncoding
+			encoding: this.options.fileEncoding,
 		});
 		const fileJson = JSON.parse(fileData);
 		return fileJson;
