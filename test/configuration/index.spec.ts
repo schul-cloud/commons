@@ -291,8 +291,8 @@ describe('test configuration', () => {
 	});
 
 	describe('modifying function access is restricted in production', () => {
-		it('updating configuration works in test mode (not production mode)', ()=>{
-			const {NODE_ENV: NODE_ENV_BEFORE} = process.env;
+		it('updating configuration works in test mode (not production mode)', () => {
+			const { NODE_ENV: NODE_ENV_BEFORE } = process.env;
 			expect(NODE_ENV_BEFORE, 'must set test').to.be.equal('test');
 			const config = new Configuration(options);
 			// test all public methods are not failing
@@ -302,15 +302,15 @@ describe('test configuration', () => {
 			expect(currentConfig).to.haveOwnProperty('DefaultSample');
 			config.set('DefaultSample', 'foo');
 			expect(config.get('DefaultSample')).to.be.equal('foo');
-			config.update({DefaultSample: 'bar'});
+			config.update({ DefaultSample: 'bar' });
 			expect(config.get('DefaultSample')).to.be.equal('bar');
 			config.reset(currentConfig);
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
 			config.remove('DefaultSample'); // does not change 'DefaultSample', but is executed
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
 		});
-		it('updating configuration works not in production mode', ()=>{
-			const {NODE_ENV: NODE_ENV_BEFORE} = process.env;
+		it('updating configuration works not in production mode', () => {
+			const { NODE_ENV: NODE_ENV_BEFORE } = process.env;
 			process.env.NODE_ENV = 'production';
 			const { NODE_ENV } = process.env;
 			expect(NODE_ENV, 'must set production').to.be.equal('production');
@@ -321,13 +321,13 @@ describe('test configuration', () => {
 			expect(currentConfig).to.haveOwnProperty('DefaultSample');
 			// test all other public methods are failing
 			const regExp = new RegExp('changes during runtime are not allowed');
-			expect(()=>config.set('DefaultSample', 'foo')).throws(regExp);
+			expect(() => config.set('DefaultSample', 'foo')).throws(regExp);
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
-			expect(()=>config.update({DefaultSample: 'bar'})).throws(regExp);
+			expect(() => config.update({ DefaultSample: 'bar' })).throws(regExp);
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
-			expect(()=>config.reset(currentConfig)).throws(regExp);
+			expect(() => config.reset(currentConfig)).throws(regExp);
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
-			expect(()=>config.remove('DefaultSample')).throws(regExp); // does not change 'DefaultSample', but is executed
+			expect(() => config.remove('DefaultSample')).throws(regExp); // does not change 'DefaultSample', but is executed
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
 			process.env.NODE_ENV = NODE_ENV_BEFORE;
 		});

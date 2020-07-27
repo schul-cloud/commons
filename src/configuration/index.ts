@@ -128,7 +128,7 @@ export class Configuration implements IConfiguration {
 			dotAndEnv = loadash.merge({}, envConfig, dotAndEnv);
 		}
 
-		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json) 
+		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json)
 		const configurationFileNames = [];
 		const configurations = [];
 		if ('NODE_ENV' in dotAndEnv) {
@@ -137,9 +137,9 @@ export class Configuration implements IConfiguration {
 			this.NODE_ENV = this.options.defaultNodeEnv;
 		}
 		configurationFileNames.push('default.json');
-		if(this.NODE_ENV !== 'default'){
-			configurationFileNames.push(this.NODE_ENV + '.json');	
-		} 
+		if (this.NODE_ENV !== 'default') {
+			configurationFileNames.push(this.NODE_ENV + '.json');
+		}
 		for (const file of configurationFileNames) {
 			const fullFileName = path.join(
 				this.options.baseDir,
@@ -403,22 +403,25 @@ export class Configuration implements IConfiguration {
 	}
 
 	/**
-	 * restrict access to configuration modifying functions if NODE_ENV in option restrictRuntimeChanges. Defaults to 'production'. 
+	 * restrict access to configuration modifying functions if NODE_ENV in option restrictRuntimeChanges. Defaults to 'production'.
 	 */
 	private restrictRuntimeChanges(): void {
-		if(this.readyState < ReadyState.InitFinished){
+		if (this.readyState < ReadyState.InitFinished) {
 			// ignore restrictions during startup
 			return;
 		}
-		if(this.options.allowRuntimeChangesInEnv != undefined 
-			&& Array.isArray(this.options.allowRuntimeChangesInEnv) 
-		&& this.options.allowRuntimeChangesInEnv.includes(this.NODE_ENV) ){
+		if (
+			this.options.allowRuntimeChangesInEnv != undefined &&
+			Array.isArray(this.options.allowRuntimeChangesInEnv) &&
+			this.options.allowRuntimeChangesInEnv.includes(this.NODE_ENV)
+		) {
 			// ignore if env is whitelisted
 			return;
 		}
-		throw new ConfigurationError(`Configuration changes during runtime are not allowed in environment ${this.NODE_ENV}. You may add desired environments to options.allowRuntimeChangesInEnv array to allow runtime changes which are supposed to be only for test reasons.`);
+		throw new ConfigurationError(
+			`Configuration changes during runtime are not allowed in environment ${this.NODE_ENV}. You may add desired environments to options.allowRuntimeChangesInEnv array to allow runtime changes which are supposed to be only for test reasons.`
+		);
 	}
-
 }
 
 export default Configuration.Instance;
