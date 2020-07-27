@@ -368,8 +368,9 @@ export class Configuration implements IConfiguration {
 	 */
 	private notFound = (key: string): any => {
 		const message =
-			`The configuration key '${key}' has been used, but it was not defined in a schema! ` +
-			'Set it required or update it\'s dependencies to be available in the current situation.';
+			`The configuration key '${key}' has been used, but it was not defined! Check the given key exists in schema file.` +
+			`Set it as required in the schema file, or use Configuration.has('${key}') before using not required properties ` +
+			'to be available in the current situation.';
 		this.options.logger.warn(message);
 		if (this.options.throwOnError) {
 			throw new ConfigurationError(message);
