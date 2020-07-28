@@ -24,20 +24,22 @@ export const defaultOptions: IRequiredConfigOptions = {
 	ajvOptions: {
 		removeAdditional: true,
 		useDefaults: true,
-		coerceTypes: 'array'
+		coerceTypes: 'array',
 	},
 	useDotNotation: true,
 	debug: true,
 	dotNotationSeparator: '__',
 	fileEncoding: 'utf8',
-	throwOnError: true
+	throwOnError: true,
+	allowRuntimeChangesInEnv: ['test'],
+	defaultNodeEnv: 'development',
 };
 
 enum ReadyState {
 	Default = 0,
 	InstanceCreated = 1,
 	InitStarted = 2,
-	InitFinished = 3
+	InitFinished = 3,
 }
 
 // load project options for singleton instance from sc-config.json, if exists
@@ -70,6 +72,7 @@ export class Configuration implements IConfiguration {
 	private validate?: Ajv.ValidateFunction;
 	private updateErrors: string[];
 	private readyState: ReadyState;
+	private NODE_ENV: string;
 
 	/**
 	 * Creates a new instance of Configuration class.
@@ -116,23 +119,26 @@ export class Configuration implements IConfiguration {
 		if (fs.existsSync(envFilePath)) {
 			const envConfig = dotenv.parse(
 				fs.readFileSync(envFilePath, {
-					encoding: this.options.fileEncoding
+					encoding: this.options.fileEncoding,
 				}),
 				{
-					debug: !!this.options.debug
+					debug: !!this.options.debug,
 				}
 			);
 			dotAndEnv = loadash.merge({}, envConfig, dotAndEnv);
 		}
 
-		// read configuration files, first default.json, then NODE_ENV.json (defaults to development.json) 
+		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json)
 		const configurationFileNames = [];
 		const configurations = [];
-		configurationFileNames.push('default.json');
-		if ('NODE_ENV' in dotAndEnv && dotAndEnv['NODE_ENV'] !== 'default') {
-			configurationFileNames.push(dotAndEnv['NODE_ENV'] + '.json');
+		if ('NODE_ENV' in dotAndEnv) {
+			this.NODE_ENV = dotAndEnv['NODE_ENV'];
 		} else {
-			configurationFileNames.push('development.json');
+			this.NODE_ENV = this.options.defaultNodeEnv;
+		}
+		configurationFileNames.push('default.json');
+		if (this.NODE_ENV !== 'default') {
+			configurationFileNames.push(this.NODE_ENV + '.json');
 		}
 		for (const file of configurationFileNames) {
 			const fullFileName = path.join(
@@ -233,11 +239,12 @@ export class Configuration implements IConfiguration {
 	/**
 	 * Updates the given values in current configuration.
 	 * @param {IConfig} params params to override in current configuration
-	 * @param {IUpdateOptions} options 
-	 * @param {boolean} options.reset set true, to only keep values given in params and remove the current values 
+	 * @param {IUpdateOptions} options
+	 * @param {boolean} options.reset set true, to only keep values given in params and remove the current values
 	 */
 	public update(params: IConfig, options?: IUpdateOptions): boolean {
 		this.ensureInitialized();
+		this.restrictRuntimeChanges();
 		this.updateErrors = [];
 		const updatedParams = loadash.cloneDeep(params);
 		if (this.dot !== null) {
@@ -255,9 +262,11 @@ export class Configuration implements IConfiguration {
 	/**
 	 * Replaces the current Configuration with given params.
 	 * This removes all current values.
-	 * @param params 
+	 * @param params
 	 */
 	public reset(params: IConfig): boolean {
+		this.ensureInitialized();
+		this.restrictRuntimeChanges();
 		return this.update(params, { reset: true });
 	}
 
@@ -271,12 +280,14 @@ export class Configuration implements IConfiguration {
 	 */
 	public set(key: string, value: any): boolean {
 		this.ensureInitialized();
+		this.restrictRuntimeChanges();
 		const params: IConfig = { [key]: value };
 		return this.update(params);
 	}
 
 	public remove(...keys: string[]): boolean {
 		this.ensureInitialized();
+		this.restrictRuntimeChanges();
 		this.updateErrors = [];
 		const data = loadash.omit(this.config, keys);
 		if (this.dot !== null) {
@@ -357,8 +368,9 @@ export class Configuration implements IConfiguration {
 	 */
 	private notFound = (key: string): any => {
 		const message =
-			`The configuration key '${key}' has been used, but it was not defined in a schema! ` +
-			'Set it required or update it\'s dependencies to be available in the current situation.';
+			`The configuration key '${key}' has been used, but it was not defined! Check the given key exists in schema file.` +
+			`Set it as required in the schema file, or use Configuration.has('${key}') before using not required properties ` +
+			'to be available in the current situation.';
 		this.options.logger.warn(message);
 		if (this.options.throwOnError) {
 			throw new ConfigurationError(message);
@@ -368,7 +380,7 @@ export class Configuration implements IConfiguration {
 
 	private loadJSONFromFileName(fullFileName: string): any {
 		const fileData = fs.readFileSync(fullFileName, {
-			encoding: this.options.fileEncoding
+			encoding: this.options.fileEncoding,
 		});
 		const fileJson = JSON.parse(fileData);
 		return fileJson;
@@ -388,6 +400,27 @@ export class Configuration implements IConfiguration {
 			);
 		}
 		return true;
+	}
+
+	/**
+	 * restrict access to configuration modifying functions if NODE_ENV in option restrictRuntimeChanges. Defaults to 'production'.
+	 */
+	private restrictRuntimeChanges(): void {
+		if (this.readyState < ReadyState.InitFinished) {
+			// ignore restrictions during startup
+			return;
+		}
+		if (
+			this.options.allowRuntimeChangesInEnv != undefined &&
+			Array.isArray(this.options.allowRuntimeChangesInEnv) &&
+			this.options.allowRuntimeChangesInEnv.includes(this.NODE_ENV)
+		) {
+			// ignore if env is whitelisted
+			return;
+		}
+		throw new ConfigurationError(
+			`Configuration changes during runtime are not allowed in environment ${this.NODE_ENV}. You may add desired environments to options.allowRuntimeChangesInEnv array to allow runtime changes which are supposed to be only for test reasons.`
+		);
 	}
 }
 

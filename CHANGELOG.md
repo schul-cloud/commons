@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 1.2.0
+
+- removed compatibility with node 8 due an update of mocha from version 7 to 8.
+- add compatibility with node 14
+- disable methods changing the config exept for test environment
+- fix prettier/eslint
+- fix fileEncoding type
+
 ## 1.1.1
 
 - adding again parsing of default.json before NODE_ENV.json files. required attribute defaults have to be added here (json schema default is not working)

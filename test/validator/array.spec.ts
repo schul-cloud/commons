@@ -4,7 +4,6 @@ import 'mocha';
 import validators from '../../src/validator/array';
 
 describe('test array validators', () => {
-
 	it('test enumerations of numbers', () => {
 		const { enumeration } = validators;
 		const fut = enumeration(1, 2, 3);
@@ -45,5 +44,4 @@ describe('test array validators', () => {
 		expect(futNoParams(null)).to.be.false;
 		expect(futNoParams(undefined)).to.be.false;
 	});
-
 });
