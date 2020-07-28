@@ -5,18 +5,18 @@ import Ajv from 'ajv';
 
 import ConfigurationSingleton, {
 	Configuration,
-	defaultOptions
+	defaultOptions,
 } from '../../src/configuration';
 import { IConfigOptions } from '../../src/interfaces/IConfigOptions';
 
 describe('test configuration', () => {
 	const options: IConfigOptions = {
-		configDir: 'test/data'
+		configDir: 'test/data',
 	};
 
 	it('test configuration default initialization', () => {
 		const config = new Configuration({
-			configDir: 'test/data'
+			configDir: 'test/data',
 		});
 		expect(config).to.be.not.null;
 		expect(config).to.be.not.undefined;
@@ -36,7 +36,7 @@ describe('test configuration', () => {
 		const options: IConfigOptions = {
 			configDir: 'test/data',
 			notFoundValue: false,
-			throwOnError: false
+			throwOnError: false,
 		};
 		const config = new Configuration(options);
 		// this will be set as default from schema definition
@@ -70,11 +70,23 @@ describe('test configuration', () => {
 			true
 		);
 		expect(config.get('Boolean'), 'get Boolean').to.be.equal(false);
-		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(true);
-		expect(config.remove('DefaultBoolean'), 'remove default Boolean does nothing').to.be.equal(true);
-		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(true);
-		expect(config.set('DefaultBoolean', false), 'set default Boolean').to.be.equal(true);
-		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(false);
+		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(
+			true
+		);
+		expect(
+			config.remove('DefaultBoolean'),
+			'remove default Boolean does nothing'
+		).to.be.equal(true);
+		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(
+			true
+		);
+		expect(
+			config.set('DefaultBoolean', false),
+			'set default Boolean'
+		).to.be.equal(true);
+		expect(config.get('DefaultBoolean'), 'get default Boolean').to.be.equal(
+			false
+		);
 		expect(config.getErrors(), 'no errors exist').to.be.null;
 		expect(config.set('Boolean', true), 'boolean re-assignment').to.be.equal(
 			true
@@ -90,7 +102,7 @@ describe('test configuration', () => {
 		expect(config.get('String'), 'get String').to.be.equal('bar');
 		// removal of defaults should keep defaults
 		const defaultSample = 'defaultSample';
-		const defaultSampleEmtyString='';
+		const defaultSampleEmtyString = '';
 		expect(config.get('DefaultSample')).to.be.equal(defaultSample);
 		expect(config.remove('DefaultSample')).to.be.equal(true);
 		expect(config.get('DefaultSample')).to.be.equal(defaultSample);
@@ -98,7 +110,9 @@ describe('test configuration', () => {
 		expect(config.set('DefaultSample', null)).to.be.equal(true);
 		expect(config.get('DefaultSample')).to.be.equal(defaultSampleEmtyString);
 		// but empty string is allowed
-		expect(config.set('DefaultSample', defaultSampleEmtyString)).to.be.equal(true);
+		expect(config.set('DefaultSample', defaultSampleEmtyString)).to.be.equal(
+			true
+		);
 		expect(config.get('DefaultSample')).to.be.equal(defaultSampleEmtyString);
 		expect(config.getErrors(), 'no errors exist').to.be.null;
 	});
@@ -168,7 +182,7 @@ describe('test configuration', () => {
 			schemaFileName: 'dot.schema.json',
 			configDir: 'test/data',
 			envDir: 'test/data',
-			debug: true
+			debug: true,
 		};
 		const { dotNotationSeparator } = defaultOptions;
 		const configNestedFoo = 'Nested' + dotNotationSeparator + 'foo';
@@ -179,9 +193,9 @@ describe('test configuration', () => {
 				Sample: 'sample',
 				Nested: {
 					foo: 'foo',
-					bar: 'bar'
+					bar: 'bar',
 				},
-				Very: { Nested: { Value: 'value' } }
+				Very: { Nested: { Value: 'value' } },
 			};
 
 			const dotted = dot.dot(sample);
@@ -196,7 +210,7 @@ describe('test configuration', () => {
 				Sample: 'sample',
 				'Nested.bar': 'bar',
 				'Nested.foo': 'foo',
-				'Very.Nested.Value': 'value'
+				'Very.Nested.Value': 'value',
 			};
 			const objected: any = dot.object(sample);
 			expect(objected.Sample).to.be.equal('sample');
@@ -277,8 +291,8 @@ describe('test configuration', () => {
 	});
 
 	describe('modifying function access is restricted in production', () => {
-		it('updating configuration works in test mode (not production mode)', ()=>{
-			const {NODE_ENV: NODE_ENV_BEFORE} = process.env;
+		it('updating configuration works in test mode (not production mode)', () => {
+			const { NODE_ENV: NODE_ENV_BEFORE } = process.env;
 			expect(NODE_ENV_BEFORE, 'must set test').to.be.equal('test');
 			const config = new Configuration(options);
 			// test all public methods are not failing
@@ -288,15 +302,15 @@ describe('test configuration', () => {
 			expect(currentConfig).to.haveOwnProperty('DefaultSample');
 			config.set('DefaultSample', 'foo');
 			expect(config.get('DefaultSample')).to.be.equal('foo');
-			config.update({DefaultSample: 'bar'});
+			config.update({ DefaultSample: 'bar' });
 			expect(config.get('DefaultSample')).to.be.equal('bar');
 			config.reset(currentConfig);
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
 			config.remove('DefaultSample'); // does not change 'DefaultSample', but is executed
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
 		});
-		it('updating configuration works not in production mode', ()=>{
-			const {NODE_ENV: NODE_ENV_BEFORE} = process.env;
+		it('updating configuration works not in production mode', () => {
+			const { NODE_ENV: NODE_ENV_BEFORE } = process.env;
 			process.env.NODE_ENV = 'production';
 			const { NODE_ENV } = process.env;
 			expect(NODE_ENV, 'must set production').to.be.equal('production');
@@ -307,13 +321,13 @@ describe('test configuration', () => {
 			expect(currentConfig).to.haveOwnProperty('DefaultSample');
 			// test all other public methods are failing
 			const regExp = new RegExp('changes during runtime are not allowed');
-			expect(()=>config.set('DefaultSample', 'foo')).throws(regExp);
+			expect(() => config.set('DefaultSample', 'foo')).throws(regExp);
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
-			expect(()=>config.update({DefaultSample: 'bar'})).throws(regExp);
+			expect(() => config.update({ DefaultSample: 'bar' })).throws(regExp);
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
-			expect(()=>config.reset(currentConfig)).throws(regExp);
+			expect(() => config.reset(currentConfig)).throws(regExp);
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
-			expect(()=>config.remove('DefaultSample')).throws(regExp); // does not change 'DefaultSample', but is executed
+			expect(() => config.remove('DefaultSample')).throws(regExp); // does not change 'DefaultSample', but is executed
 			expect(config.get('DefaultSample')).to.be.equal('defaultSample');
 			process.env.NODE_ENV = NODE_ENV_BEFORE;
 		});
@@ -335,10 +349,10 @@ describe('test configuration', () => {
 
 			const url = 'http://example.tld';
 			expect(() => config.set('FEATURE_FLAG', true)).to.throw;
-			expect(config.update({ 'FEATURE_OPTION': url, 'FEATURE_FLAG': true })).to.be.true;
+			expect(config.update({ FEATURE_OPTION: url, FEATURE_FLAG: true })).to.be
+				.true;
 			expect(config.get('FEATURE_FLAG')).to.be.true;
 			expect(config.get('FEATURE_OPTION')).to.be.equal(url);
-
 		});
 	});
 
@@ -346,7 +360,7 @@ describe('test configuration', () => {
 		it('should reset given values', () => {
 			const config = new Configuration({
 				schemaFileName: 'default.schema.json',
-				configDir: 'test/data'
+				configDir: 'test/data',
 			});
 			const before = config.toObject();
 			expect(Object.keys(before).length).to.be.equal(9);
@@ -359,7 +373,7 @@ describe('test configuration', () => {
 		it('should remove values not set before', () => {
 			const config = new Configuration({
 				schemaFileName: 'default.schema.json',
-				configDir: 'test/data'
+				configDir: 'test/data',
 			});
 			const before = config.toObject();
 			expect(Object.keys(before).length).to.be.equal(9);
@@ -376,7 +390,7 @@ describe('test configuration', () => {
 		it('remove single manually added key', () => {
 			const config = new Configuration({
 				schemaFileName: 'default.schema.json',
-				configDir: 'test/data'
+				configDir: 'test/data',
 			});
 			config.set('String', 'sample');
 			const before = config.toObject();
@@ -391,7 +405,7 @@ describe('test configuration', () => {
 		it('remove multiple keys', () => {
 			const config = new Configuration({
 				schemaFileName: 'default.schema.json',
-				configDir: 'test/data'
+				configDir: 'test/data',
 			});
 			config.set('String', 'sample');
 			config.set('Boolean', 'true');
@@ -410,7 +424,7 @@ describe('test configuration', () => {
 		it('remove required key fails', () => {
 			const config = new Configuration({
 				schemaFileName: 'default.schema.json',
-				configDir: 'test/data'
+				configDir: 'test/data',
 			});
 			config.set('Domain', 'sample.de');
 			const before = config.toObject();
@@ -425,42 +439,40 @@ describe('test configuration', () => {
 		const ajv = new Ajv({
 			removeAdditional: true,
 			useDefaults: true,
-			coerceTypes: 'array'
+			coerceTypes: 'array',
 		});
 
 		describe('if/then', () => {
 			const schema = {
-				'title': 'dependency test schema',
-				'type': 'object',
-				'description': 'this schema declares different dependency methodologies based on specific values defined',
-				'additionalProperties': false,
-				'properties': {
-					'FEATURE_FLAG': {
-						'type': 'boolean',
-						'default': false
+				title: 'dependency test schema',
+				type: 'object',
+				description:
+					'this schema declares different dependency methodologies based on specific values defined',
+				additionalProperties: false,
+				properties: {
+					FEATURE_FLAG: {
+						type: 'boolean',
+						default: false,
 					},
-					'FEATURE_OPTION': {
-						'type': 'string',
-						'format': 'uri'
+					FEATURE_OPTION: {
+						type: 'string',
+						format: 'uri',
 					},
-					'OTHER_FEATURE_OPTION': {
-						'type': 'number',
-						'default': 42
-					}
+					OTHER_FEATURE_OPTION: {
+						type: 'number',
+						default: 42,
+					},
 				},
-				'if': {
-					'properties': {
-						'FEATURE_FLAG': {
-							'const': true
-						}
-					}
+				if: {
+					properties: {
+						FEATURE_FLAG: {
+							const: true,
+						},
+					},
 				},
-				'then': {
-					'required': [
-						'FEATURE_OPTION',
-						'OTHER_FEATURE_OPTION'
-					]
-				}
+				then: {
+					required: ['FEATURE_OPTION', 'OTHER_FEATURE_OPTION'],
+				},
 			};
 			const validate = ajv.compile(schema);
 
@@ -471,33 +483,33 @@ describe('test configuration', () => {
 
 			it('valid with all options', () => {
 				const valid = validate({
-					'FEATURE_FLAG': true,
-					'FEATURE_OPTION': 'http://asd.de',
-					'OTHER_FEATURE_OPTION': 12
+					FEATURE_FLAG: true,
+					FEATURE_OPTION: 'http://asd.de',
+					OTHER_FEATURE_OPTION: 12,
 				});
 				expect(valid).to.be.true;
 			});
 
 			it('invalid without option', () => {
 				const valid = validate({
-					'FEATURE_FLAG': true,
-					'OTHER_FEATURE_OPTION': 12
+					FEATURE_FLAG: true,
+					OTHER_FEATURE_OPTION: 12,
 				});
 				expect(valid).to.be.false;
 			});
 
 			it('valid if false', () => {
 				const valid = validate({
-					'FEATURE_FLAG': false,
-					'OTHER_FEATURE_OPTION': 12
+					FEATURE_FLAG: false,
+					OTHER_FEATURE_OPTION: 12,
 				});
 				expect(valid).to.be.true;
 			});
 
 			it('valid with defaults', () => {
 				const valid = validate({
-					'FEATURE_FLAG': true,
-					'FEATURE_OPTION': 'http://asd.de',
+					FEATURE_FLAG: true,
+					FEATURE_OPTION: 'http://asd.de',
 				});
 				expect(valid).to.be.true;
 			});
@@ -505,46 +517,45 @@ describe('test configuration', () => {
 
 		describe('if/then $ref', () => {
 			const schema = {
-				'title': 'dependency test schema',
-				'type': 'object',
-				'description': 'this schema declares different dependency methodologies based on specific values defined',
-				'additionalProperties': false,
-				'properties': {
-					'FEATURE_FLAG': {
-						'type': 'boolean',
-						'default': false
+				title: 'dependency test schema',
+				type: 'object',
+				description:
+					'this schema declares different dependency methodologies based on specific values defined',
+				additionalProperties: false,
+				properties: {
+					FEATURE_FLAG: {
+						type: 'boolean',
+						default: false,
 					},
-					'FEATURE_OPTION': {
-						'type': 'string',
-						'format': 'uri'
+					FEATURE_OPTION: {
+						type: 'string',
+						format: 'uri',
 					},
-					'OTHER_FEATURE_OPTION': {
-						'type': 'number',
-						'default': 42
-					}
+					OTHER_FEATURE_OPTION: {
+						type: 'number',
+						default: 42,
+					},
 				},
-				'allOf': [
+				allOf: [
 					{
-						'$ref': '#/definitions/require_feature'
-					}
+						$ref: '#/definitions/require_feature',
+					},
 				],
-				'definitions': {
-					'require_feature': {
-						'if': {
-							'properties': {
-								'FEATURE_FLAG': {
-									'const': true
-								}
-							}
+				definitions: {
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					require_feature: {
+						if: {
+							properties: {
+								FEATURE_FLAG: {
+									const: true,
+								},
+							},
 						},
-						'then': {
-							'required': [
-								'FEATURE_OPTION',
-								'OTHER_FEATURE_OPTION'
-							]
-						}
-					}
-				}
+						then: {
+							required: ['FEATURE_OPTION', 'OTHER_FEATURE_OPTION'],
+						},
+					},
+				},
 			};
 			const validate = ajv.compile(schema);
 
@@ -555,33 +566,33 @@ describe('test configuration', () => {
 
 			it('valid with all options', () => {
 				const valid = validate({
-					'FEATURE_FLAG': true,
-					'FEATURE_OPTION': 'http://asd.de',
-					'OTHER_FEATURE_OPTION': 12
+					FEATURE_FLAG: true,
+					FEATURE_OPTION: 'http://asd.de',
+					OTHER_FEATURE_OPTION: 12,
 				});
 				expect(valid).to.be.true;
 			});
 
 			it('invalid without option', () => {
 				const valid = validate({
-					'FEATURE_FLAG': true,
-					'OTHER_FEATURE_OPTION': 12
+					FEATURE_FLAG: true,
+					OTHER_FEATURE_OPTION: 12,
 				});
 				expect(valid).to.be.false;
 			});
 
 			it('valid if false', () => {
 				const valid = validate({
-					'FEATURE_FLAG': false,
-					'OTHER_FEATURE_OPTION': 12
+					FEATURE_FLAG: false,
+					OTHER_FEATURE_OPTION: 12,
 				});
 				expect(valid).to.be.true;
 			});
 
 			it('valid with defaults', () => {
 				const valid = validate({
-					'FEATURE_FLAG': true,
-					'FEATURE_OPTION': 'http://asd.de',
+					FEATURE_FLAG: true,
+					FEATURE_OPTION: 'http://asd.de',
 				});
 				expect(valid).to.be.true;
 			});
@@ -591,63 +602,62 @@ describe('test configuration', () => {
 			// good to know: conditional validation is always true when the properties is `undefined`
 			// https://github.com/epoberezkin/ajv/issues/913
 			const schema = {
-				'title': 'dependency test schema',
-				'type': 'object',
-				'description': 'this schema declares different dependency methodologies based on specific values defined',
-				'additionalProperties': false,
-				'properties': {
-					'SERVICE': {
-						'type': 'string',
-						'enum': ['none', 'SERVICE_A', 'SERVICE_B'],
-						'default': 'none'
+				title: 'dependency test schema',
+				type: 'object',
+				description:
+					'this schema declares different dependency methodologies based on specific values defined',
+				additionalProperties: false,
+				properties: {
+					SERVICE: {
+						type: 'string',
+						enum: ['none', 'SERVICE_A', 'SERVICE_B'],
+						default: 'none',
 					},
-					'SERVICE_A_URL': {
-						'type': 'string',
-						'format': 'uri'
+					SERVICE_A_URL: {
+						type: 'string',
+						format: 'uri',
 					},
-					'SERVICE_B_URL': {
-						'type': 'string',
-						'format': 'uri'
-					}
+					SERVICE_B_URL: {
+						type: 'string',
+						format: 'uri',
+					},
 				},
-				'allOf': [
+				allOf: [
 					{
-						'$ref': '#/definitions/require_service_a_url',
+						$ref: '#/definitions/require_service_a_url',
 					},
 					{
-						'$ref': '#/definitions/require_service_b_url',
+						$ref: '#/definitions/require_service_b_url',
 					},
 				],
-				'definitions': {
-					'require_service_a_url': {
-						'if': {
-							'properties': {
-								'SERVICE': {
-									'const': 'SERVICE_A'
-								}
-							}
+				definitions: {
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					require_service_a_url: {
+						if: {
+							properties: {
+								SERVICE: {
+									const: 'SERVICE_A',
+								},
+							},
 						},
-						'then': {
-							'required': [
-								'SERVICE_A_URL',
-							]
-						}
+						then: {
+							required: ['SERVICE_A_URL'],
+						},
 					},
-					'require_service_b_url': {
-						'if': {
-							'properties': {
-								'SERVICE': {
-									'const': 'SERVICE_B'
-								}
-							}
+					// eslint-disable-next-line @typescript-eslint/camelcase
+					require_service_b_url: {
+						if: {
+							properties: {
+								SERVICE: {
+									const: 'SERVICE_B',
+								},
+							},
 						},
-						'then': {
-							'required': [
-								'SERVICE_B_URL',
-							]
-						}
-					}
-				}
+						then: {
+							required: ['SERVICE_B_URL'],
+						},
+					},
+				},
 			};
 			const validate = ajv.compile(schema);
 
@@ -658,30 +668,30 @@ describe('test configuration', () => {
 
 			it('SERVICE_A url valid', () => {
 				const valid = validate({
-					'SERVICE': 'SERVICE_A',
-					'SERVICE_A_URL': 'http://asd.de',
+					SERVICE: 'SERVICE_A',
+					SERVICE_A_URL: 'http://asd.de',
 				});
 				expect(valid).to.be.true;
 			});
 
 			it('SERVICE_A url missing', () => {
 				const valid = validate({
-					'SERVICE': 'SERVICE_A',
+					SERVICE: 'SERVICE_A',
 				});
 				expect(valid).to.be.false;
 			});
 
 			it('SERVICE_B url valid', () => {
 				const valid = validate({
-					'SERVICE': 'SERVICE_B',
-					'SERVICE_B_URL': 'http://asd.de',
+					SERVICE: 'SERVICE_B',
+					SERVICE_B_URL: 'http://asd.de',
 				});
 				expect(valid).to.be.true;
 			});
 
 			it('SERVICE_B url missing', () => {
 				const valid = validate({
-					'SERVICE': 'SERVICE_B',
+					SERVICE: 'SERVICE_B',
 				});
 				expect(valid).to.be.false;
 			});

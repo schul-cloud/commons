@@ -1,45 +1,37 @@
 {
 	"env": {
 		"browser": true,
-		"es6": true
+		"es6": true,
+		"mocha": true,
+		"node": true
+	},
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"project": "tsconfig-lint.json",
+		"extraFileExtensions": [".json"],
+		"ecmaVersion": 2018,
+		"sourceType": "module"
 	},
 	"extends": [
 		"eslint:recommended",
-		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended",
 		"plugin:@typescript-eslint/recommended-requiring-type-checking",
+		"plugin:prettier/recommended",
 		"plugin:json/recommended"
 	],
 	"globals": {
 		"Atomics": "readonly",
 		"SharedArrayBuffer": "readonly"
 	},
-	"parser": "@typescript-eslint/parser",
-	"parserOptions": {
-		"project": "tsconfig-lint.json",
-		"extraFileExtensions": [
-			".json"
-		],
-		"ecmaVersion": 2018,
-		"sourceType": "module"
-	},
-	"plugins": [
-		"@typescript-eslint"
-	],
+	"plugins": ["prettier", "@typescript-eslint"],
 	"rules": {
+		"prettier/prettier": [
+			"error",
+			{
+				"singleQuote": true
+			}
+		],
 		"@typescript-eslint/no-explicit-any": 0,
-		"@typescript-eslint/interface-name-prefix": 0,
-		"@typescript-eslint/indent": [
-			"error",
-			"tab"
-		],
-		"@typescript-eslint/semi": [
-			"error",
-			"always"
-		],
-		"@typescript-eslint/quotes": [
-			"error",
-			"single"
-		]
+		"@typescript-eslint/interface-name-prefix": 0
 	}
 }

@@ -4,5 +4,5 @@ import Validator from './validator';
 export = {
 	Configuration: ConfigurationInstance,
 	TestConfiguration: Configuration,
-	Validator
+	Validator,
 };
