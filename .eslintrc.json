@@ -8,7 +8,7 @@
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"project": "tsconfig-lint.json",
-		"extraFileExtensions": [".json"],
+		"extraFileExtensions": [".json", ".md"],
 		"ecmaVersion": 2018,
 		"sourceType": "module"
 	},
@@ -23,7 +23,7 @@
 		"Atomics": "readonly",
 		"SharedArrayBuffer": "readonly"
 	},
-	"plugins": ["prettier", "@typescript-eslint"],
+	"plugins": ["prettier", "@typescript-eslint", "markdown"],
 	"rules": {
 		"prettier/prettier": [
 			"error",

@@ -12,8 +12,8 @@
 		"coverage": "cross-env NODE_ENV=test nyc mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
 		"mocha": "NODE_ENV=test mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
 		"test": "npm run build && npm run coverage",
-		"lint": "eslint . --fix --ext .ts,.js,.json --ignore-path .gitignore",
-		"lint:ci": "eslint . --ext .ts,.js,.json --ignore-path .gitignore",
+		"lint": "eslint . --fix --ext .ts,.js,.json,.md --ignore-path .gitignore",
+		"lint:ci": "eslint . --ext .ts,.js,.json,.md --ignore-path .gitignore",
 		"build": "rm -rf lib && tsc --declaration --declarationMap"
 	},
 	"publishConfig": {
@@ -44,6 +44,7 @@
 		"eslint-plugin-import": "^2.21.1",
 		"eslint-plugin-json": "^2.1.0",
 		"eslint-plugin-jsx-a11y": "^6.2.3",
+		"eslint-plugin-markdown": "^1.0.2",
 		"eslint-plugin-prettier": "^3.1.4",
 		"eslint-plugin-react": "^7.19.0",
 		"mocha": "^8.0.1",
