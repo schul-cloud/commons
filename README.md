@@ -58,103 +58,98 @@ Make sure that a default value is set for `SERVICE_PROPERTY` [to avoid passing u
 ### Sample
 
 default.schema.json
-```json
-{
-    "title": "Example Schema with dependency",
-    "description": "This schema declares a dependency between two properties.",
-    "additionalProperties": false,
-    "type": "object",
-    "properties": {
-        "SERVICE_PROPERTY": {
-            "type": "string",
-            "enum": ["none", "VALUE_OF_SERVICE"],
-            "default": "none"
-        },
-        "OTHER_PROPERTY": {
-            "type": "string"
-        }
-    },
-    "allOf": [
-        {
-            "$ref": "#/definitions/SERVICE_REQUIRES_OTHER"
-        }
-    ],
-    "definitions": {
-        "SERVICE_REQUIRES_OTHER": {
-            "if": {
-                "properties": {
-                    "SERVICE_PROPERTY": {
-                        "const": "VALUE_OF_SERVICE"
-                    }
-                }
+
+    {
+        "title": "Example Schema with dependency",
+        "description": "This schema declares a dependency between two properties.",
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+            "SERVICE_PROPERTY": {
+                "type": "string",
+                "enum": ["none", "VALUE_OF_SERVICE"],
+                "default": "none"
             },
-            "then": {
-                "required": [
-                    "OTHER_PROPERTY"
-                ]
+            "OTHER_PROPERTY": {
+                "type": "string"
+            }
+        },
+        "allOf": [
+            {
+                "$ref": "#/definitions/SERVICE_REQUIRES_OTHER"
+            }
+        ],
+        "definitions": {
+            "SERVICE_REQUIRES_OTHER": {
+                "if": {
+                    "properties": {
+                        "SERVICE_PROPERTY": {
+                            "const": "VALUE_OF_SERVICE"
+                        }
+                    }
+                },
+                "then": {
+                    "required": ["OTHER_PROPERTY"]
+                }
             }
         }
     }
-}
-```
 
 default.json
-```json
-{
-    "$schema": "default.schema.json",
-    "SERVICE_PROPERTY": "VALUE_OF_SERVICE",
-    "OTHER_PROPERTY": "VALUE"
-}
-```
+
+    {
+        "$schema": "default.schema.json",
+        "SERVICE_PROPERTY": "VALUE_OF_SERVICE",
+        "OTHER_PROPERTY": "VALUE"
+    }
 
 index.js
-```javascript
-// Access Configuration as Singleton, using default export
-// Initialization is done on first access
-// uses IConfigOptions optionally defined in a sc-config.json file
-import { Configuration as config } from "@schul-cloud/commons";
 
-// Access configuration as class
-// IConfigOptions can be set in constructor options
-import { TestConfiguration } from "@schul-cloud/commons";
-const config = new TestConfiguration(options);
+    // Access Configuration as Singleton, using default export
+    // Initialization is done on first access
+    // uses IConfigOptions optionally defined in a sc-config.json file
+    import { Configuration as config } from "@schul-cloud/commons";
 
-// Then you may run...
-config.has("key");
-const before = config.toObject();
-// and when the property key has been defined in the schema...
-config.get("key");
-config.set("key", "value");
-// or updating multiple entries
-config.update({...});
+    // Access configuration as class
+    // IConfigOptions can be set in constructor options
+    import { TestConfiguration } from "@schul-cloud/commons";
+    const config = new TestConfiguration(options);
 
-// suggested for testing only
-config.remove("key"); // removes a single key
-config.remove("key", "key2", ...); // remove multiple keys
-// override the complete config (removes prior values)
-config.reset(before);
-```
+    // Then you may run...
+    config.has("key");
+    const before = config.toObject();
+    // and when the property key has been defined in the schema...
+    config.get("key");
+    config.set("key", "value");
+    // or updating multiple entries
+    config.update({...});
+
+    // suggested for testing only
+    config.remove("key"); // removes a single key
+    config.remove("key", "key2", ...); // remove multiple keys
+    // override the complete config (removes prior values)
+    config.reset(before);
 
 ### Options
 
-| Option&nbsp;key | Value(s)&nbsp;or&nbsp;Type | default                                                                                | Description                                                                                                                             |
-| --------------- | -------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| logger          | any                        | console                                                                                | a logger instance                                                                                                                       |
-| throwOnError    | boolean                    | true                                                                                   | enable throwing an error when an undefined configuration value is requested                                                             |
-| notFoundValue   | any                        | null                                                                                   | if throwOnError is not set true, an alternate default value may returned                                                                |
-| configDir       | string                     | config                                                                                 | directory where schema and configuration files are located                                                                              |
-| schemaFileName  | string                     | default.schema.json                                                                    | default schema file name                                                                                                                |
-| baseDir         | string                     | process.cwd()                                                                          | path to folder where configDir is located                                                                                               |
-| ajvOptions      | object                     | removeAdditional:&nbsp;'true' <br>useDefaults:&nbsp;true <br>coerceTypes:&nbsp;'array' | Schema Parser Options, see https://github.com/epoberezkin/ajv#options                                                                   |
-| useDotNotation  | boolean                    | true                                                                                   | enables dot notation for parsing environment variables (not json files!) and exporting the current config using has, get, and toObject. |
-| fileEncoding    | string                     | 'utf8'                                                                                 | set file encoding for imported schema and configuration files                                                                           |
+| Option&nbsp;key | Value(s)&nbsp;or&nbsp;Type | default                                                                        | Description                                                                                                                             |
+| --------------- | -------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| logger          | any                        | console                                                                        | a logger instance                                                                                                                       |
+| throwOnError    | boolean                    | true                                                                           | enable throwing an error when an undefined configuration value is requested                                                             |
+| notFoundValue   | any                        | null                                                                           | if throwOnError is not set true, an alternate default value may returned                                                                |
+| configDir       | string                     | config                                                                         | directory where schema and configuration files are located                                                                              |
+| schemaFileName  | string                     | default.schema.json                                                            | default schema file name                                                                                                                |
+| baseDir         | string                     | process.cwd()                                                                  | path to folder where configDir is located                                                                                               |
+| ajvOptions      | object                     | removeAdditional:&nbsp;'true' useDefaults:&nbsp;true coerceTypes:&nbsp;'array' | Schema Parser Options, see <https://github.com/epoberezkin/ajv#options>                                                                 |
+| useDotNotation  | boolean                    | true                                                                           | enables dot notation for parsing environment variables (not json files!) and exporting the current config using has, get, and toObject. |
+| fileEncoding    | string                     | 'utf8'                                                                         | set file encoding for imported schema and configuration files                                                                           |
 
 ## JSON Schema
 
 ### Enhanced validation
 
 Custom validation keywords may be added to get detailed error messages for specific checks:
-https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9
+<https://medium.com/@moshfeu/test-json-schema-with-ajv-and-jest-c1d2984234c9>
 
 ### Dependencies
 

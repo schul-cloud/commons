@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.2.1
+
+- cleanup eslint, fix support for markdown
+- updated dependencies
+
 ## 1.2.0
 
 - removed compatibility with node 8 due an update of mocha from version 7 to 8.
