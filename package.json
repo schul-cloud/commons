@@ -1,6 +1,6 @@
 {
 	"name": "@schul-cloud/commons",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"description": "Helpers and common tools for the hpi school-cloud.",
 	"repository": {
 		"github": "https: //github.com/schul-cloud/commons"
@@ -14,7 +14,7 @@
 		"test": "npm run build && npm run coverage",
 		"lint": "eslint . --fix --ext .ts,.js,.json,.md --ignore-path .gitignore",
 		"lint:ci": "eslint . --ext .ts,.js,.json,.md --ignore-path .gitignore",
-		"build": "rm -rf lib && tsc --declaration --declarationMap"
+		"build": "rm -rf lib && tsc"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -47,6 +47,7 @@
 		"eslint-plugin-markdown": "^1.0.2",
 		"eslint-plugin-prettier": "^3.1.4",
 		"eslint-plugin-react": "^7.19.0",
+		"eslint-plugin-react-hooks": "^4.1.0",
 		"mocha": "^8.0.1",
 		"nyc": "^15.0.0",
 		"prettier": "^2.0.5",
