@@ -1,7 +1,7 @@
 import '../hooks/supress.console';
 import { expect } from 'chai';
 import 'mocha';
-import ConfigurationError from '@/errors/ConfigurationError';
+import ConfigurationError from '../../src/errors/ConfigurationError';
 
 describe('test configuration error', () => {
 	it('create error without data', () => {
