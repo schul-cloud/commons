@@ -1,4 +1,4 @@
-import { IValidator } from '@/interfaces/IValidator';
+import { IValidator } from '../interfaces/IValidator';
 
 /**
  * tests a given test string to match a regular expression

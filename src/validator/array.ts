@@ -1,4 +1,4 @@
-import { IValidator } from '@/interfaces/IValidator';
+import { IValidator } from '../interfaces/IValidator';
 
 /**
  * validates that test value matches one parameter value.

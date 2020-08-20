@@ -10,9 +10,10 @@
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
+		"declaration": true,
+		"declarationMap": true,
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"],
 			"@test/*": ["test/*"]
 		},
 		"lib": ["es2015"]

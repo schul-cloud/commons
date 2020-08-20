@@ -6,11 +6,11 @@ import fs from 'fs';
 import path from 'path';
 
 import ConfigurationError from '../errors/ConfigurationError';
-import { IConfigOptions } from '@/interfaces/IConfigOptions';
-import { IConfiguration } from '@/interfaces/IConfiguration';
-import { IRequiredConfigOptions } from '@/interfaces/IRequiredConfigOptions';
-import { IUpdateOptions } from '@/interfaces/IUpdateOptions';
-import { IConfig } from '@/interfaces/IConfig';
+import { IConfigOptions } from '../interfaces/IConfigOptions';
+import { IConfiguration } from '../interfaces/IConfiguration';
+import { IRequiredConfigOptions } from '../interfaces/IRequiredConfigOptions';
+import { IUpdateOptions } from '../interfaces/IUpdateOptions';
+import { IConfig } from '../interfaces/IConfig';
 const { env } = process;
 const logger = console;
 
