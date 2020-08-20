@@ -1,4 +1,4 @@
-import { IValidator } from '@/interfaces/IValidator';
+import { IValidator } from '../interfaces/IValidator';
 
 /**
  * tests a given test number to be gte than value
