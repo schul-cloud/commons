@@ -58,7 +58,7 @@
 		"typescript": "^3.7.2"
 	},
 	"dependencies": {
-		"acorn": "^7.1.1",
+		"acorn": "^8.0.1",
 		"ajv": "^6.10.2",
 		"config": "^3.2.4",
 		"dot-object": "^2.1.2",
