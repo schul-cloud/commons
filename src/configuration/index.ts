@@ -13,6 +13,7 @@ import { IUpdateOptions } from '../interfaces/IUpdateOptions';
 import { IConfig } from '../interfaces/IConfig';
 const { env } = process;
 const logger = console;
+const NODE_ENV = 'NODE_ENV';
 
 export const defaultOptions: IRequiredConfigOptions = {
 	logger,
@@ -33,6 +34,7 @@ export const defaultOptions: IRequiredConfigOptions = {
 	throwOnError: true,
 	allowRuntimeChangesInEnv: ['test'],
 	defaultNodeEnv: 'development',
+	loadFilesFromEnv: [NODE_ENV],
 };
 
 enum ReadyState {
@@ -128,27 +130,57 @@ export class Configuration implements IConfiguration {
 			dotAndEnv = loadash.merge({}, envConfig, dotAndEnv);
 		}
 
-		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json)
-		const configurationFileNames = [];
-		const configurations = [];
-		if ('NODE_ENV' in dotAndEnv) {
-			this.NODE_ENV = dotAndEnv['NODE_ENV'];
+		// set default NODE_ENV
+		if (NODE_ENV in dotAndEnv) {
+			this.NODE_ENV = dotAndEnv[NODE_ENV];
 		} else {
 			this.NODE_ENV = this.options.defaultNodeEnv;
 		}
+
+		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json)
+		const configurationFileNames: string[] = [];
+		const configurationFileNamesAddedSuccessfully = [];
+		const configurations = [];
+		// start with default file
 		configurationFileNames.push('default.json');
-		if (this.NODE_ENV !== 'default') {
-			configurationFileNames.push(this.NODE_ENV + '.json');
+		// add environment files
+		if (
+			Array.isArray(this.options.loadFilesFromEnv) &&
+			this.options.loadFilesFromEnv.length != 0
+		) {
+			this.options.loadFilesFromEnv.forEach((envName) => {
+				let ok = true;
+				// add configuration based on current envName, ignore default already added first
+				if (!(envName in dotAndEnv)) {
+					ok = false;
+					logger.warn("ignore envName, it's not defined", envName);
+				}
+				if (configurationFileNames.includes(dotAndEnv[envName])) {
+					ok = false;
+					logger.warn('ignore envName, already added value before');
+				}
+				if (ok) {
+					configurationFileNames.push(dotAndEnv[envName]);
+				}
+			});
 		}
+		logger.info(
+			'will parse following configuration filenames in given order',
+			configurationFileNames
+		);
 		for (const file of configurationFileNames) {
 			const fullFileName = path.join(
 				this.options.baseDir,
 				this.options.configDir,
-				file
+				file + '.json'
 			);
 			if (fs.existsSync(fullFileName)) {
 				const fileJson = this.loadJSONFromFileName(fullFileName);
 				configurations.push(fileJson);
+				configurationFileNamesAddedSuccessfully.push(file);
+				logger.info('successfully parsed json from', fullFileName);
+			} else {
+				logger.warn('file not found, ignore...', fullFileName);
 			}
 		}
 
@@ -163,7 +195,8 @@ export class Configuration implements IConfiguration {
 			configurations.push(loadash.merge({}, dotAndEnv));
 		}
 
-		// merge configurations together, the last mentioned definition wins in order default.json file, NODE_ENV.json file, .env file, environment variables
+		// merge configurations together, the last mentioned definition wins in order default.json file,
+		// NODE_ENV.json file, further FURTHER_ENV.json files, .env file, environment variables
 		const mergedConfiguration = loadash.merge({}, ...configurations);
 		if (!this.parse(mergedConfiguration)) {
 			throw new ConfigurationError(

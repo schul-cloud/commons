@@ -38,4 +38,6 @@ export interface IConfigOptions {
 	allowRuntimeChangesInEnv?: [string];
 	/** defines NODE_ENV default value */
 	defaultNodeEnv?: string;
+	/** ENV values parsed after NODE_ENV for filename lookup in given order */
+	loadFilesFromEnv?: string[];
 }
