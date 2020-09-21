@@ -142,7 +142,7 @@ export class Configuration implements IConfiguration {
 		const configurationFileNamesAddedSuccessfully = [];
 		const configurations = [];
 		// start with default file
-		configurationFileNames.push('default.json');
+		configurationFileNames.push('default');
 		// add environment files
 		if (
 			Array.isArray(this.options.loadFilesFromEnv) &&
@@ -153,18 +153,23 @@ export class Configuration implements IConfiguration {
 				// add configuration based on current envName, ignore default already added first
 				if (!(envName in dotAndEnv)) {
 					ok = false;
-					logger.warn("ignore envName, it's not defined", envName);
+					this.options.logger.error(
+						"ignore envName, it's not defined",
+						envName
+					);
 				}
 				if (configurationFileNames.includes(dotAndEnv[envName])) {
 					ok = false;
-					logger.warn('ignore envName, already added value before');
+					this.options.logger.error(
+						'ignore envName, already added value before'
+					);
 				}
 				if (ok) {
 					configurationFileNames.push(dotAndEnv[envName]);
 				}
 			});
 		}
-		logger.info(
+		this.options.logger.info(
 			'will parse following configuration filenames in given order',
 			configurationFileNames
 		);
@@ -178,9 +183,12 @@ export class Configuration implements IConfiguration {
 				const fileJson = this.loadJSONFromFileName(fullFileName);
 				configurations.push(fileJson);
 				configurationFileNamesAddedSuccessfully.push(file);
-				logger.info('successfully parsed json from', fullFileName);
+				this.options.logger.info('successfully parsed json from', fullFileName);
 			} else {
-				logger.warn('file not found, ignore...', fullFileName);
+				this.options.logger.error(
+					'config file not found, ignore...',
+					fullFileName
+				);
 			}
 		}
 
@@ -404,7 +412,7 @@ export class Configuration implements IConfiguration {
 			`The configuration key '${key}' has been used, but it was not defined! Check the given key exists in schema file.` +
 			`Set it as required in the schema file, or use Configuration.has('${key}') before using not required properties ` +
 			'to be available in the current situation.';
-		this.options.logger.warn(message);
+		this.options.logger.error(message);
 		if (this.options.throwOnError) {
 			throw new ConfigurationError(message);
 		}
