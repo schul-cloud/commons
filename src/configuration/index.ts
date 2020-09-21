@@ -444,7 +444,6 @@ export class Configuration implements IConfiguration {
 			return;
 		}
 		if (
-			this.options.allowRuntimeChangesInEnv != undefined &&
 			Array.isArray(this.options.allowRuntimeChangesInEnv) &&
 			this.options.allowRuntimeChangesInEnv.includes(this.NODE_ENV)
 		) {

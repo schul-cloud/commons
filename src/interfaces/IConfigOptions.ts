@@ -35,7 +35,7 @@ export interface IConfigOptions {
 	fileEncoding?: BufferEncoding;
 	app?: any;
 	/** restrict runtime changes to specified NODE_ENV */
-	allowRuntimeChangesInEnv?: [string];
+	allowRuntimeChangesInEnv?: string[];
 	/** defines NODE_ENV default value */
 	defaultNodeEnv?: string;
 	/** ENV values parsed after NODE_ENV for filename lookup in given order */
