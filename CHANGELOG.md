@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- ARC-80 replace parsing NODE_ENV from env only, added env configuration hierarchy with options.loadFilesFromEnv
+
 ## 1.2.1
 
 - cleanup eslint, fix support for markdown

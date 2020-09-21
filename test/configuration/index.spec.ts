@@ -697,4 +697,42 @@ describe('test configuration', () => {
 			});
 		});
 	});
+
+	describe('ENV hierarchy', () => {
+		const { NODE_ENV, INSTANCE } = process.env;
+
+		it('NODE_ENV should define Domain', () => {
+			process.env.NODE_ENV = 'production';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['NODE_ENV'],
+			});
+			expect(config.get('Domain')).to.equal('localhost');
+		});
+
+		it('INSTANCE should override NODE_ENV', () => {
+			process.env.INSTANCE = 'boss';
+			process.env.NODE_ENV = 'production';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['NODE_ENV', 'INSTANCE'],
+			});
+			expect(config.get('Domain')).to.equal('boss.cloud');
+		});
+
+		it('NODE_ENV should override INSTANCE', () => {
+			process.env.INSTANCE = 'boss';
+			process.env.NODE_ENV = 'production';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['INSTANCE', 'NODE_ENV'],
+			});
+			expect(config.get('Domain')).to.equal('localhost');
+		});
+
+		after('revert process.env', () => {
+			process.env.NODE_ENV = NODE_ENV;
+			process.env.INSTANCE = INSTANCE;
+		});
+	});
 });

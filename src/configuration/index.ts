@@ -34,7 +34,7 @@ export const defaultOptions: IRequiredConfigOptions = {
 	throwOnError: true,
 	allowRuntimeChangesInEnv: ['test'],
 	defaultNodeEnv: 'development',
-	loadFilesFromEnv: [NODE_ENV],
+	loadFilesFromEnv: [NODE_ENV, 'SC_INSTANCE'],
 };
 
 enum ReadyState {
