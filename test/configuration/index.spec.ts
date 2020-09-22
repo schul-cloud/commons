@@ -730,6 +730,16 @@ describe('test configuration', () => {
 			expect(config.get('Domain')).to.equal('localhost');
 		});
 
+		it('print hierarchy', () => {
+			process.env.INSTANCE = 'boss';
+			process.env.NODE_ENV = 'production';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['NODE_ENV', 'INSTANCE'],
+			});
+			config.printHierarchy();
+		});
+
 		after('revert process.env', () => {
 			process.env.NODE_ENV = NODE_ENV;
 			process.env.INSTANCE = INSTANCE;

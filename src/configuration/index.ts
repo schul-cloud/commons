@@ -11,6 +11,8 @@ import { IConfiguration } from '../interfaces/IConfiguration';
 import { IRequiredConfigOptions } from '../interfaces/IRequiredConfigOptions';
 import { IUpdateOptions } from '../interfaces/IUpdateOptions';
 import { IConfig } from '../interfaces/IConfig';
+import { IConfigHierarchy } from 'src/interfaces/IConfigHierarchy';
+import { IConfigType } from 'src/interfaces/IConfigType';
 const { env } = process;
 const logger = console;
 const NODE_ENV = 'NODE_ENV';
@@ -75,6 +77,7 @@ export class Configuration implements IConfiguration {
 	private updateErrors: string[];
 	private readyState: ReadyState;
 	private NODE_ENV: string;
+	private configurationHierarchy: IConfigHierarchy[];
 
 	/**
 	 * Creates a new instance of Configuration class.
@@ -101,11 +104,7 @@ export class Configuration implements IConfiguration {
 
 		// parse schema file
 		this.schemaValidator = new Ajv(this.options.ajvOptions);
-		const schemaFilePath = path.join(
-			this.options.baseDir,
-			this.options.configDir,
-			this.options.schemaFileName
-		);
+		const schemaFilePath = this.getSchemaFilePath();
 		if (!fs.existsSync(schemaFilePath)) {
 			throw new ConfigurationError('error loading schema', { schemaFilePath });
 		}
@@ -117,9 +116,9 @@ export class Configuration implements IConfiguration {
 			this.options.envDir,
 			'.env'
 		);
-		let dotAndEnv: dotenv.DotenvParseOutput | any = loadash.cloneDeep(env);
+		let dotEnv: any | null = null;
 		if (fs.existsSync(envFilePath)) {
-			const envConfig = dotenv.parse(
+			dotEnv = dotenv.parse(
 				fs.readFileSync(envFilePath, {
 					encoding: this.options.fileEncoding,
 				}),
@@ -127,8 +126,12 @@ export class Configuration implements IConfiguration {
 					debug: !!this.options.debug,
 				}
 			);
-			dotAndEnv = loadash.merge({}, envConfig, dotAndEnv);
 		}
+		const dotAndEnv: dotenv.DotenvParseOutput | any = loadash.merge(
+			{},
+			dotEnv,
+			loadash.cloneDeep(env)
+		);
 
 		// set default NODE_ENV
 		if (NODE_ENV in dotAndEnv) {
@@ -137,10 +140,9 @@ export class Configuration implements IConfiguration {
 			this.NODE_ENV = this.options.defaultNodeEnv;
 		}
 
-		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json)
+		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json), then others defined in options.loadFilesFromEnv
 		const configurationFileNames: string[] = [];
-		const configurationFileNamesAddedSuccessfully = [];
-		const configurations = [];
+		const configurations: IConfigHierarchy[] = [];
 		// start with default file
 		configurationFileNames.push('default');
 		// add environment files
@@ -154,14 +156,16 @@ export class Configuration implements IConfiguration {
 				if (!(envName in dotAndEnv)) {
 					ok = false;
 					this.options.logger.error(
-						"ignore envName, it's not defined",
+						'ignore envName, this property is not defined in current environment',
 						envName
 					);
 				}
 				if (configurationFileNames.includes(dotAndEnv[envName])) {
 					ok = false;
+					const fileName = dotAndEnv[envName];
 					this.options.logger.error(
-						'ignore envName, already added value before'
+						'ignore fileName, already added this file before',
+						fileName
 					);
 				}
 				if (ok) {
@@ -169,7 +173,7 @@ export class Configuration implements IConfiguration {
 				}
 			});
 		}
-		this.options.logger.info(
+		this.options.logger.debug(
 			'will parse following configuration filenames in given order',
 			configurationFileNames
 		);
@@ -181,9 +185,16 @@ export class Configuration implements IConfiguration {
 			);
 			if (fs.existsSync(fullFileName)) {
 				const fileJson = this.loadJSONFromFileName(fullFileName);
-				configurations.push(fileJson);
-				configurationFileNamesAddedSuccessfully.push(file);
-				this.options.logger.info('successfully parsed json from', fullFileName);
+				const hierarchy: IConfigHierarchy = {
+					type: IConfigType.File,
+					meta: fullFileName,
+					data: fileJson,
+				};
+				configurations.push(hierarchy);
+				this.options.logger.debug(
+					'successfully parsed json from',
+					fullFileName
+				);
 			} else {
 				this.options.logger.error(
 					'config file not found, ignore...',
@@ -192,27 +203,46 @@ export class Configuration implements IConfiguration {
 			}
 		}
 
-		// parse dotAndEnv, optionally apply dot transformation
-		if (this.options.useDotNotation) {
-			this.dot = new dot(this.options.dotNotationSeparator);
-			configurations.push(
-				loadash.merge({}, this.dot.object(loadash.cloneDeep(dotAndEnv)))
-			);
-		} else {
-			this.dot = null;
-			configurations.push(loadash.merge({}, dotAndEnv));
+		// parse dotEnv and env, optionally apply dot transformation
+		this.dot = this.options.useDotNotation
+			? new dot(this.options.dotNotationSeparator)
+			: null;
+
+		const envParser = (data: any, dotParser: DotObject.Dot | null): any => {
+			if (dotParser !== null) {
+				return loadash.merge({}, dotParser.object(loadash.cloneDeep(data)));
+			}
+			return loadash.merge({}, data);
+		};
+
+		// add .env file into hierarchy, if it exists
+		if (dotEnv !== null) {
+			const data = envParser(dotEnv, this.dot);
+			configurations.push({
+				type: IConfigType.DotEnv,
+				data,
+			});
+		}
+
+		// add environment overriding everything from before into hierarchy
+		if (env !== null) {
+			const data = envParser(env, this.dot);
+			configurations.push({
+				type: IConfigType.Env,
+				data,
+			});
 		}
 
 		// merge configurations together, the last mentioned definition wins in order default.json file,
 		// NODE_ENV.json file, further FURTHER_ENV.json files, .env file, environment variables
-		const mergedConfiguration = loadash.merge({}, ...configurations);
-		if (!this.parse(mergedConfiguration)) {
-			throw new ConfigurationError(
-				'error parsing configuration',
-				this.getErrors()
-			);
-		}
-
+		this.configurationHierarchy = configurations;
+		const mergedConfiguration = loadash.merge(
+			{},
+			...configurations.map(
+				(configurationHierarchy) => configurationHierarchy.data
+			)
+		);
+		this.parse(mergedConfiguration);
 		this.readyState = ReadyState.InitFinished;
 	}
 
@@ -230,6 +260,14 @@ export class Configuration implements IConfiguration {
 		}
 		return this.notFound(key);
 	};
+
+	private getSchemaFilePath(): string {
+		return path.join(
+			this.options.baseDir,
+			this.options.configDir,
+			this.options.schemaFileName
+		);
+	}
 
 	/**
 	 * set final, probably dotted config object
@@ -261,6 +299,53 @@ export class Configuration implements IConfiguration {
 			return loadash.cloneDeep(this.dot.object(this.config));
 		} else {
 			return loadash.cloneDeep(this.config);
+		}
+	}
+
+	public getConfigurationHierarchy(): IConfigHierarchy[] {
+		if (this.runtimeChangesAllowed()) {
+			this.options.logger.warn(
+				'exported hierarchy eventually has been changed due runtime changes are allowed'
+			);
+		}
+		return loadash.cloneDeep(this.configurationHierarchy);
+	}
+
+	public printHierarchy(loggerTarget = 'debug'): void {
+		const log = this.options.logger[loggerTarget];
+		// create separate validator instance not touching configuration
+		const validator: Ajv.ValidateFunction = new Ajv(
+			this.options.ajvOptions
+		).compile(this.schema);
+		if (log === undefined) {
+			throw new Error('logger target to print hierarchy has not been found.');
+		}
+		try {
+			let i = 0;
+			let data = {};
+			log('Configuration history - last configuration property wins');
+			if (this.runtimeChangesAllowed()) {
+				log('Configuration history does not contain runtime changes!');
+			}
+			if (Array.isArray(this.configurationHierarchy)) {
+				this.configurationHierarchy.forEach((hierarchy) => {
+					i += 1;
+					log(` Configuration hierarchy #${i}:`);
+					log(' - type:', IConfigType[hierarchy.type]);
+					if (hierarchy.meta !== undefined) log(' - meta:', hierarchy.meta);
+					data = loadash.merge({}, data, hierarchy.data);
+					const valid = validator(data);
+					log(' - valid, including data from before:', valid);
+					log(' - data, including data from before:', data);
+				});
+			} else {
+				log(' no hierarchy entries found');
+			}
+		} catch (err) {
+			this.options.logger.error(
+				'An error occured while printing the configuration history...',
+				err
+			);
 		}
 	}
 
@@ -359,6 +444,7 @@ export class Configuration implements IConfiguration {
 			this.updateConfig();
 		} else {
 			const message = 'error updating configuration data';
+			this.printHierarchy('error');
 			if (this.options.throwOnError === true) {
 				throw new ConfigurationError(message, this.getErrors());
 			}
@@ -451,15 +537,19 @@ export class Configuration implements IConfiguration {
 			// ignore restrictions during startup
 			return;
 		}
-		if (
-			Array.isArray(this.options.allowRuntimeChangesInEnv) &&
-			this.options.allowRuntimeChangesInEnv.includes(this.NODE_ENV)
-		) {
+		if (this.runtimeChangesAllowed()) {
 			// ignore if env is whitelisted
 			return;
 		}
 		throw new ConfigurationError(
 			`Configuration changes during runtime are not allowed in environment ${this.NODE_ENV}. You may add desired environments to options.allowRuntimeChangesInEnv array to allow runtime changes which are supposed to be only for test reasons.`
+		);
+	}
+
+	private runtimeChangesAllowed(): boolean {
+		return (
+			Array.isArray(this.options.allowRuntimeChangesInEnv) &&
+			this.options.allowRuntimeChangesInEnv.includes(this.NODE_ENV)
 		);
 	}
 }

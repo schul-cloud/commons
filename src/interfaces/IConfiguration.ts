@@ -8,4 +8,5 @@ export interface IConfiguration {
 	remove(...keys: [string]): boolean;
 	has(key: string): boolean;
 	toObject(): any;
+	printHierarchy(loggerTarget?: string): void;
 }
