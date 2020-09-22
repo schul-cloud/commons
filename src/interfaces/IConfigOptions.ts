@@ -40,4 +40,6 @@ export interface IConfigOptions {
 	defaultNodeEnv?: string;
 	/** ENV values parsed after NODE_ENV for filename lookup in given order */
 	loadFilesFromEnv?: string[];
+	/** print configuration hierarchy right after initialization */
+	printHierarchy?: boolean;
 }

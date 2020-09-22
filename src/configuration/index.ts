@@ -37,6 +37,7 @@ export const defaultOptions: IRequiredConfigOptions = {
 	allowRuntimeChangesInEnv: ['test'],
 	defaultNodeEnv: 'development',
 	loadFilesFromEnv: [NODE_ENV, 'SC_INSTANCE'],
+	printHierarchy: true,
 };
 
 enum ReadyState {
@@ -242,6 +243,9 @@ export class Configuration implements IConfiguration {
 			)
 		);
 		this.parse(mergedConfiguration);
+		if (this.options.printHierarchy === true) {
+			this.printHierarchy();
+		}
 		this.readyState = ReadyState.InitFinished;
 	}
 
@@ -310,16 +314,16 @@ export class Configuration implements IConfiguration {
 		return loadash.cloneDeep(this.configurationHierarchy);
 	}
 
-	printHierarchy(loggerTarget = 'debug'): void {
-		const log = this.options.logger[loggerTarget];
-		// create separate validator instance not touching configuration
-		const validator: Ajv.ValidateFunction = new Ajv(
-			this.options.ajvOptions
-		).compile(this.schema);
-		if (log === undefined) {
-			throw new Error('logger target to print hierarchy has not been found.');
-		}
+	printHierarchy(loggerTarget = 'info'): void {
 		try {
+			const log = this.options.logger[loggerTarget];
+			// create separate validator instance not touching configuration
+			const validator: Ajv.ValidateFunction = new Ajv(
+				this.options.ajvOptions
+			).compile(this.schema);
+			if (log === undefined) {
+				throw new Error('logger target to print hierarchy has not been found.');
+			}
 			let i = 0;
 			let data = {};
 			log('Configuration history - last configuration property wins');
