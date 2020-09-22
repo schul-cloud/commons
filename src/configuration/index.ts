@@ -352,10 +352,10 @@ export class Configuration implements IConfiguration {
 		if (!this.validate) {
 			throw new ConfigurationError('no schema defined');
 		}
-		// todo deepcopy data here
-		const valid = this.validate(data) as boolean;
+		const dataToBeUpdated = loadash.cloneDeep(data);
+		const valid = this.validate(dataToBeUpdated) as boolean;
 		if (valid) {
-			this.data = data;
+			this.data = dataToBeUpdated;
 			this.updateConfig();
 		} else {
 			const message = 'error updating configuration data';
