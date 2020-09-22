@@ -86,8 +86,7 @@ export class Configuration implements IConfiguration {
 	 * @memberof Configuration
 	 * @deprecated use singleton getInstance() instead, this will be private in future versions
 	 */
-	public constructor(options?: IConfigOptions) {
-		this.readyState = ReadyState.Default;
+	constructor(options?: IConfigOptions) {
 		this.data = {};
 		this.updateErrors = [];
 		this.readyState = ReadyState.InstanceCreated;
@@ -246,12 +245,12 @@ export class Configuration implements IConfiguration {
 		this.readyState = ReadyState.InitFinished;
 	}
 
-	public has = (key: string): boolean => {
+	has = (key: string): boolean => {
 		this.ensureInitialized();
 		return Object.prototype.hasOwnProperty.call(this.config, key);
 	};
 
-	public get = (key: string): any => {
+	get = (key: string): any => {
 		this.ensureInitialized();
 		// first check config has key, then return it (duplication because of reduce config clone amount)
 		if (Object.prototype.hasOwnProperty.call(this.config, key)) {
@@ -293,7 +292,7 @@ export class Configuration implements IConfiguration {
 	 * @returns {*}
 	 * @memberof Configuration
 	 */
-	public toObject(): any {
+	toObject(): IConfig {
 		this.ensureInitialized();
 		if (this.dot !== null) {
 			return loadash.cloneDeep(this.dot.object(this.config));
@@ -302,7 +301,7 @@ export class Configuration implements IConfiguration {
 		}
 	}
 
-	public getConfigurationHierarchy(): IConfigHierarchy[] {
+	getConfigurationHierarchy(): IConfigHierarchy[] {
 		if (this.runtimeChangesAllowed()) {
 			this.options.logger.warn(
 				'exported hierarchy eventually has been changed due runtime changes are allowed'
@@ -311,7 +310,7 @@ export class Configuration implements IConfiguration {
 		return loadash.cloneDeep(this.configurationHierarchy);
 	}
 
-	public printHierarchy(loggerTarget = 'debug'): void {
+	printHierarchy(loggerTarget = 'debug'): void {
 		const log = this.options.logger[loggerTarget];
 		// create separate validator instance not touching configuration
 		const validator: Ajv.ValidateFunction = new Ajv(
@@ -355,7 +354,7 @@ export class Configuration implements IConfiguration {
 	 * @returns {Configuration}
 	 * @memberof Configuration
 	 */
-	public static get Instance(): Configuration {
+	static get Instance(): Configuration {
 		if (!Configuration.instance) {
 			Configuration.instance = new Configuration(projectConfigOptions);
 		}
@@ -368,7 +367,7 @@ export class Configuration implements IConfiguration {
 	 * @param {IUpdateOptions} options
 	 * @param {boolean} options.reset set true, to only keep values given in params and remove the current values
 	 */
-	public update(params: IConfig, options?: IUpdateOptions): boolean {
+	update(params: IConfig, options?: IUpdateOptions): boolean {
 		this.ensureInitialized();
 		this.restrictRuntimeChanges();
 		this.updateErrors = [];
@@ -390,7 +389,7 @@ export class Configuration implements IConfiguration {
 	 * This removes all current values.
 	 * @param params
 	 */
-	public reset(params: IConfig): boolean {
+	reset(params: IConfig): boolean {
 		this.ensureInitialized();
 		this.restrictRuntimeChanges();
 		return this.update(params, { reset: true });
@@ -404,14 +403,14 @@ export class Configuration implements IConfiguration {
 	 * @returns {boolean}
 	 * @memberof Configuration
 	 */
-	public set(key: string, value: any): boolean {
+	set(key: string, value: any): boolean {
 		this.ensureInitialized();
 		this.restrictRuntimeChanges();
 		const params: IConfig = { [key]: value };
 		return this.update(params);
 	}
 
-	public remove(...keys: string[]): boolean {
+	remove(...keys: string[]): boolean {
 		this.ensureInitialized();
 		this.restrictRuntimeChanges();
 		this.updateErrors = [];
@@ -458,7 +457,7 @@ export class Configuration implements IConfiguration {
 	 *
 	 * @memberof Configuration
 	 */
-	public getErrors = (): [Ajv.ErrorObject | string] | null => {
+	getErrors = (): [Ajv.ErrorObject | string] | null => {
 		let errors: [Ajv.ErrorObject | string] | null = null;
 		const addErrors = (...items: [Ajv.ErrorObject | string]): void => {
 			if (errors === null) {
