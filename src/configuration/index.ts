@@ -15,7 +15,6 @@ import { IConfigHierarchy } from 'src/interfaces/IConfigHierarchy';
 import { IConfigType } from 'src/interfaces/IConfigType';
 const { env } = process;
 const logger = console;
-const NODE_ENV = 'NODE_ENV';
 
 export const defaultOptions: IRequiredConfigOptions = {
 	logger,
@@ -36,7 +35,7 @@ export const defaultOptions: IRequiredConfigOptions = {
 	throwOnError: true,
 	allowRuntimeChangesInEnv: ['test'],
 	defaultNodeEnv: 'development',
-	loadFilesFromEnv: [NODE_ENV, 'SC_INSTANCE'],
+	loadFilesFromEnv: ['NODE_ENV', 'SC_INSTANCE'],
 	printHierarchy: true,
 };
 
@@ -134,8 +133,8 @@ export class Configuration implements IConfiguration {
 		);
 
 		// set default NODE_ENV
-		if (NODE_ENV in dotAndEnv) {
-			this.NODE_ENV = dotAndEnv[NODE_ENV];
+		if ('NODE_ENV' in dotAndEnv) {
+			this.NODE_ENV = dotAndEnv['NODE_ENV'];
 		} else {
 			this.NODE_ENV = this.options.defaultNodeEnv;
 		}
@@ -148,27 +147,25 @@ export class Configuration implements IConfiguration {
 		// add environment files
 		if (
 			Array.isArray(this.options.loadFilesFromEnv) &&
-			this.options.loadFilesFromEnv.length != 0
+			this.options.loadFilesFromEnv.length !== 0
 		) {
 			this.options.loadFilesFromEnv.forEach((envName) => {
-				let ok = true;
 				// add configuration based on current envName, ignore default already added first
 				if (!(envName in dotAndEnv)) {
-					ok = false;
+					// error case: should parse envName but is has not been defined
 					this.options.logger.error(
 						'ignore envName, this property is not defined in current environment',
 						envName
 					);
-				}
-				if (configurationFileNames.includes(dotAndEnv[envName])) {
-					ok = false;
+				} else if (configurationFileNames.includes(dotAndEnv[envName])) {
+					// error case: the file is already added, do not add it twice
 					const fileName = dotAndEnv[envName];
 					this.options.logger.error(
 						'ignore fileName, already added this file before',
 						fileName
 					);
-				}
-				if (ok) {
+				} else {
+					// success case: add value to hierarchy of files to be parsed
 					configurationFileNames.push(dotAndEnv[envName]);
 				}
 			});
