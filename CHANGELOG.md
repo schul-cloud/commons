@@ -2,8 +2,10 @@
 
 ## Unreleased
 
+## 1.2.3
+
 - print configuration hierarchy added, printing secrets disabled by default
-- ARC-80 replace parsing NODE_ENV from env only, added env configuration hierarchy with options.loadFilesFromEnv
+- replace parsing NODE_ENV from env only, added env configuration hierarchy with options.loadFilesFromEnv
 
 ## 1.2.1
 
