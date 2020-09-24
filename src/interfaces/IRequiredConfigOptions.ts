@@ -22,4 +22,5 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	dotNotationSeparator: string;
 	fileEncoding: BufferEncoding;
 	defaultNodeEnv: string;
+	loadFilesFromEnv: string[];
 }
