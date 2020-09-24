@@ -42,4 +42,6 @@ export interface IConfigOptions {
 	loadFilesFromEnv?: string[];
 	/** print configuration hierarchy right after initialization */
 	printHierarchy?: boolean;
+	/** enable print secrets in printHierarchy */
+	printSecrets?: boolean;
 }

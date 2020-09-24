@@ -13,6 +13,7 @@ import { IUpdateOptions } from '../interfaces/IUpdateOptions';
 import { IConfig } from '../interfaces/IConfig';
 import { IConfigHierarchy } from 'src/interfaces/IConfigHierarchy';
 import { IConfigType } from 'src/interfaces/IConfigType';
+import { Secrets } from './secrets';
 const { env } = process;
 const logger = console;
 
@@ -314,7 +315,7 @@ export class Configuration implements IConfiguration {
 	printHierarchy(loggerTarget = 'info'): void {
 		try {
 			const log = this.options.logger[loggerTarget];
-			// create separate validator instance not touching configuration
+			// create separate validator instance not touching configuration system in use
 			const validator: Ajv.ValidateFunction = new Ajv(
 				this.options.ajvOptions
 			).compile(this.schema);
@@ -336,7 +337,13 @@ export class Configuration implements IConfiguration {
 					data = loadash.merge({}, data, hierarchy.data);
 					const valid = validator(data);
 					log(' - valid, including data from before:', valid);
-					log(' - data, including data from before:', data);
+					if (this.options.printSecrets === true) {
+						log(' - data, including data from before:', data);
+					}
+					log(
+						' - data, including data from before:',
+						Secrets.filterSecretValues(data)
+					);
 				});
 			} else {
 				log(' no hierarchy entries found');

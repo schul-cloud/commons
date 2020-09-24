@@ -32,8 +32,8 @@ The configuration is build by parsing multiple sources in the following order (L
 1. defaults from `default.schema.json`
 2. defaults from `default.json` (values have to be defined here, for properties required in the schema too beside the schema default)
 3. parse configuration files from environment
-    1. `NODE_ENV.json` from config folder (defaults to `development.json`, if `NODE_ENV` is not defined - the file existence is optionally)
-    2. Other environment files can be added into options.loadFilesFromEnv after NODE_ENV like SC_INSTANCE.
+   1. `NODE_ENV.json` from config folder (defaults to `development.json`, if `NODE_ENV` is not defined - the file existence is optionally)
+   2. Other environment files can be added into options.loadFilesFromEnv after `NODE_ENV` by default, `SC_INSTANCE`.
 4. `.env` file from execution/project root directory
 5. existing environment variables finally override everything from before.
 
@@ -46,6 +46,12 @@ The default schema parser options
 Invalid input values will raise an error by default.
 
 To enable multiple inherited objects when parsing environment variables there may be a dot notation be used. When enabled, this gets applied for export, has, and get too. Currently only `__` (double underscore) is supported as separator due to the dependency [dotenv](https://www.npmjs.com/package/dotenv#should-i-have-multiple-env-files) and bad support of `.` (single dot) in many terminals.
+
+#### Secrets
+
+There exist a method `printHierarchy()` to print the whole hierarchy of a configuration. For security reasons, by default all values of string typed properties having secret or key in their name will be replaced with a hash-id. Same hashes identify same original values.
+
+> Use the naming convention to start secure properties with `SECRET_` in their name and use type string.
 
 #### Specifying Dependencies
 
@@ -134,19 +140,20 @@ index.js
 
 ### Options
 
-| Option&nbsp;key  | Value(s)&nbsp;or&nbsp;Type | default                                                                        | Description                                                                                                                             |
-| ---------------- | -------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| logger           | any                        | console                                                                        | a logger instance                                                                                                                       |
-| throwOnError     | boolean                    | true                                                                           | enable throwing an error when an undefined configuration value is requested                                                             |
-| notFoundValue    | any                        | null                                                                           | if throwOnError is not set true, an alternate default value may returned                                                                |
-| configDir        | string                     | config                                                                         | directory where schema and configuration files are located                                                                              |
-| schemaFileName   | string                     | default.schema.json                                                            | default schema file name                                                                                                                |
-| baseDir          | string                     | process.cwd()                                                                  | path to folder where configDir is located                                                                                               |
-| ajvOptions       | object                     | removeAdditional:&nbsp;'true' useDefaults:&nbsp;true coerceTypes:&nbsp;'array' | Schema Parser Options, see <https://github.com/epoberezkin/ajv#options>                                                                 |
-| useDotNotation   | boolean                    | true                                                                           | enables dot notation for parsing environment variables (not json files!) and exporting the current config using has, get, and toObject. |
-| fileEncoding     | string                     | 'utf8'                                                                         | set file encoding for imported schema and configuration files                                                                           |
-| loadFilesFromEnv | string[]                   | ['NODE_ENV']                                                                   | defines the order of configuration files loaded by specified environment values filename must have json extension like NODE_ENV.json    |
-| printHierarchy   | boolean                    | false                                                                          | executes printHierarchy() right after initialization                                                                                    |
+| Option&nbsp;key  | Value(s)&nbsp;or&nbsp;Type | default                                                                        | Description                                                                                                                                                                                   |
+| ---------------- | -------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| logger           | any                        | console                                                                        | a logger instance                                                                                                                                                                             |
+| throwOnError     | boolean                    | true                                                                           | enable throwing an error when an undefined configuration value is requested                                                                                                                   |
+| notFoundValue    | any                        | null                                                                           | if throwOnError is not set true, an alternate default value may returned                                                                                                                      |
+| configDir        | string                     | config                                                                         | directory where schema and configuration files are located                                                                                                                                    |
+| schemaFileName   | string                     | default.schema.json                                                            | default schema file name                                                                                                                                                                      |
+| baseDir          | string                     | process.cwd()                                                                  | path to folder where configDir is located                                                                                                                                                     |
+| ajvOptions       | object                     | removeAdditional:&nbsp;'true' useDefaults:&nbsp;true coerceTypes:&nbsp;'array' | Schema Parser Options, see <https://github.com/epoberezkin/ajv#options>                                                                                                                       |
+| useDotNotation   | boolean                    | true                                                                           | enables dot notation for parsing environment variables (not json files!) and exporting the current config using has, get, and toObject.                                                       |
+| fileEncoding     | string                     | 'utf8'                                                                         | set file encoding for imported schema and configuration files                                                                                                                                 |
+| loadFilesFromEnv | string[]                   | ['NODE_ENV']                                                                   | defines the order of configuration files loaded by specified environment values filename must have json extension like NODE_ENV.json                                                          |
+| printHierarchy   | boolean                    | false                                                                          | executes printHierarchy() right after initialization                                                                                                                                          |
+| printSecrets     | boolean                    | false                                                                          | by default, secrets are replaced by hashes which are equal for same values using printHierarchy function. Set this `true` to print configuration values of keys containing `secret` or `key`. |
 
 ## JSON Schema
 
