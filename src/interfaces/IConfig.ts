@@ -1,3 +1,3 @@
 export interface IConfig {
-	[key: string]: any;
+	[key: string]: any | IConfig;
 }

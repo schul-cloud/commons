@@ -363,7 +363,7 @@ describe('test configuration', () => {
 				configDir: 'test/data',
 			});
 			const before = config.toObject();
-			expect(Object.keys(before).length).to.be.equal(9);
+			expect(Object.keys(before).length).to.be.equal(11);
 			expect(before['Domain']).to.be.equal('localhost');
 			config.set('Domain', 'otherdomain.tld');
 			expect(config.get('Domain')).to.be.equal('otherdomain.tld');
@@ -376,7 +376,7 @@ describe('test configuration', () => {
 				configDir: 'test/data',
 			});
 			const before = config.toObject();
-			expect(Object.keys(before).length).to.be.equal(9);
+			expect(Object.keys(before).length).to.be.equal(11);
 			expect('String' in before).to.be.false;
 			expect(() => config.get('String')).to.throw;
 			config.set('String', 'newValueNotDefinedBefore');
@@ -695,6 +695,54 @@ describe('test configuration', () => {
 				});
 				expect(valid).to.be.false;
 			});
+		});
+	});
+
+	describe('ENV hierarchy', () => {
+		const { NODE_ENV, INSTANCE } = process.env;
+
+		it('NODE_ENV should define Domain', () => {
+			process.env.NODE_ENV = 'production';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['NODE_ENV'],
+			});
+			expect(config.get('Domain')).to.equal('localhost');
+		});
+
+		it('INSTANCE should override NODE_ENV', () => {
+			process.env.INSTANCE = 'boss';
+			process.env.NODE_ENV = 'production';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['NODE_ENV', 'INSTANCE'],
+			});
+			expect(config.get('Domain')).to.equal('boss.cloud');
+		});
+
+		it('NODE_ENV should override INSTANCE', () => {
+			process.env.INSTANCE = 'boss';
+			process.env.NODE_ENV = 'production';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['INSTANCE', 'NODE_ENV'],
+			});
+			expect(config.get('Domain')).to.equal('localhost');
+		});
+
+		it('print hierarchy', () => {
+			process.env.INSTANCE = 'boss';
+			process.env.NODE_ENV = 'production';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['NODE_ENV', 'INSTANCE'],
+			});
+			config.printHierarchy();
+		});
+
+		after('revert process.env', () => {
+			process.env.NODE_ENV = NODE_ENV;
+			process.env.INSTANCE = INSTANCE;
 		});
 	});
 });

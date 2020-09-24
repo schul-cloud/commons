@@ -39,12 +39,17 @@
 		},
 		"LogLevel": {
 			"type": "array",
-			"enum": [
-				"debug",
-				"info",
-				"warning",
-				"error"
-			]
+			"enum": ["debug", "info", "warning", "error"]
+		},
+		"SOME_KEY": {
+			"type": "string",
+			"default": "dewdewdewefewfew32wdwd",
+			"description": "should not be printed"
+		},
+		"ANOTHER_SECRET": {
+			"type": "string",
+			"default": "dewdewdewefewfew32wdwd",
+			"description": "should not be printed"
 		},
 		"Foo": {
 			"type": "object",
@@ -52,13 +57,14 @@
 			"properties": {
 				"Bar": {
 					"type": "string"
+				},
+				"Child secret": {
+					"type": "string",
+					"default": "dewdewdewefewfew32wdwd",
+					"description": "should not be printed"
 				}
 			}
 		}
 	},
-	"required": [
-		"ENV_CONFIG",
-		"Version",
-		"Domain"
-	]
+	"required": ["ENV_CONFIG", "Version", "Domain"]
 }
