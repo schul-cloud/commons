@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.2.4
+
+- fix non-relative imports to relative ones as they work in tests but not in the npm package
+
 ## 1.2.3
 
 - print configuration hierarchy added, printing secrets disabled by default
