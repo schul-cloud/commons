@@ -38,7 +38,7 @@ export const defaultOptions: IRequiredConfigOptions = {
 	defaultNodeEnv: 'development',
 	loadFilesFromEnv: ['NODE_ENV', 'SC_INSTANCE'],
 	printHierarchy: true,
-	secretMatches: [/SECRET/gi, /KEY/gi, /SALT/gi, /PASSWORD/gi],
+	secretMatches: ['SECRET', 'KEY', 'SALT', 'PASSWORD'],
 };
 
 enum ReadyState {

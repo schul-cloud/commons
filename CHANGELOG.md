@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.2.7
+
+- fix static imports again
+- define secret matches in config options as string
+
 ## 1.2.6
 
 - fix static import pathes
