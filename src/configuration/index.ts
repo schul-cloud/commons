@@ -13,7 +13,7 @@ import { IUpdateOptions } from '../interfaces/IUpdateOptions';
 import { IConfig } from '../interfaces/IConfig';
 import { IConfigHierarchy } from '../interfaces/IConfigHierarchy';
 import { IConfigType } from '../interfaces/IConfigType';
-import { Secrets } from './secrets';
+import { SecretCleaner } from './secretCleaner';
 const { env } = process;
 const logger = console;
 
@@ -38,6 +38,7 @@ export const defaultOptions: IRequiredConfigOptions = {
 	defaultNodeEnv: 'development',
 	loadFilesFromEnv: ['NODE_ENV', 'SC_INSTANCE'],
 	printHierarchy: true,
+	secretMatches: [/SECRET/gi, /KEY/gi, /SALT/gi, /PASSWORD/gi],
 };
 
 enum ReadyState {
@@ -79,6 +80,7 @@ export class Configuration implements IConfiguration {
 	private readyState: ReadyState;
 	private NODE_ENV: string;
 	private configurationHierarchy: IConfigHierarchy[];
+	private secretCleaner: SecretCleaner;
 
 	/**
 	 * Creates a new instance of Configuration class.
@@ -241,6 +243,10 @@ export class Configuration implements IConfiguration {
 			)
 		);
 		this.parse(mergedConfiguration);
+
+		// init secrets cleaner used to hide secrets in this.printHierarchy()
+		this.secretCleaner = new SecretCleaner(this.options.secretMatches);
+
 		if (this.options.printHierarchy === true) {
 			this.printHierarchy();
 		}
@@ -324,9 +330,11 @@ export class Configuration implements IConfiguration {
 			}
 			let i = 0;
 			let data = {};
-			log('Configuration history - last configuration property wins');
+			log('Configuration - last configuration hierarchy # has been applied.');
 			if (this.runtimeChangesAllowed()) {
-				log('Configuration history does not contain runtime changes!');
+				log(
+					'Configuration hierarchy displayed contains startup state and does not contain runtime changes!'
+				);
 			}
 			if (Array.isArray(this.configurationHierarchy)) {
 				this.configurationHierarchy.forEach((hierarchy) => {
@@ -342,7 +350,7 @@ export class Configuration implements IConfiguration {
 					}
 					log(
 						' - data, including data from before:',
-						Secrets.filterSecretValues(data)
+						this.secretCleaner.filterSecretValues(data)
 					);
 				});
 			} else {

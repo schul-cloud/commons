@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.2.5
+
+- add `password` and `salt` to secrets to be not printed
+- move secret expressions to configuration options
+
 ## 1.2.4
 
 - fix non-relative imports to relative ones as they work in tests but not in the npm package

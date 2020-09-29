@@ -1,4 +1,5 @@
 import Ajv from 'ajv';
+import { NonEmptyArray } from './NonEmptyArray';
 
 export interface IConfigOptions {
 	/**
@@ -44,4 +45,6 @@ export interface IConfigOptions {
 	printHierarchy?: boolean;
 	/** enable print secrets in printHierarchy */
 	printSecrets?: boolean;
+	/** handle properties matching these expressions as secrets to be hashed before printing */
+	secretMatches?: NonEmptyArray<RegExp>;
 }
