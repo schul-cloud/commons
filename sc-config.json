@@ -1,4 +1,5 @@
 {
 	"configDir": "test/data",
-	"dotNotationSeparator": "__"
+	"dotNotationSeparator": "__",
+	"secretMatches": ["SECRET", "KEY"]
 }

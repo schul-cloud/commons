@@ -1,18 +1,21 @@
 import loadash from 'lodash';
-import ConfigurationError from 'src/errors/ConfigurationError';
-import { NonEmptyArray } from 'src/interfaces/NonEmptyArray';
+import ConfigurationError from '../errors/ConfigurationError';
+import { NonEmptyArray } from '../interfaces/NonEmptyArray';
 import { createHash } from 'crypto';
 export class SecretCleaner {
 	private matches: NonEmptyArray<RegExp>;
+	private static flags: 'gi';
 
-	constructor(matches: NonEmptyArray<RegExp>) {
+	constructor(matches: NonEmptyArray<string>) {
 		if (!Array.isArray(matches) || matches.length === 0) {
 			throw new ConfigurationError(
 				'matches should contain a non empty list of expressions',
 				{ matches }
 			);
 		}
-		this.matches = matches;
+		this.matches = matches.map(
+			(match) => new RegExp(match, SecretCleaner.flags)
+		) as NonEmptyArray<RegExp>;
 	}
 
 	/** simple hashing to consider secrets differ or are equal */
