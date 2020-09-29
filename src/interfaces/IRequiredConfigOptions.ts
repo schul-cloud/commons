@@ -1,5 +1,6 @@
 import { IConfigOptions } from './IConfigOptions';
 import Ajv from 'ajv';
+import { NonEmptyArray } from './NonEmptyArray';
 
 /**
  * this defines the base options that have to be defined
@@ -23,4 +24,5 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	fileEncoding: BufferEncoding;
 	defaultNodeEnv: string;
 	loadFilesFromEnv: string[];
+	secretMatches: NonEmptyArray<RegExp>;
 }
