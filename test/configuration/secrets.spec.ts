@@ -7,18 +7,16 @@ describe('cleanup secrets from object properties', () => {
 	describe('create hash codes', () => {
 		it('works for different input strings', () => {
 			expect(SecretCleaner.hashCode('a secret string')).to.be.equal(
-				'879162878'
+				'fAflJhaqdpTusjHzSm13cx5igPk='
 			);
-			expect(SecretCleaner.hashCode('a secret string')).to.have.lengthOf(9);
-
 			expect(SecretCleaner.hashCode('another long secret string')).to.be.equal(
-				'1746413286'
+				'XJM+vyUkNfI3kuE7tPSD75VSxu0='
 			);
 			expect(
 				SecretCleaner.hashCode(
 					'another long secret string with special chars 098765432 !"§$%&/()='
 				)
-			).to.be.equal('2019346594');
+			).to.be.equal('9Pc/kdFuoZlO5Rmp8NOVmrea0g8=');
 		});
 		it('results equal for same input', () => {
 			const randomStrings = [
@@ -30,6 +28,7 @@ describe('cleanup secrets from object properties', () => {
 				const result = SecretCleaner.hashCode(value);
 				for (let i = 0; i < 5; i += 1) {
 					expect(SecretCleaner.hashCode(value)).to.be.equal(result);
+					expect(result.length).to.be.greaterThan(0);
 				}
 			});
 		});
@@ -44,8 +43,12 @@ describe('cleanup secrets from object properties', () => {
 			const cleanSample = secretCleaner.filterSecretValues(sample);
 			expect(cleanSample.foo).to.be.equal('not replaced');
 			expect(cleanSample.bar).to.be.equal('not replaced too');
-			expect(cleanSample.ANY_KEY).to.be.equal('<secret#745758848>');
-			expect(cleanSample.SALT).to.be.equal('<secret#182414772>');
+			expect(cleanSample.ANY_KEY).to.be.equal(
+				'<secret#zVuWQNZs4h5st1QrTILBsE/jpMU=>'
+			);
+			expect(cleanSample.SALT).to.be.equal(
+				'<secret#aBvC9YvKiFdqnCIcqZQ6PGaeZ8A=>'
+			);
 		});
 	});
 });

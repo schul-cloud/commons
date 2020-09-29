@@ -1,7 +1,7 @@
 import loadash from 'lodash';
 import ConfigurationError from 'src/errors/ConfigurationError';
 import { NonEmptyArray } from 'src/interfaces/NonEmptyArray';
-
+import { createHash } from 'crypto';
 export class SecretCleaner {
 	private matches: NonEmptyArray<RegExp>;
 
@@ -17,14 +17,7 @@ export class SecretCleaner {
 
 	/** simple hashing to consider secrets differ or are equal */
 	static hashCode(value: string): string {
-		let hash = 0;
-		for (let i = 0; i < value.length; i++) {
-			const char = value.charCodeAt(i);
-			hash = (hash << 5) - hash + char;
-			hash = hash & hash; // Convert to 32bit integer
-		}
-		if (hash < 0) hash *= -1;
-		return String(hash);
+		return createHash('sha1').update(value).digest('base64');
 	}
 
 	/** filters an object against secret values in strings and returns a cleaned deep copy */
