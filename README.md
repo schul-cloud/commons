@@ -154,7 +154,7 @@ index.js
 | loadFilesFromEnv | `string[]`                 | `['NODE_ENV']`                                                    | defines the order of configuration files loaded by specified environment values filename must have json extension like NODE_ENV.json                                                          |
 | printHierarchy   | `boolean`                  | `false`                                                           | executes printHierarchy() right after initialization                                                                                                                                          |
 | printSecrets     | `boolean`                  | `false`                                                           | by default, secrets are replaced by hashes which are equal for same values using printHierarchy function. Set this `true` to print configuration values of keys containing `secret` or `key`. |
-| secretMatches    | `string[]`                 | `[/SECRET/gi, /KEY/gi, /SALT/gi, /PASSWORD/gi]`                   | properties matching these expressions are handled as secrets and will be hashed before printing                                                                                               |
+| secretMatches    | `string[]`                 | `['SECRET', 'KEY', 'SALT', 'PASSWORD']`                           | properties matching these expressions (flags added are `/gi`) are handled as secrets and will be hashed before printing                                                                       |
 
 ## JSON Schema
 

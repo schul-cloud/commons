@@ -39,7 +39,7 @@ describe('cleanup secrets from object properties', () => {
 				ANY_KEY: 'should be replaced',
 				SALT: 'should be replaced too',
 			};
-			const secretCleaner = new SecretCleaner([/KEY/gi, /SALT/gi]);
+			const secretCleaner = new SecretCleaner(['KEY', 'SALT']);
 			const cleanSample = secretCleaner.filterSecretValues(sample);
 			expect(cleanSample.foo).to.be.equal('not replaced');
 			expect(cleanSample.bar).to.be.equal('not replaced too');

@@ -24,5 +24,5 @@ export interface IRequiredConfigOptions extends IConfigOptions {
 	fileEncoding: BufferEncoding;
 	defaultNodeEnv: string;
 	loadFilesFromEnv: string[];
-	secretMatches: NonEmptyArray<RegExp>;
+	secretMatches: NonEmptyArray<string>;
 }
