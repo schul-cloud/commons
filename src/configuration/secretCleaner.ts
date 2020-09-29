@@ -17,7 +17,7 @@ export class SecretCleaner {
 
 	/** simple hashing to consider secrets differ or are equal */
 	static hashCode(value: string): string {
-		return createHash('sha1').update(value).digest('base64');
+		return createHash('sha256').update(value).digest('base64');
 	}
 
 	/** filters an object against secret values in strings and returns a cleaned deep copy */

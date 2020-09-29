@@ -7,16 +7,16 @@ describe('cleanup secrets from object properties', () => {
 	describe('create hash codes', () => {
 		it('works for different input strings', () => {
 			expect(SecretCleaner.hashCode('a secret string')).to.be.equal(
-				'fAflJhaqdpTusjHzSm13cx5igPk='
+				'oYKjXKkK9oUSECEgsmzLtY09xx79Ypk3yFSvBr5Hw1o='
 			);
 			expect(SecretCleaner.hashCode('another long secret string')).to.be.equal(
-				'XJM+vyUkNfI3kuE7tPSD75VSxu0='
+				'8yoP4U57Xkmx6rKG75ciOoRCqHK33w0ho7FoWV2qG5E='
 			);
 			expect(
 				SecretCleaner.hashCode(
 					'another long secret string with special chars 098765432 !"§$%&/()='
 				)
-			).to.be.equal('9Pc/kdFuoZlO5Rmp8NOVmrea0g8=');
+			).to.be.equal('rQYP+TbW5TucG37icB9+xlzsHalHFzIxGfnXdWp/pWw=');
 		});
 		it('results equal for same input', () => {
 			const randomStrings = [
@@ -44,10 +44,10 @@ describe('cleanup secrets from object properties', () => {
 			expect(cleanSample.foo).to.be.equal('not replaced');
 			expect(cleanSample.bar).to.be.equal('not replaced too');
 			expect(cleanSample.ANY_KEY).to.be.equal(
-				'<secret#zVuWQNZs4h5st1QrTILBsE/jpMU=>'
+				'<secret#LrhipwUBzxqcZWN80BVzOZm/zf2fqb8yt2oSE99PVvk=>'
 			);
 			expect(cleanSample.SALT).to.be.equal(
-				'<secret#aBvC9YvKiFdqnCIcqZQ6PGaeZ8A=>'
+				'<secret#Vmxt5AH4W3vQ1Iw2v1tFriCdpyH/RFRplJ4ufesmVPA=>'
 			);
 		});
 	});
