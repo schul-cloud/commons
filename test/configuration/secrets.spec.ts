@@ -33,5 +33,19 @@ describe('cleanup secrets from object properties', () => {
 				}
 			});
 		});
+		it('filterSecretValues replaces matching secrets', () => {
+			const sample = {
+				foo: 'not replaced',
+				bar: 'not replaced too',
+				ANY_KEY: 'should be replaced',
+				SALT: 'should be replaced too',
+			};
+			const secretCleaner = new SecretCleaner([/KEY/gi, /SALT/gi]);
+			const cleanSample = secretCleaner.filterSecretValues(sample);
+			expect(cleanSample.foo).to.be.equal('not replaced');
+			expect(cleanSample.bar).to.be.equal('not replaced too');
+			expect(cleanSample.ANY_KEY).to.be.equal('<secret#745758848>');
+			expect(cleanSample.SALT).to.be.equal('<secret#182414772>');
+		});
 	});
 });
