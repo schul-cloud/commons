@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.2.6
+
+- fix static import pathes
+- general dependency updates
+
 ## 1.2.5
 
 - add `password` and `salt` to secrets to be not printed
