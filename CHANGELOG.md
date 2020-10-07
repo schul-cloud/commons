@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- do not print hierarchy implicitly by default on startup
+
 ## 1.2.7
 
 - fix static imports again
