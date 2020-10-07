@@ -37,7 +37,7 @@ export const defaultOptions: IRequiredConfigOptions = {
 	allowRuntimeChangesInEnv: ['test'],
 	defaultNodeEnv: 'development',
 	loadFilesFromEnv: ['NODE_ENV', 'SC_INSTANCE'],
-	printHierarchy: true,
+	printHierarchy: false,
 	secretMatches: ['SECRET', 'KEY', 'SALT', 'PASSWORD'],
 };
 
