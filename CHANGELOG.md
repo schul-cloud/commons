@@ -1,6 +1,8 @@
 # Changelog of commons
 
-## Unreleased
+## 1.3.0
+
+### Changes in 1.3.0
 
 - reflect plainSecrets option to be applied in toObject()
 
