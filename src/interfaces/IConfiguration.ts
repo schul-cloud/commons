@@ -1,4 +1,5 @@
 import { IConfig } from './IConfig';
+import { IExportOptions } from './IExportOptions';
 
 export interface IConfiguration {
 	get(key: string): any;
@@ -7,6 +8,6 @@ export interface IConfiguration {
 	set(key: string, value: any): boolean;
 	remove(...keys: [string]): boolean;
 	has(key: string): boolean;
-	toObject(): IConfig;
+	toObject(options?: IExportOptions): IConfig;
 	printHierarchy(loggerTarget?: string): void;
 }
