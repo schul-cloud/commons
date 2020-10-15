@@ -740,6 +740,15 @@ describe('test configuration', () => {
 			config.printHierarchy();
 		});
 
+		it('options.plainSecrets', () => {
+			const config = new Configuration(options);
+			const exportWithoutSecrets = config.toObject();
+			expect(exportWithoutSecrets.SOME_KEY).contains('<secret#');
+			const exportWithSecrets = config.toObject({ plainSecrets: true });
+			expect(exportWithSecrets.SOME_KEY).not.contains('<secret#');
+			expect(exportWithSecrets.SOME_KEY).equals('dewdewdewefewfew32wdwd');
+		});
+
 		after('revert process.env', () => {
 			process.env.NODE_ENV = NODE_ENV;
 			process.env.INSTANCE = INSTANCE;

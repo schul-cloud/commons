@@ -14,6 +14,7 @@ import { IConfig } from '../interfaces/IConfig';
 import { IConfigHierarchy } from '../interfaces/IConfigHierarchy';
 import { IConfigType } from '../interfaces/IConfigType';
 import { SecretCleaner } from './secretCleaner';
+import { IExportOptions } from 'src/interfaces/IExportOptions';
 const { env } = process;
 const logger = console;
 
@@ -300,13 +301,19 @@ export class Configuration implements IConfiguration {
 	 * @returns {*}
 	 * @memberof Configuration
 	 */
-	toObject(): IConfig {
+	toObject(options?: IExportOptions): IConfig {
 		this.ensureInitialized();
+		let config: IConfig;
 		if (this.dot !== null) {
-			return loadash.cloneDeep(this.dot.object(this.config));
+			config = loadash.cloneDeep(this.dot.object(this.config));
 		} else {
-			return loadash.cloneDeep(this.config);
+			config = loadash.cloneDeep(this.config);
 		}
+		const mergedOptions = loadash.merge({}, this.options, options);
+		if (mergedOptions.plainSecrets !== true) {
+			config = this.secretCleaner.filterSecretValues(config);
+		}
+		return config;
 	}
 
 	getConfigurationHierarchy(): IConfigHierarchy[] {
@@ -345,7 +352,7 @@ export class Configuration implements IConfiguration {
 					data = loadash.merge({}, data, hierarchy.data);
 					const valid = validator(data);
 					log(' - valid, including data from before:', valid);
-					if (this.options.printSecrets === true) {
+					if (this.options.plainSecrets === true) {
 						log(' - data, including data from before:', data);
 					}
 					log(
