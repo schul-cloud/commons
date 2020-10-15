@@ -1,7 +1,8 @@
 import Ajv from 'ajv';
+import { IExportOptions } from './IExportOptions';
 import { NonEmptyArray } from './NonEmptyArray';
 
-export interface IConfigOptions {
+export interface IConfigOptions extends IExportOptions {
 	/**
 	 * set a custom logger
 	 *
@@ -43,8 +44,6 @@ export interface IConfigOptions {
 	loadFilesFromEnv?: string[];
 	/** print configuration hierarchy right after initialization */
 	printHierarchy?: boolean;
-	/** enable print secrets in printHierarchy */
-	printSecrets?: boolean;
 	/** handle properties matching these expressions as secrets to be hashed before printing */
 	secretMatches?: NonEmptyArray<string>;
 }

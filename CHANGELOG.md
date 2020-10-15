@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- reflect plainSecrets option to be applied in toObject()
+
 ## 1.2.8
 
 - do not print hierarchy implicitly by default on startup
