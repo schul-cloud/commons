@@ -1,5 +1,10 @@
 # Changelog of commons
 
+## Unreleased
+
+### Changed
+ - OPS-1289 change the name form the npm organisation
+
 ## 1.3.0
 
 ### Changes in 1.3.0
