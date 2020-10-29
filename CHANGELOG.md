@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Changed
- - OPS-1289 change the name form the npm organisation
+ - OPS-1289 change the npm organisation namen
 
 ## 1.3.0
 
