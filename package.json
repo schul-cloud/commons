@@ -1,13 +1,13 @@
 {
-	"name": "@schul-cloud/commons",
+	"name": "@hpi-schul-cloud/commons",
 	"version": "1.3.0",
 	"description": "Helpers and common tools for the hpi school-cloud.",
 	"repository": {
-		"github": "https: //github.com/schul-cloud/commons"
+		"github": "https: //github.com/hpi-schul-cloud/commons"
 	},
 	"license": "MIT",
 	"main": "lib/index.js",
-	"homepage": "https://github.com/schul-cloud/commons",
+	"homepage": "https://github.com/hpi-schul-cloud/commons",
 	"scripts": {
 		"coverage": "cross-env NODE_ENV=test nyc mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
 		"mocha": "NODE_ENV=test mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
