@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-### Changed
+## 1.3.1
+
+### Changes in 1.3.1
 
 - SC-6294 remove ts paths, fix build
 - OPS-1289 change the npm organisation namen
