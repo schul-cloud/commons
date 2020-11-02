@@ -13,9 +13,6 @@
 		"declaration": true,
 		"declarationMap": true,
 		"baseUrl": ".",
-		"paths": {
-			"@test/*": ["test/*"]
-		},
 		"lib": ["es2015"]
 	},
 	"include": ["src/**/*"],
