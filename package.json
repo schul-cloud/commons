@@ -1,20 +1,21 @@
 {
-	"name": "@schul-cloud/commons",
-	"version": "1.3.0",
+	"name": "@hpi-schul-cloud/commons",
+	"version": "1.3.1",
 	"description": "Helpers and common tools for the hpi school-cloud.",
 	"repository": {
-		"github": "https: //github.com/schul-cloud/commons"
+		"github": "https: //github.com/hpi-schul-cloud/commons"
 	},
 	"license": "MIT",
 	"main": "lib/index.js",
-	"homepage": "https://github.com/schul-cloud/commons",
+	"types": "lib/index.d.js",
+	"homepage": "https://github.com/hpi-schul-cloud/commons",
 	"scripts": {
 		"coverage": "cross-env NODE_ENV=test nyc mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
 		"mocha": "NODE_ENV=test mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
 		"test": "npm run build && npm run coverage",
 		"lint": "eslint . --fix --ext .ts,.js,.json,.md --ignore-path .gitignore",
 		"lint:ci": "eslint . --ext .ts,.js,.json,.md --ignore-path .gitignore",
-		"build": "rm -rf lib && tsc"
+		"build": "shx rm -rf lib && tsc"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -29,13 +30,13 @@
 		"@types/chai": "^4.2.4",
 		"@types/config": "0.0.36",
 		"@types/dot-object": "^2.1.0",
-		"@types/lodash": "^4.14.149",
+		"@types/lodash": "^4.14.164",
 		"@types/mocha": "^8.0.0",
 		"@types/node": "^14.11.2",
 		"@types/sinon": "^9.0.5",
 		"@typescript-eslint/eslint-plugin": "^2.23.0",
 		"@typescript-eslint/parser": "^2.32.0",
-		"acorn": "^7.4.1",
+		"acorn": "^8.0.4",
 		"chai": "^4.2.0",
 		"coveralls": "^3.0.7",
 		"cross-env": "^7.0.2",
@@ -53,6 +54,7 @@
 		"mocha": "^8.0.1",
 		"nyc": "^15.0.0",
 		"prettier": "^2.0.5",
+		"shx": "^0.3.3",
 		"sinon": "^9.0.3",
 		"ts-node": "^9.0.0",
 		"tsconfig-paths": "^3.9.0",
