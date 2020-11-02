@@ -14,7 +14,7 @@ import { IConfig } from '../interfaces/IConfig';
 import { IConfigHierarchy } from '../interfaces/IConfigHierarchy';
 import { IConfigType } from '../interfaces/IConfigType';
 import { SecretCleaner } from './secretCleaner';
-import { IExportOptions } from 'src/interfaces/IExportOptions';
+import { IExportOptions } from '../interfaces/IExportOptions';
 const { env } = process;
 const logger = console;
 

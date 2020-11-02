@@ -7,6 +7,7 @@
 	},
 	"license": "MIT",
 	"main": "lib/index.js",
+	"types": "lib/index.d.js",
 	"homepage": "https://github.com/hpi-schul-cloud/commons",
 	"scripts": {
 		"coverage": "cross-env NODE_ENV=test nyc mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts",
@@ -14,7 +15,7 @@
 		"test": "npm run build && npm run coverage",
 		"lint": "eslint . --fix --ext .ts,.js,.json,.md --ignore-path .gitignore",
 		"lint:ci": "eslint . --ext .ts,.js,.json,.md --ignore-path .gitignore",
-		"build": "rm -rf lib && tsc"
+		"build": "shx rm -rf lib && tsc"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -53,6 +54,7 @@
 		"mocha": "^8.0.1",
 		"nyc": "^15.0.0",
 		"prettier": "^2.0.5",
+		"shx": "^0.3.3",
 		"sinon": "^9.0.3",
 		"ts-node": "^9.0.0",
 		"tsconfig-paths": "^3.9.0",
