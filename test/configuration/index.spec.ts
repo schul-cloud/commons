@@ -730,6 +730,19 @@ describe('test configuration', () => {
 			expect(config.get('Domain')).to.equal('localhost');
 		});
 
+		it('NODE_ENV should default to development', () => {
+			const env = Object.assign({}, process.env);
+			delete process.env.NODE_ENV;
+			process.env.Version = 'demoversion';
+			const config = new Configuration({
+				configDir: 'test/data',
+				loadFilesFromEnv: ['NODE_ENV'],
+			});
+			expect(config.get('Version')).to.equal('demoversion');
+			expect(config.get('ENV_CONFIG')).to.equal('development');
+			process.env = env;
+		});
+
 		it('print hierarchy', () => {
 			process.env.INSTANCE = 'boss';
 			process.env.NODE_ENV = 'production';

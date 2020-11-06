@@ -141,6 +141,7 @@ export class Configuration implements IConfiguration {
 			this.NODE_ENV = dotAndEnv['NODE_ENV'];
 		} else {
 			this.NODE_ENV = this.options.defaultNodeEnv;
+			dotAndEnv['NODE_ENV'] = this.options.defaultNodeEnv;
 		}
 
 		// read configuration files, first default.json, then NODE_ENV.json (which defaults to development.json), then others defined in options.loadFilesFromEnv
@@ -241,7 +242,8 @@ export class Configuration implements IConfiguration {
 			{},
 			...configurations.map(
 				(configurationHierarchy) => configurationHierarchy.data
-			)
+			),
+			{ NODE_ENV: this.NODE_ENV }
 		);
 		this.parse(mergedConfiguration);
 
@@ -328,16 +330,16 @@ export class Configuration implements IConfiguration {
 	printHierarchy(loggerTarget = 'info'): void {
 		try {
 			const log = this.options.logger[loggerTarget];
-			// create separate validator instance not touching configuration system in use
-			const validator: Ajv.ValidateFunction = new Ajv(
-				this.options.ajvOptions
-			).compile(this.schema);
+
 			if (log === undefined) {
 				throw new Error('logger target to print hierarchy has not been found.');
 			}
 			let i = 0;
 			let data = {};
-			log('Configuration - last configuration hierarchy # has been applied.');
+			log(
+				'Configuration - last configuration hierarchy # has been applied. Current NODE_ENV is set to',
+				this.NODE_ENV
+			);
 			if (this.runtimeChangesAllowed()) {
 				log(
 					'Configuration hierarchy displayed contains startup state and does not contain runtime changes!'
@@ -346,12 +348,25 @@ export class Configuration implements IConfiguration {
 			if (Array.isArray(this.configurationHierarchy)) {
 				this.configurationHierarchy.forEach((hierarchy) => {
 					i += 1;
+					// create separate validator instance not touching configuration system in use
+					const validator: Ajv.ValidateFunction = new Ajv({
+						...this.options.ajvOptions,
+					}).compile(this.schema);
 					log(` Configuration hierarchy #${i}:`);
 					log(' - type:', IConfigType[hierarchy.type]);
 					if (hierarchy.meta !== undefined) log(' - meta:', hierarchy.meta);
 					data = loadash.merge({}, data, hierarchy.data);
-					const valid = validator(data);
-					log(' - valid, including data from before:', valid);
+					let valid: boolean | PromiseLike<boolean> = false;
+					try {
+						valid = validator(data);
+						log(' - valid, including data from before:', valid);
+					} catch (err) {
+						log(
+							' - valid, including data from before (only the final version must be valid):',
+							valid,
+							err
+						);
+					}
 					if (this.options.plainSecrets === true) {
 						log(' - data, including data from before:', data);
 					}

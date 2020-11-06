@@ -1,6 +1,25 @@
-# Changelog of commons
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+Allowed Types of change: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`
 
 ## Unreleased
+
+## 1.3.2
+
+### Added
+
+- OPS-1297 - Added Changelog github action
+
+### Changed
+
+- load development.json by default if there is no NODE_ENV defined after default.json
+- allow invalid configurations steps in printHierarchy
+- add default NODE_ENV to configuration
 
 ## 1.3.1
 
