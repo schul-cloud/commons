@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.3.2
+
+- load development.json by default if there is no NODE_ENV defined after default.json
+- allow invalid configurations steps in printHierarchy
+- add default NODE_ENV to configuration
+
 ## 1.3.1
 
 ### Changes in 1.3.1
