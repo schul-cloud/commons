@@ -302,8 +302,13 @@ export class Configuration implements IConfiguration {
 	 */
 	toObject(options?: IExportOptions): IConfig {
 		this.ensureInitialized();
-		let config: IConfig = loadash.cloneDeep(this.configDottedExternal);
+		let config: IConfig;
 		const mergedOptions = loadash.merge({}, this.options, options);
+		if (mergedOptions.useDotNotation === false) {
+			config = loadash.cloneDeep(this.configObjectInternal);
+		} else {
+			config = loadash.cloneDeep(this.configDottedExternal);
+		}
 		if (mergedOptions.plainSecrets !== true) {
 			config = this.secretCleaner.filterSecretValues(config);
 		}
@@ -401,9 +406,9 @@ export class Configuration implements IConfiguration {
 		this.ensureInitialized();
 		this.restrictRuntimeChanges();
 		this.updateErrors = [];
-		const updatedParams = loadash.cloneDeep(params);
+		let updatedParams = loadash.cloneDeep(params);
 		if (this.dot !== null) {
-			this.dot.object(updatedParams);
+			updatedParams = this.dot.object(updatedParams);
 		}
 		let data = null;
 		if (options && options.reset === true) {
