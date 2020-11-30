@@ -1,6 +1,6 @@
 {
 	"name": "@hpi-schul-cloud/commons",
-	"version": "1.3.2",
+	"version": "1.3.3",
 	"description": "Helpers and common tools for the hpi school-cloud.",
 	"repository": {
 		"github": "https: //github.com/hpi-schul-cloud/commons"
