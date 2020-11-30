@@ -241,6 +241,19 @@ describe('test configuration', () => {
 			expect(process.env[configPath]).to.be.undefined;
 		});
 
+		it('parse nested property from toObject', () => {
+			const configPath = 'TEST__NESTED__DOT_ENV_VALUE';
+			expect(process.env[configPath]).to.be.undefined;
+			const config = new Configuration(options);
+			const beforeReset = config.toObject();
+			config.reset(beforeReset);
+			const afterReset = config.toObject();
+			expect(
+				afterReset,
+				'config matches befor state after importing before state'
+			).to.deep.equal(beforeReset);
+		});
+
 		it('requesting nested values', () => {
 			process.env[configNestedFoo] = 'another bar';
 			const config = new Configuration(options);
@@ -268,11 +281,18 @@ describe('test configuration', () => {
 			const helloWorld = 'Hello World!';
 			ConfigurationSingleton.set('Foo__Bar', helloWorld);
 			expect(ConfigurationSingleton.get('Foo__Bar')).to.be.equal(helloWorld);
-			const currentConfig = ConfigurationSingleton.toObject();
-			expect(currentConfig.Foo).to.exist;
-			expect(currentConfig.Foo.Bar).to.exist;
-			expect(currentConfig.Foo.Bar).to.be.not.empty;
-			expect(currentConfig.Foo.Bar).to.be.equal(helloWorld);
+			// useDotNotation is true in ConfigurationSingleton
+			const currentDottedConfig = ConfigurationSingleton.toObject();
+			expect(currentDottedConfig['Foo__Bar']).to.exist;
+			expect(currentDottedConfig['Foo__Bar']).to.be.not.empty;
+			expect(currentDottedConfig['Foo__Bar']).to.be.equal(helloWorld);
+			// enforce object style against default
+			const currentObjectConfig = ConfigurationSingleton.toObject({
+				useDotNotation: false,
+			});
+			expect(currentObjectConfig.Foo.Bar).to.exist;
+			expect(currentObjectConfig.Foo.Bar).to.be.not.empty;
+			expect(currentObjectConfig.Foo.Bar).to.be.equal(helloWorld);
 		});
 	});
 

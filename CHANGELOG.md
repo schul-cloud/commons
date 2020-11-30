@@ -9,6 +9,13 @@ Allowed Types of change: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `
 
 ## Unreleased
 
+## 1.3.3
+
+### Fixed
+
+- fix dot notation handling in toObject and update
+- updated changelog github action
+
 ## 1.3.2
 
 ### Added
