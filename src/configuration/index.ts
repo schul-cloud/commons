@@ -69,12 +69,9 @@ export class Configuration implements IConfiguration {
 	private static instance: Configuration;
 	private options: IRequiredConfigOptions;
 	private dot: DotObject.Dot | null;
-	private data: IConfig;
+	private configObjectInternal: IConfig;
 	private schema: any;
-	/**
-	 * keeps the current configuration as object
-	 */
-	private config: any;
+	private configDottedExternal: any;
 	private schemaValidator: Ajv.Ajv;
 	private validate?: Ajv.ValidateFunction;
 	private updateErrors: string[];
@@ -91,7 +88,7 @@ export class Configuration implements IConfiguration {
 	 * @deprecated use singleton getInstance() instead, this will be private in future versions
 	 */
 	constructor(options?: IConfigOptions) {
-		this.data = {};
+		this.configObjectInternal = {};
 		this.updateErrors = [];
 		this.readyState = ReadyState.InstanceCreated;
 		//
@@ -258,14 +255,14 @@ export class Configuration implements IConfiguration {
 
 	has = (key: string): boolean => {
 		this.ensureInitialized();
-		return Object.prototype.hasOwnProperty.call(this.config, key);
+		return Object.prototype.hasOwnProperty.call(this.configDottedExternal, key);
 	};
 
 	get = (key: string): any => {
 		this.ensureInitialized();
 		// first check config has key, then return it (duplication because of reduce config clone amount)
-		if (Object.prototype.hasOwnProperty.call(this.config, key)) {
-			const retValue = loadash.cloneDeep(this.config[key]);
+		if (Object.prototype.hasOwnProperty.call(this.configDottedExternal, key)) {
+			const retValue = loadash.cloneDeep(this.configDottedExternal[key]);
 			return retValue;
 		}
 		return this.notFound(key);
@@ -287,12 +284,12 @@ export class Configuration implements IConfiguration {
 	 * @type {*}
 	 * @memberof Configuration
 	 */
-	private updateConfig(): void {
+	private updateConfigDottedExternal(): void {
 		if (this.dot !== null) {
-			this.config = this.dot.dot(this.data);
+			this.configDottedExternal = this.dot.dot(this.configObjectInternal);
 			return;
 		} else {
-			this.config = loadash.cloneDeep(this.data);
+			this.configDottedExternal = loadash.cloneDeep(this.configObjectInternal);
 			return;
 		}
 	}
@@ -306,12 +303,12 @@ export class Configuration implements IConfiguration {
 	toObject(options?: IExportOptions): IConfig {
 		this.ensureInitialized();
 		let config: IConfig;
-		if (this.dot !== null) {
-			config = loadash.cloneDeep(this.dot.object(this.config));
-		} else {
-			config = loadash.cloneDeep(this.config);
-		}
 		const mergedOptions = loadash.merge({}, this.options, options);
+		if (mergedOptions.useDotNotation === false) {
+			config = loadash.cloneDeep(this.configObjectInternal);
+		} else {
+			config = loadash.cloneDeep(this.configDottedExternal);
+		}
 		if (mergedOptions.plainSecrets !== true) {
 			config = this.secretCleaner.filterSecretValues(config);
 		}
@@ -409,15 +406,15 @@ export class Configuration implements IConfiguration {
 		this.ensureInitialized();
 		this.restrictRuntimeChanges();
 		this.updateErrors = [];
-		const updatedParams = loadash.cloneDeep(params);
+		let updatedParams = loadash.cloneDeep(params);
 		if (this.dot !== null) {
-			this.dot.object(updatedParams);
+			updatedParams = this.dot.object(updatedParams);
 		}
 		let data = null;
 		if (options && options.reset === true) {
 			data = updatedParams;
 		} else {
-			data = loadash.merge({}, this.data, updatedParams);
+			data = loadash.merge({}, this.configObjectInternal, updatedParams);
 		}
 		return this.parse(data);
 	}
@@ -452,7 +449,7 @@ export class Configuration implements IConfiguration {
 		this.ensureInitialized();
 		this.restrictRuntimeChanges();
 		this.updateErrors = [];
-		const data = loadash.omit(this.config, keys);
+		const data = loadash.omit(this.configDottedExternal, keys);
 		if (this.dot !== null) {
 			this.dot.object(data);
 		}
@@ -477,8 +474,8 @@ export class Configuration implements IConfiguration {
 		const dataToBeUpdated = loadash.cloneDeep(data);
 		const valid = this.validate(dataToBeUpdated) as boolean;
 		if (valid) {
-			this.data = dataToBeUpdated;
-			this.updateConfig();
+			this.configObjectInternal = dataToBeUpdated;
+			this.updateConfigDottedExternal();
 		} else {
 			const message = 'error updating configuration data';
 			this.printHierarchy('error');
