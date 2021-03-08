@@ -63,7 +63,7 @@
 		"typescript": "^3.7.2"
 	},
 	"dependencies": {
-		"ajv": "^6.12.5",
+		"ajv": "^7.2.1",
 		"config": "^3.3.1",
 		"dot-object": "^2.1.4",
 		"dotenv": "^8.2.0",
